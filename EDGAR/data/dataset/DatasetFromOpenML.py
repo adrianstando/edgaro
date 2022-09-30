@@ -9,9 +9,9 @@ class DatasetFromOpenML(Dataset):
     and create file '~/.openml/config' with content: ‘apikey=MYKEY’; in a new line add 'cachedir = ‘MYDIR’' to cache data
     Or give API key as an argument apikey.
 
-    Give in parameters either task_id or openml_dataset
+    In parameters give either task_id or openml_dataset
     """
-    def __init__(self, task_id: int = None, openml_dataset: openml.datasets.dataset.OpenMLDataset = None, apikey = None):
+    def __init__(self, task_id: int = None, openml_dataset: openml.datasets.dataset.OpenMLDataset = None, apikey=None):
         if openml.config.apikey == '' and apikey is None:
             raise Exception('API key is not available!')
         else:
