@@ -1,15 +1,12 @@
-from abc import abstractmethod
 from EDGAR.data.dataset import Dataset
 
 
 class Transformator:
-    def __init__(self, dataset: Dataset):
-        self.dataset = dataset
-
-    @abstractmethod
-    def fit(self, X, y):
+    def __init__(self):
         pass
 
-    @abstractmethod
-    def transform(self, X, y):
+    def fit(self, dataset: Dataset):
+        pass
+
+    def transform(self, dataset: Dataset) -> Dataset:
         pass

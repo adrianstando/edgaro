@@ -10,16 +10,19 @@ class TransformatorFromIMBLEARN(Transformator):
     from imblearn.over_sampling import RandomOverSampler
     dataset = DatasetFromOpenML(task_id=3)
     transformator = TransformatorFromIMBLEARN(dataset, RandomUnderSampler(sampling_strategy=n_minority/n_majority, random_state=42))
+    transformator.fit(dataset)
+    transformator.transform(dataset)
     """
-    def __init__(self, dataset: Dataset, transformator: BaseSampler):
+    def __init__(self, transformator: BaseSampler):
         self.__transformator = transformator
-        super(Transformator, self).__init__(dataset=dataset)
+        super(Transformator, self).__init__()
 
-    def fit(self, X, y):
-        return self.__transformator.fit(X, y)
+    def fit(self, dataset: Dataset):
+        return self.__transformator.fit(dataset.data, dataset.target)
 
-    def transform(self, X, y):
-        return self.__transformator.fit_resample(X, y)
+    def transform(self, dataset: Dataset) -> Dataset:
+        X, y = self.__transformator.fit_resample(dataset.data, dataset.target)
+        return Dataset(name=dataset.name, dataframe=X, target=y)
 
     def get_imblearn_transformator(self):
         return self.__transformator
