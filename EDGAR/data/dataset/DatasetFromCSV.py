@@ -1,5 +1,5 @@
 import pandas as pd
-from EDGAR.data.dataset import Dataset
+from EDGAR.data.dataset.Dataset import Dataset
 
 
 class DatasetFromCSV(Dataset):
@@ -9,4 +9,3 @@ class DatasetFromCSV(Dataset):
         y = pd.Series(y, name='target')
         X = X.drop([target], axis=1)
         super(Dataset, self).__init__(name=name, dataframe=X, target=y)
-
