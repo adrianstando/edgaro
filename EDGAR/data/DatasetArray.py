@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import List, Union, Optional
-from EDGAR.data.dataset import Dataset
+from EDGAR.data.Dataset import Dataset
 
 
 class DatasetArray:
@@ -25,3 +25,7 @@ class DatasetArray:
 
     def __len__(self):
         return len(self.datasets)
+
+
+class DatasetArrayFromOpenMLSuite(DatasetArray):
+    raise NotImplementedError

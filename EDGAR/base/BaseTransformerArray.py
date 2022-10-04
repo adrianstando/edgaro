@@ -1,42 +1,20 @@
 from typing import List, Dict, Optional, Any, Union
 from copy import deepcopy
 import numpy as np
-from EDGAR.data.dataset.Dataset import Dataset
-from EDGAR.data.dataset_array.DatasetArray import DatasetArray
-from EDGAR.balancing.transformer.Transformer import Transformer
+from EDGAR.data.Dataset import Dataset
+from EDGAR.data.DatasetArray import DatasetArray
+from EDGAR.base.BaseTransformer import BaseTransformer
 
 
 # TODO:
 # DatasetArray of DatasetArray implementation
 
-class TransformerArray(Transformer):
-    def __init__(self, base_transfer: Transformer, parameters: Optional[List[Dict[str, Any]]] = None,
-                 name_sufix: Union[str, List[str]] = '_transformed'):
-        super().__init__(name_sufix='')
+class BaseTransformerArray:
+    def __init__(self, base_transfer: BaseTransformer, parameters: Optional[List[Dict[str, Any]]] = None):
         self.__base_transformer = base_transfer
         self.__transformers = []
         self.__input_array = None
         self.__parameters = parameters
-
-        self.__name_sufix = None
-        self.set_name_sufix(name_sufix)
-
-    def set_name_sufix(self, name_sufix: Union[str, List[str]]):
-        if self.__parameters is None:
-            if not (isinstance(name_sufix, str) or (isinstance(name_sufix, list) and len(name_sufix) == 1)):
-                raise Exception('Parameter name_sufix has invalid length!')
-            if isinstance(name_sufix, str):
-                self.__name_sufix = [self.__name_sufix]
-        else:
-            if not (isinstance(self.__name_sufix, str) or (
-                    isinstance(self.__name_sufix, list) and len(self.__name_sufix) == len(self.__parameters))):
-                raise Exception('Parameter name_sufix has invalid length!')
-            if isinstance(self.__name_sufix, str):
-                if len(self.__parameters) == 1:
-                    self.__name_sufix = [self.__name_sufix]
-                else:
-                    self.__name_sufix = [self.__name_sufix + self.__name_sufix + '_' + str(i) for i in
-                                         range(len(self.__name_sufix))]
 
     def __create_new_transformer(self, param):
         t = deepcopy(self.__base_transformer)
@@ -48,11 +26,11 @@ class TransformerArray(Transformer):
         if isinstance(dataset, Dataset):
             self.__input_array = False
             if self.__parameters is None:
-                self.__transformers = [self.__base_transformer]
+                self.__transformers = [deepcopy(self.__base_transformer)]
+                self.__transformers[0].fit(dataset)
             else:
                 self.__transformers = [self.__create_new_transformer(params) for params in self.__parameters]
                 for i in range(len(self.__transformers)):
-                    self.__transformers[i].set_name_sufix(self.__name_sufix[i])
                     self.__transformers[i].fit(dataset)
         # DatasetArray case
         else:
@@ -62,12 +40,14 @@ class TransformerArray(Transformer):
                     [deepcopy(self.__base_transformer)] for _ in range(len(dataset))
                     # dodać tutaj stworzenie TransformerArray jeśli któryś z DatasetArray jest też DatasetArray
                 ]
+                for i in range(len(self.__transformers)):
+                    self.__transformers[i][0].fit(dataset[i])
             else:
                 if not len(dataset) == len(self.__parameters):
                     raise Exception('Not enough parameters were provided!')
                 tab = [self.__create_new_transformer(params) for params in self.__parameters]
-                self.__transformers = [deepcopy(tab) for _ in range(
-                    len(dataset))]  # dodać tutaj stworzenie TransformerArray jeśli któryś z DatasetArray jest też DatasetArray
+                self.__transformers = [deepcopy(tab) for _ in range(len(dataset))]  # dodać tutaj stworzenie
+                # TransformerArray jeśli któryś z DatasetArray jest też DatasetArray
                 for i in range(len(dataset)):
                     for j in range(len(self.__transformers[i])):
                         self.__transformers[i][j].fit(dataset[i])
@@ -119,5 +99,5 @@ class TransformerArray(Transformer):
     def get_params(self):
         return self.__parameters
 
-    def get_imblearn_transformer(self):
+    def get_transformers(self):
         return self.__transformers

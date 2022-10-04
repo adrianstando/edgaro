@@ -1,8 +1,33 @@
 import pandas as pd
 import openml
 from typing import Optional
-from EDGAR.data.dataset.Dataset import Dataset
 
+
+# TODO:
+# Add calculating Imbalance Ratio
+# Add checking whether dataset is a two class classification task
+# Error rate - comparing two datasets - "Stop Oversampling for Class Imbalance Learning: A
+# Critical Review"
+# Add pandas_profiling method
+
+class Dataset:
+    def __init__(self, name: str, dataframe: Optional[pd.DataFrame], target: Optional[pd.Series]):
+        self.name = name
+        self.data = dataframe
+        self.target = target
+
+
+class DatasetFromCSV(Dataset):
+    def __init__(self, path: str, target: str, name: str = 'dataset', *args, **kwargs):
+        X = pd.read_csv(path, *args, **kwargs)
+        y = X[target]
+        y = pd.Series(y, name='target')
+        X = X.drop([target], axis=1)
+        super(Dataset, self).__init__(name=name, dataframe=X, target=y)
+
+
+# TODO:
+# Add printing description
 
 class DatasetFromOpenML(Dataset):
     """
