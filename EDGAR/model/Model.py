@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from copy import deepcopy
+from typing import Optional
 from sklearn.ensemble import RandomForestClassifier
 from EDGAR.base.BaseTransformer import BaseTransformer
 from EDGAR.data.Dataset import Dataset
@@ -11,13 +12,17 @@ from EDGAR.data.Dataset import Dataset
 # Predefined model tunning (GridSearch, BayesSearch, RandomSearch)
 
 class Model(BaseTransformer, ABC):
-    def __init__(self):
+    def __init__(self, name: str = ''):
         super().__init__()
         self.__transform_to_probabilities = False
         self.__train_dataset = None
+        self.name = name
 
     def fit(self, dataset: Dataset):
         self.__train_dataset = deepcopy(dataset)
+        if self.name == '':
+            self.name = dataset.name
+
         return self.__fit(dataset)
 
     @abstractmethod
@@ -60,8 +65,8 @@ class Model(BaseTransformer, ABC):
 
 
 class RandomForest(Model):
-    def __init__(self, *args, **kwargs):
-        super().__init__()
+    def __init__(self, name: Optional[str] = '', *args, **kwargs):
+        super().__init__(name=name)
         self.__model = RandomForestClassifier(*args, **kwargs)
 
     def __fit(self, dataset: Dataset):

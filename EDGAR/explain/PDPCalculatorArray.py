@@ -13,6 +13,7 @@ class PDPCalculatorArray:
             models = ModelArray
         self.models = models
         self.sub_calculators = None
+        self.name = models.name
 
     def fit(self):
         def create_sub_calculator(model: Model):

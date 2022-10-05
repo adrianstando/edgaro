@@ -12,6 +12,7 @@ class PDPCalculator:
     def __init__(self, model: Model):
         self.model = model
         self.explainer = None
+        self.name = model.name
 
     def fit(self):
         dataset = self.model.get_train_dataset()
@@ -35,7 +36,7 @@ class PDPCalculator:
             higher = int((i + 1) * length)
             dict_output[str(variable_names[i])] = Curve(x[lower:higher], y[lower:higher])
 
-        return PDPResult(dict_output)
+        return PDPResult(dict_output, self.name)
 
     def set_params(self, **params):
         if 'model' in params.keys():

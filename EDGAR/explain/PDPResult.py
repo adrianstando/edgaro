@@ -14,8 +14,9 @@ class Curve:
 
 
 class PDPResult:
-    def __init__(self, results: Dict[str, Curve]):
+    def __init__(self, results: Dict[str, Curve], name: str):
         self.results = results
+        self.name = name
 
     def __getitem__(self, key: Union[str]):
         if key in self.results.keys():
@@ -31,7 +32,7 @@ class PDPResult:
             plt.subplots(figsize=figsize)
             plt.plot(curve.x, curve.y)
             plt.title("PDP curve for variable: " + variable)
-            # plt.legend([self.name])
+            plt.legend([self.name])
             plt.xlabel(variable)
         else:
             curve_base = self.results[variable]
@@ -55,7 +56,7 @@ class PDPResult:
                 for curve in curves_add:
                     plt.plot(curve.x, curve.y)
                 plt.title("PDP curves for variable: " + variable)
-                # plt.legend([self.name] + [p.name for p in add_plots])
+                plt.legend([self.name] + [p.name for p in add_plot])
 
             plt.xlabel(variable)
 
