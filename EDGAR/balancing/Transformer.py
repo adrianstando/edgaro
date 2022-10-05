@@ -33,9 +33,9 @@ class TransformerFromIMBLEARN(Transformer):
     """
     for example:
 
-    from imblearn.over_sampling import RandomOverSampler
+    from imblearn.over_sampling import RandomUnderSampler
     dataset = DatasetFromOpenML(task_id=3)
-    transformator = TransformatorFromIMBLEARN(dataset, RandomUnderSampler(sampling_strategy=n_minority/n_majority, random_state=42))
+    transformator = TransformerFromIMBLEARN(dataset, RandomUnderSampler(sampling_strategy=n_minority/n_majority, random_state=42))
     transformator.fit(dataset)
     transformator.transform(dataset)
     """

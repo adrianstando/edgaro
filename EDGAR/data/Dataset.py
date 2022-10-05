@@ -11,14 +11,18 @@ from typing import Optional
 
 class Dataset:
     def __init__(self, name: str, dataframe: Optional[pd.DataFrame], target: Optional[pd.Series]):
-        if target is not None:
-            unique = np.unique(target)
-            if len(unique) > 2:
-                raise Exception('This dataset is not correct for a binary classification task!')
-
         self.name = name
         self.data = dataframe
         self.target = target
+
+    def check_binary_classification(self):
+        if self.target is not None:
+            unique = np.unique(self.target)
+            if len(unique) > 2:
+                return False
+            return True
+        else:
+            return False
 
     def generate_report(self, output_path: Optional[str] = None, show_jupyter: bool = False):
         if self.data is None and self.target is None:
@@ -48,8 +52,6 @@ class Dataset:
             raise Exception('Target has too many classes for binary classification!')
         else:
             return max(counts) / min(counts)
-
-
 
 
 class DatasetFromCSV(Dataset):
@@ -88,7 +90,7 @@ class DatasetFromOpenML(Dataset):
             raise Exception('Provide needed arguments!')
 
         data = None
-        if openml_dataset is not None:
+        if openml_dataset is None:
             data = openml.datasets.get_dataset(task_id)
         else:
             data = openml_dataset
@@ -100,4 +102,4 @@ class DatasetFromOpenML(Dataset):
         X = pd.DataFrame(X, columns=attribute_names)
         y = pd.Series(y, name='target')
 
-        super(Dataset, self).__init__(name=data.name, dataframe=X, target=y)
+        super().__init__(name=data.name, dataframe=X, target=y)
