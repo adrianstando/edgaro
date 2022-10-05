@@ -6,7 +6,6 @@ from typing import Optional
 
 
 # TODO:
-# Add calculating Imbalance Ratio
 # Error rate - comparing two datasets - "Stop Oversampling for Class Imbalance Learning: A
 # Critical Review"
 
@@ -14,8 +13,8 @@ class Dataset:
     def __init__(self, name: str, dataframe: Optional[pd.DataFrame], target: Optional[pd.Series]):
         if target is not None:
             unique = np.unique(target)
-            if len(unique) != 2:
-                raise Exception('This is not a binary classification task!')
+            if len(unique) > 2:
+                raise Exception('This dataset is not correct for a binary classification task!')
 
         self.name = name
         self.data = dataframe
@@ -38,6 +37,19 @@ class Dataset:
             profile.to_file(output_file=output_path)
         if show_jupyter:
             profile.to_notebook_iframe()
+
+    def imbalance_ratio(self):
+        if self.target is None:
+            return 0
+        names, counts = np.unique(self.target, return_counts=True)
+        if len(names) == 1:
+            return 0
+        elif len(names) > 2:
+            raise Exception('Target has too many classes for binary classification!')
+        else:
+            return max(counts) / min(counts)
+
+
 
 
 class DatasetFromCSV(Dataset):
