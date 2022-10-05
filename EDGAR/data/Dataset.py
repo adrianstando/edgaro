@@ -1,20 +1,43 @@
 import pandas as pd
+import numpy as np
 import openml
+from pandas_profiling import ProfileReport
 from typing import Optional
 
 
 # TODO:
 # Add calculating Imbalance Ratio
-# Add checking whether dataset is a two class classification task
 # Error rate - comparing two datasets - "Stop Oversampling for Class Imbalance Learning: A
 # Critical Review"
-# Add pandas_profiling method
 
 class Dataset:
     def __init__(self, name: str, dataframe: Optional[pd.DataFrame], target: Optional[pd.Series]):
+        if target is not None:
+            unique = np.unique(target)
+            if len(unique) != 2:
+                raise Exception('This is not a binary classification task!')
+
         self.name = name
         self.data = dataframe
         self.target = target
+
+    def generate_report(self, output_path: Optional[str] = None, show_jupyter: bool = False):
+        if self.data is None and self.target is None:
+            raise Exception('Both data and target are None!')
+
+        if self.target is None:
+            data = self.data
+        elif self.data is None:
+            data = self.target
+        else:
+            data = self.data.assign(target=self.target)
+
+        profile = ProfileReport(data, title='Pandas Profiling Report for ' + self.name)
+
+        if output_path is not None:
+            profile.to_file(output_file=output_path)
+        if show_jupyter:
+            profile.to_notebook_iframe()
 
 
 class DatasetFromCSV(Dataset):
