@@ -53,6 +53,15 @@ class Dataset:
         else:
             return max(counts) / min(counts)
 
+    def __eq__(self, other):
+        if self.name != other.name:
+            return False
+        if not self.data.equals(other.data):
+            return False
+        if not self.target.equals(other.target):
+            return False
+        return True
+
 
 class DatasetFromCSV(Dataset):
     def __init__(self, path: str, target: str, name: str = 'dataset', *args, **kwargs):
@@ -60,7 +69,7 @@ class DatasetFromCSV(Dataset):
         y = X[target]
         y = pd.Series(y, name='target')
         X = X.drop([target], axis=1)
-        super(Dataset, self).__init__(name=name, dataframe=X, target=y)
+        super().__init__(name=name, dataframe=X, target=y)
 
 
 # TODO:

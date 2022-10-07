@@ -26,6 +26,17 @@ class DatasetArray:
     def __len__(self):
         return len(self.datasets)
 
+    def __eq__(self, other):
+        if not self.name == other.name:
+            return False
+        if not len(self) == len(other):
+            return False
+        for m in self.datasets:
+            if m not in other.datasets:
+                return False
+        return True
+
+
 
 class DatasetArrayFromOpenMLSuite(DatasetArray):
     pass
