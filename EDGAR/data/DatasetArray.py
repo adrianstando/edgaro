@@ -28,4 +28,4 @@ class DatasetArray:
 
 
 class DatasetArrayFromOpenMLSuite(DatasetArray):
-    raise NotImplementedError
+    pass

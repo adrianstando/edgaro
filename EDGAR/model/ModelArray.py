@@ -21,11 +21,13 @@ class ModelArray(BaseTransformerArray):
         return super().transform(dataset)
 
     def predict_proba(self, dataset: Dataset):
-        for model in self.__transformers:
-            model.set_transform_to_probabilities()
+        for model_arr in self.get_models():
+            for model in model_arr:
+                model.set_transform_to_probabilities()
         out = super().transform(dataset)
-        for model in self.__transformers:
-            model.set_transform_to_classes()
+        for model_arr in self.get_models():
+            for model in model_arr:
+                model.set_transform_to_classes()
         return out
 
     def get_models(self):
