@@ -16,6 +16,7 @@ def test_dataset_properties():
 @pytest.mark.parametrize('ds', [
     Dataset(name_1, df_1, target_1),
     Dataset(name_2, df_2, target_2),
+    Dataset(name_3, df_3, target_3),
     DatasetFromCSV(path=example_path, target=example_target),
     DatasetFromOpenML(task_id=3)
 ])
@@ -38,6 +39,7 @@ def test_imbalance_ratio(ds, expected):
 @pytest.mark.parametrize('ds', [
     Dataset(name_1, df_1, target_1),
     Dataset(name_2, df_2, target_2),
+    Dataset(name_3, df_3, target_3),
     DatasetFromCSV(example_path, example_target),
     DatasetFromOpenML(task_id=3)
 ])
@@ -51,6 +53,7 @@ def test_exception_imbalance_ratio(ds):
 @pytest.mark.parametrize('ds', [
     Dataset(name_1, df_1, target_1),
     Dataset(name_2, df_2, target_2),
+    Dataset(name_3, df_3, target_3),
     DatasetFromCSV(path=example_path, target=example_target),
     DatasetFromOpenML(task_id=3)
 ])
@@ -64,6 +67,7 @@ def test_csv_profiling(ds):
 @pytest.mark.parametrize('ds', [
     Dataset(name_1, df_1, target_1),
     Dataset(name_2, df_2, target_2),
+    Dataset(name_3, df_3, target_3),
     DatasetFromCSV(path=example_path, target=example_target),
     DatasetFromOpenML(task_id=3)
 ])
