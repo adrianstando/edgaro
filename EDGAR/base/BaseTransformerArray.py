@@ -92,9 +92,11 @@ class BaseTransformerArray:
             tmp.append(tmp_dict)
 
         self.__parameters = tmp
+
         if len(self.__transformers) != 0:
             for i in range(len(self.__transformers)):
-                self.__transformers[i].set_params(**tmp[i])
+                for j in range(len(self.__transformers[i])):
+                    self.__transformers[i][j].set_params(**tmp[j])
 
     def get_params(self):
         return self.__parameters

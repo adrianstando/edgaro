@@ -7,7 +7,7 @@ from .resources.objects import *
 
 @pytest.mark.parametrize('ds1,ds2', [
     (Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2)),
-    (DatasetFromOpenML(task_id=3), DatasetFromOpenML(task_id=36)),
+    (DatasetFromOpenML(task_id=task_id_1), DatasetFromOpenML(task_id=task_id_2)),
     (Dataset(name_3, df_3, target_3), Dataset(name_1, df_1, target_1))
 ])
 def test_dataset_array(ds1, ds2):
@@ -33,7 +33,7 @@ def test_no_unique_names(ds1, ds2):
 
 @pytest.mark.parametrize('ds1,ds2', [
     (Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2)),
-    (DatasetFromOpenML(task_id=3), DatasetFromOpenML(task_id=6)),
+    (DatasetFromOpenML(task_id=task_id_1), DatasetFromOpenML(task_id=task_id_2)),
     (Dataset(name_3, df_3, target_3), Dataset(name_2, df_3, target_3))
 ])
 def test_equal(ds1, ds2):
@@ -44,7 +44,7 @@ def test_equal(ds1, ds2):
 
 @pytest.mark.parametrize('ds1,ds2', [
     (Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2)),
-    (DatasetFromOpenML(task_id=3), DatasetFromOpenML(task_id=36))
+    (DatasetFromOpenML(task_id=task_id_1), DatasetFromOpenML(task_id=task_id_2))
 ])
 def test_equal_reverse(ds1, ds2):
     tab1 = DatasetArray([deepcopy(ds1), deepcopy(ds2)])

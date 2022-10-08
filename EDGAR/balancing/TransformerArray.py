@@ -14,19 +14,25 @@ class TransformerArray(BaseTransformerArray):
 
     def set_name_sufix(self, name_sufix: Union[str, List[str]]):
         if self.get_params() is None:
-            if not (isinstance(name_sufix, str) or (isinstance(name_sufix, list) and len(name_sufix) == 1)):
-                raise Exception('Parameter name_sufix has invalid length!')
             if isinstance(name_sufix, str):
-                self.__name_sufix = [self.__name_sufix]
+                self.__name_sufix = [name_sufix]
+            elif isinstance(name_sufix, list):
+                self.__name_sufix = name_sufix
+            else:
+                raise Exception('Wrong sufix names!')
         else:
-            if not (isinstance(name_sufix, str) or (
-                    isinstance(name_sufix, list) and len(name_sufix) == len(self.get_params()))):
-                raise Exception('Parameter name_sufix has invalid length!')
             if isinstance(name_sufix, str):
                 if len(self.get_params()) == 1:
                     self.__name_sufix = [name_sufix]
                 else:
                     self.__name_sufix = [name_sufix + '_' + str(i) for i in range(len(name_sufix))]
+            elif isinstance(name_sufix, list) and len(name_sufix) == len(self.get_params()):
+                self.__name_sufix = name_sufix
+            else:
+                raise Exception('Parameter name_sufix has invalid length!')
+
+    def get_name_sufix(self):
+        return self.__name_sufix
 
     def fit(self, dataset: Union[Dataset, DatasetArray]):
         super().fit(dataset)
@@ -35,17 +41,24 @@ class TransformerArray(BaseTransformerArray):
         if isinstance(dataset, Dataset):
             if self.get_params() is None:
                 self.get_transformers()[0].set_name_sufix(self.__name_sufix[0])
-            else:
+            elif len(self.__name_sufix) == len(self.get_transformers()):
                 for i in range(len(self.get_transformers())):
                     self.get_transformers()[i].set_name_sufix(self.__name_sufix[i])
+            else:
+                raise Exception('Wrong length of name_sufix!')
         else:
             if self.get_params() is None:
                 for i in range(len(self.get_transformers())):
-                    self.get_transformers()[i][0].set_name_sufix(self.__name_sufix[i])
+                    if len(self.__name_sufix) == 1:
+                        self.get_transformers()[i][0].set_name_sufix(self.__name_sufix[0])
+                    else:
+                        self.get_transformers()[i][0].set_name_sufix(self.__name_sufix[i])
             else:
                 for i in range(len(dataset)):
                     for j in range(len(self.get_transformers()[i])):
-                        print(dataset[i], self.get_transformers()[i][j])
-                        self.get_transformers()[i][j].set_name_sufix(self.__name_sufix[i])
-
-
+                        if len(self.__name_sufix) == 1:
+                            self.get_transformers()[i][j].set_name_sufix(self.__name_sufix[0] + '_' + str(j))
+                        elif len(self.__name_sufix) == len(self.get_transformers()):
+                            self.get_transformers()[i][j].set_name_sufix(self.__name_sufix[i])
+                        else:
+                            raise Exception('Wrong length of name_sufix!')
