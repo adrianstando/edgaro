@@ -207,13 +207,13 @@ def test_imbalance_ratio_2(imblearn_sampler, ratio, ds):
     DatasetArray([DatasetFromOpenML(task_id=task_id_1), DatasetFromOpenML(task_id=task_id_2)])
 ])
 @pytest.mark.parametrize('param', [
-        {
-            'sampling_strategy': [1, 0.98]
-        },
-        {
-            'random_state': [1, 2],
-            'sampling_strategy': [1, 0.98]
-        }
+    {
+        'sampling_strategy': [1, 0.98]
+    },
+    {
+        'random_state': [1, 2],
+        'sampling_strategy': [1, 0.98]
+    }
 ])
 def test_set_get_params(imblearn_sampler, ds, param):
     transformer = TransformerFromIMBLEARN(imblearn_sampler)
@@ -242,6 +242,209 @@ def test_set_get_params(imblearn_sampler, ds, param):
             assert np.alltrue([p in existing_params for p in expected_params])
 
 
-# set params
-# parameters in arguments
-# sufix and params
+@pytest.mark.parametrize('imblearn_sampler', [
+    RandomUnderSampler(sampling_strategy=1, random_state=42),
+    RandomUnderSampler(sampling_strategy=0.95, random_state=42)
+])
+@pytest.mark.parametrize('ds', [
+    DatasetArray([Dataset(name_2, df_1, target_1), Dataset(name_1, df_1, target_1)]),
+    DatasetArray([DatasetFromOpenML(task_id=task_id_1), DatasetFromOpenML(task_id=task_id_2)])
+])
+@pytest.mark.parametrize('param', [
+    {
+        'sampling_strategy': [1, 0.98]
+    },
+    {
+        'random_state': [1, 2],
+        'sampling_strategy': [1, 0.98]
+    }
+])
+def test_set_get_params_2(imblearn_sampler, ds, param):
+    transformer = TransformerFromIMBLEARN(imblearn_sampler)
+    array = TransformerArray(transformer)
+    array.set_params(**param)
+    array.fit(ds)
+    array.transform(ds)
+
+    tmp = []
+    for i in range(len(param[list(param.keys())[0]])):
+        tmp_dict = {}
+        for key in param:
+            tmp_dict[key] = param[key][i]
+        tmp.append(tmp_dict)
+
+    assert array.get_params() == tmp
+
+    for i in range(len(array.get_transformers())):
+        for j in range(len(array.get_transformers()[i])):
+            tmp = {}
+            for key in param:
+                tmp[key] = param[key][j]
+
+            expected_params = list(tmp.items())
+            existing_params = list(array.get_transformers()[i][j].get_params().items())
+            assert np.alltrue([p in existing_params for p in expected_params])
+
+
+@pytest.mark.parametrize('imblearn_sampler', [
+    RandomUnderSampler(sampling_strategy=1, random_state=42),
+    RandomUnderSampler(sampling_strategy=0.95, random_state=42)
+])
+@pytest.mark.parametrize('ds', [
+    DatasetArray([Dataset(name_2, df_1, target_1), Dataset(name_1, df_1, target_1)]),
+    DatasetArray([DatasetFromOpenML(task_id=task_id_1), DatasetFromOpenML(task_id=task_id_2)])
+])
+@pytest.mark.parametrize('param', [
+    [
+        {
+            'sampling_strategy': 0.98
+        },
+        {
+            'sampling_strategy': 1
+        }
+    ],
+    [
+        {
+            'sampling_strategy': 0.98,
+            'random_state': 1
+        },
+        {
+            'sampling_strategy': 1,
+            'random_state': 2
+        }
+    ]
+])
+def test_params_in_arguments(imblearn_sampler, ds, param):
+    transformer = TransformerFromIMBLEARN(imblearn_sampler)
+    array = TransformerArray(transformer, parameters=param)
+    array.fit(ds)
+    array.transform(ds)
+
+    assert array.get_params() == param
+
+    for i in range(len(array.get_transformers())):
+        for j in range(len(array.get_transformers()[i])):
+            expected_params = list(param[j].items())
+            existing_params = list(array.get_transformers()[i][j].get_params().items())
+            assert np.alltrue([p in existing_params for p in expected_params])
+
+
+@pytest.mark.parametrize('imblearn_sampler', [
+    RandomUnderSampler(sampling_strategy=1, random_state=42),
+    RandomUnderSampler(sampling_strategy=0.95, random_state=42)
+])
+@pytest.mark.parametrize('ds', [
+    DatasetArray([Dataset(name_2, df_1, target_1), Dataset(name_1, df_1, target_1)]),
+    DatasetArray([DatasetFromOpenML(task_id=task_id_1), DatasetFromOpenML(task_id=task_id_2)])
+])
+@pytest.mark.parametrize('param', [
+    [
+        {
+            'sampling_strategy': 0.98
+        },
+        {
+            'sampling_strategy': 1
+        }
+    ],
+    [
+        {
+            'sampling_strategy': 0.98,
+            'random_state': 1
+        },
+        {
+            'sampling_strategy': 1,
+            'random_state': 2
+        }
+    ]
+])
+@pytest.mark.parametrize('sufix', [
+    ['_transformed_0', '_transformed_1'],
+    ['_example_sufix_0', '_example_sufix_1']
+])
+def test_params_in_arguments_and_sufix(imblearn_sampler, ds, param, sufix):
+    transformer = TransformerFromIMBLEARN(imblearn_sampler)
+    array = TransformerArray(transformer, parameters=param, name_sufix=sufix)
+    array.fit(ds)
+    out = array.transform(ds)
+
+    # params
+    assert array.get_params() == param
+
+    for i in range(len(array.get_transformers())):
+        for j in range(len(array.get_transformers()[i])):
+            expected_params = list(param[j].items())
+            existing_params = list(array.get_transformers()[i][j].get_params().items())
+            assert np.alltrue([p in existing_params for p in expected_params])
+
+    # sufix
+    assert len(param) == len(out)
+    assert len(sufix) == len(out)
+
+    for j in range(len(out)):
+        ds_array = out[j]
+        assert ds_array.name == ds.name + '_array'
+
+        expected_names = [ds.datasets[j].name + sufix[i] for i in range(len(ds.datasets))]
+
+        for i in range(len(ds_array.datasets)):
+            assert ds_array.datasets[i].name in expected_names
+
+
+@pytest.mark.parametrize('imblearn_sampler', [
+    RandomUnderSampler(sampling_strategy=1, random_state=42),
+    RandomUnderSampler(sampling_strategy=0.95, random_state=42)
+])
+@pytest.mark.parametrize('ds', [
+    DatasetArray([Dataset(name_2, df_1, target_1), Dataset(name_1, df_1, target_1)]),
+    DatasetArray([DatasetFromOpenML(task_id=task_id_1), DatasetFromOpenML(task_id=task_id_2)])
+])
+@pytest.mark.parametrize('param', [
+    [
+        {
+            'sampling_strategy': 0.98
+        },
+        {
+            'sampling_strategy': 1
+        }
+    ],
+    [
+        {
+            'sampling_strategy': 0.98,
+            'random_state': 1
+        },
+        {
+            'sampling_strategy': 1,
+            'random_state': 2
+        }
+    ]
+])
+@pytest.mark.parametrize('sufix', [
+    ['_transformed_0'],
+    ['_example_sufix_0']
+])
+def test_params_in_arguments_and_sufix_2(imblearn_sampler, ds, param, sufix):
+    transformer = TransformerFromIMBLEARN(imblearn_sampler)
+    array = TransformerArray(transformer, parameters=param, name_sufix=sufix)
+    array.fit(ds)
+    out = array.transform(ds)
+
+    # params
+    assert array.get_params() == param
+
+    for i in range(len(array.get_transformers())):
+        for j in range(len(array.get_transformers()[i])):
+            expected_params = list(param[j].items())
+            existing_params = list(array.get_transformers()[i][j].get_params().items())
+            assert np.alltrue([p in existing_params for p in expected_params])
+
+    # sufix
+    assert len(param) == len(out)
+
+    for j in range(len(out)):
+        ds_array = out[j]
+        assert ds_array.name == ds.name + '_array'
+
+        expected_names = [ds.datasets[j].name + sufix[0] + '_' + str(i) for i in range(len(ds.datasets))]
+
+        for i in range(len(ds_array.datasets)):
+            assert ds_array.datasets[i].name in expected_names

@@ -21,11 +21,13 @@ class TransformerArray(BaseTransformerArray):
             else:
                 raise Exception('Wrong sufix names!')
         else:
+            if isinstance(name_sufix, list) and len(name_sufix) == 1 and isinstance(name_sufix[0], str):
+                name_sufix = name_sufix[0]
             if isinstance(name_sufix, str):
                 if len(self.get_params()) == 1:
                     self.__name_sufix = [name_sufix]
                 else:
-                    self.__name_sufix = [name_sufix + '_' + str(i) for i in range(len(name_sufix))]
+                    self.__name_sufix = [name_sufix + '_' + str(i) for i in range(len(self.get_params()))]
             elif isinstance(name_sufix, list) and len(name_sufix) == len(self.get_params()):
                 self.__name_sufix = name_sufix
             else:
@@ -59,6 +61,6 @@ class TransformerArray(BaseTransformerArray):
                         if len(self.__name_sufix) == 1:
                             self.get_transformers()[i][j].set_name_sufix(self.__name_sufix[0] + '_' + str(j))
                         elif len(self.__name_sufix) == len(self.get_transformers()):
-                            self.get_transformers()[i][j].set_name_sufix(self.__name_sufix[i])
+                            self.get_transformers()[i][j].set_name_sufix(self.__name_sufix[j])
                         else:
                             raise Exception('Wrong length of name_sufix!')
