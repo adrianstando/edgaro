@@ -12,7 +12,6 @@ from EDGAR.data.Dataset import Dataset
 
 
 # TODO:
-# ModelFromScikitLearn class
 # XGBoost
 # Predefined model tunning (GridSearch, BayesSearch, RandomSearch)
 
@@ -125,10 +124,10 @@ class _TargetEncode(BaseEstimator, TransformerMixin):
         return y.map(self.mapping)
 
 
-class RandomForest(Model):
-    def __init__(self, name: Optional[str] = '', *args, **kwargs):
+class ModelFromSKLEARN(Model):
+    def __init__(self, base_model: BaseEstimator, name: Optional[str] = ''):
         super().__init__(name=name)
-        self.__model = RandomForestClassifier(*args, **kwargs)
+        self.__model = base_model
 
     def _fit(self, dataset: Dataset):
         if dataset.target is None:
@@ -163,3 +162,8 @@ class RandomForest(Model):
 
     def get_params(self):
         return self.__model.get_params()
+
+
+class RandomForest(ModelFromSKLEARN):
+    def __init__(self, *args, **kwargs):
+        super().__init__(RandomForestClassifier(*args, **kwargs))

@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from sklearn.datasets import load_breast_cancer
 import os
 
@@ -19,6 +20,13 @@ name_2 = 'name_2'
 
 df_3, target_3 = load_breast_cancer(return_X_y=True, as_frame=True)
 name_3 = 'breast_cancer'
+
+df_4_nans = pd.DataFrame({
+    'a': [1, 2, np.NaN],
+    'b': ['a', 'b', 'c']
+})
+target_4_nans = pd.Series([np.NaN, 0, 1])
+name_4_nans = 'name_4'
 
 example_path = os.path.join('resources', 'data_1.csv')
 example_target = 'target'

@@ -103,4 +103,10 @@ def test_csv_not_equal(ds1, ds2):
     assert not ds1 == ds2
 
 
+def test_remove_nans():
+    ds = Dataset(name_4_nans, df_4_nans, target_4_nans)
+    ds.remove_nans()
+
+    assert ds.data.shape == (1, 2)
+    assert ds.target.shape == (1,)
 

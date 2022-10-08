@@ -94,3 +94,16 @@ def test_not_equal_2(da1, da2):
     tab1 = DatasetArray(da1)
     tab2 = DatasetArray(da2)
     assert not tab1 == tab2
+
+
+def test_remove_nans():
+    da = DatasetArray([
+        Dataset(name_4_nans + '_0', df_4_nans, target_4_nans),
+        Dataset(name_4_nans + '_1', df_4_nans, target_4_nans)
+    ])
+    da.remove_nans()
+
+    assert da[0].data.shape == (1, 2)
+    assert da[0].target.shape == (1,)
+    assert da[1].data.shape == (1, 2)
+    assert da[1].target.shape == (1,)
