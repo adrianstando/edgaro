@@ -36,6 +36,9 @@ class DatasetArray:
                 return False
         return True
 
+    def remove_nans(self):
+        for dataset in self.datasets:
+            dataset.remove_nans()
 
 
 class DatasetArrayFromOpenMLSuite(DatasetArray):

@@ -8,6 +8,7 @@ from typing import Optional
 # TODO:
 # Error rate - comparing two datasets - "Stop Oversampling for Class Imbalance Learning: A
 # Critical Review"
+# Check length of target and data
 
 class Dataset:
     def __init__(self, name: str, dataframe: Optional[pd.DataFrame], target: Optional[pd.Series]):
@@ -61,6 +62,19 @@ class Dataset:
         if not self.target.equals(other.target):
             return False
         return True
+
+    def remove_nans(self):
+        nans = self.data.isna().any(axis=1)
+        nans = list(nans[nans == True].index)
+        self.data.drop(nans, axis=0, inplace=True)
+        self.target.drop(nans, axis=0, inplace=True)
+
+        nans = self.target.isna()
+        nans = list(nans[nans == True].index)
+        self.data.drop(nans, axis=0, inplace=True)
+        self.target.drop(nans, axis=0, inplace=True)
+
+
 
 
 class DatasetFromCSV(Dataset):
