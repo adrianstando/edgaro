@@ -25,7 +25,7 @@ def test_model(ds):
     DatasetFromOpenML(task_id=task_id_1),
     DatasetFromOpenML(task_id=task_id_2),
 ])
-def test_model(ds):
+def test_model_2(ds):
     try:
         ds.remove_nans()
 
@@ -41,16 +41,13 @@ def test_model(ds):
     DatasetFromOpenML(task_id=task_id_1),
     DatasetFromOpenML(task_id=task_id_2),
 ])
-def test_model(ds):
-    try:
-        ds.remove_nans()
+def test_model_output(ds):
+    ds.remove_nans()
 
-        model = RandomForest()
-        model.fit(ds)
-        y = model.predict(ds)
-        assert isinstance(y, Dataset)
-        assert y.check_binary_classification()
-        y = model.predict_proba(ds)
-        assert isinstance(y, Dataset)
-    except (Exception,):
-        assert False
+    model = RandomForest()
+    model.fit(ds)
+    y = model.predict(ds)
+    assert isinstance(y, Dataset)
+    assert y.check_binary_classification()
+    y = model.predict_proba(ds)
+    assert isinstance(y, Dataset)

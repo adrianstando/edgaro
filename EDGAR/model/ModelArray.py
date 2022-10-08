@@ -17,10 +17,10 @@ class ModelArray(BaseTransformerArray):
             self.name = dataset.name
         super().fit(dataset)
 
-    def predict(self, dataset: Dataset):
+    def predict(self, dataset: Union[Dataset, DatasetArray]):
         return super().transform(dataset)
 
-    def predict_proba(self, dataset: Dataset):
+    def predict_proba(self, dataset: Union[Dataset, DatasetArray]):
         for model_arr in self.get_models():
             for model in model_arr:
                 model.set_transform_to_probabilities()
