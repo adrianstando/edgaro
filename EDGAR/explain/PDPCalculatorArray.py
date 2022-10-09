@@ -21,7 +21,7 @@ class PDPCalculatorArray:
             calc.fit()
             return calc
 
-        self.sub_calculators = [create_sub_calculator(m) for m in self.models.get_models()]
+        self.sub_calculators = [create_sub_calculator(m[0]) for m in self.models.get_models()]
 
     def transform(self, variables=None):
         if variables is None:

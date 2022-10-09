@@ -6,7 +6,6 @@ from EDGAR.data.Dataset import Dataset
 
 
 # TODO:
-# Categorical variables
 # N=300 or more or chosen by user
 
 class PDPCalculator:
@@ -40,7 +39,7 @@ class PDPCalculator:
 
         other_colnames = list(set(variables).difference(set(category_colnames_base)))
         if len(other_colnames) > 0:
-            out_others = self.explainer.model_profile(verbose=False, variables=category_colnames,
+            out_others = self.explainer.model_profile(verbose=False, variables=other_colnames,
                                                       variable_type='numerical')
             variable_names = out_others.result['_vname_'].unique()
             y = out_others.result['_yhat_']
@@ -51,7 +50,7 @@ class PDPCalculator:
                 higher = int((i + 1) * length)
                 dict_output[str(variable_names[i])] = Curve(x[lower:higher], y[lower:higher])
 
-        return PDPResult(dict_output, self.name)
+        return PDPResult(dict_output, self.name, self.model.get_category_colnames())
 
     def set_params(self, **params):
         if 'model' in params.keys():

@@ -4,6 +4,7 @@ from typing import Dict, Union, Tuple, List, Optional
 from numpy import ndarray
 import warnings
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
 
@@ -14,9 +15,10 @@ class Curve:
 
 
 class PDPResult:
-    def __init__(self, results: Dict[str, Curve], name: str):
+    def __init__(self, results: Dict[str, Curve], name: str, categorical_columns: List[str]):
         self.results = results
         self.name = name
+        self.categorical_columns = categorical_columns
 
     def __getitem__(self, key: Union[str]):
         if key in self.results.keys():
@@ -30,10 +32,16 @@ class PDPResult:
             if curve is None:
                 raise Exception('Variable is not available!')
             plt.subplots(figsize=figsize)
-            plt.plot(curve.x, curve.y)
+
+            if variable not in self.categorical_columns:
+                plt.plot(curve.x, curve.y)
+            else:
+                plt.bar(curve.x, curve.y)
+
             plt.title("PDP curve for variable: " + variable)
             plt.legend([self.name])
             plt.xlabel(variable)
+            plt.ylim([0, 1])
         else:
             curve_base = self.results[variable]
             if curve_base is None:
@@ -44,21 +52,37 @@ class PDPResult:
                 warnings.warn(f'There is not variable {variable} in one of the added plots!')
 
             curves_add = [c for c in curves_add if c is not None]
-
-            plt.subplots(figsize=figsize)
-            plt.plot(curve_base.x, curve_base.y)
+            add_plot_names = [c.name for c in add_plot if c.results[variable] is not None]
 
             if len(curves_add) == 0:
                 warnings.warn(f'None of the added plots have variable called {variable}!')
+                plt.subplots(figsize=figsize)
                 plt.title("PDP curve for variable: " + variable)
-                # plt.legend([self.name])
-            else:
-                for curve in curves_add:
-                    plt.plot(curve.x, curve.y)
-                plt.title("PDP curves for variable: " + variable)
-                plt.legend([self.name] + [p.name for p in add_plot])
+                if variable not in self.categorical_columns:
+                    plt.plot(curve_base.x, curve_base.y)
+                else:
+                    plt.bar(curve_base.x, curve_base.y)
 
+                plt.legend([self.name])
+            else:
+                if variable not in self.categorical_columns:
+                    for curve in curves_add:
+                        plt.plot(curve.x, curve.y)
+                else:
+                    df = pd.DataFrame({
+                        'x': curves_add[0].x,
+                        self.name: curve_base.y
+                    })
+                    for i in range(len(add_plot)):
+                        df[add_plot_names[i]] = curves_add[i].y
+                    print(df)
+                    df.plot(x='x', kind='bar', figsize=figsize)
+                    plt.xticks(rotation=0)
+
+                plt.title("PDP curves for variable: " + variable)
+                plt.legend([self.name] + add_plot_names)
             plt.xlabel(variable)
+            plt.ylim([0, 1])
 
     def compare(self, variable: Union[str, List[str]], other: PDPResult):
         if isinstance(variable, str):
