@@ -54,20 +54,26 @@ class Model(BaseTransformer, ABC):
         df = deepcopy(dataset)
         for key, le in self.__label_encoders.items():
             df.data[key] = le.transform(df.data[key])
-        return self._predict(df)
+
+        model_name = '_' + self.name if not self.name == dataset.name else ''
+        name = dataset.name + model_name + '_predicted'
+        return self._predict(df, output_name=name)
 
     @abstractmethod
-    def _predict(self, dataset: Dataset):
+    def _predict(self, dataset: Dataset, output_name: str):
         pass
 
     def predict_proba(self, dataset: Dataset):
         df = deepcopy(dataset)
         for key, le in self.__label_encoders.items():
             df.data[key] = le.transform(df.data[key])
-        return self._predict_proba(df)
+
+        model_name = '_' + self.name if not self.name == dataset.name else ''
+        name = dataset.name + model_name + '_predicted_probabilities'
+        return self._predict_proba(df, output_name=name)
 
     @abstractmethod
-    def _predict_proba(self, dataset: Dataset):
+    def _predict_proba(self, dataset: Dataset, output_name: str):
         pass
 
     @abstractmethod
@@ -125,7 +131,7 @@ class _TargetEncode(BaseEstimator, TransformerMixin):
 
 
 class ModelFromSKLEARN(Model):
-    def __init__(self, base_model: BaseEstimator, name: Optional[str] = ''):
+    def __init__(self, base_model: BaseEstimator, name: str = ''):
         super().__init__(name=name)
         self.__model = base_model
 
@@ -135,24 +141,24 @@ class ModelFromSKLEARN(Model):
 
         return self.__model.fit(dataset.data, dataset.target)
 
-    def _predict(self, dataset: Dataset):
+    def _predict(self, dataset: Dataset, output_name: str):
         if isinstance(dataset.data, np.ndarray) and isinstance(self.get_train_dataset().data, pd.DataFrame):
             dataset = deepcopy(dataset)
             dataset.data = pd.DataFrame(dataset, columns=self.get_train_dataset().data.columns)
 
         return Dataset(
-            name=dataset.name + '_predicted',
+            name=output_name,
             dataframe=None,
             target=self.__model.predict(dataset.data)
         )
 
-    def _predict_proba(self, dataset: Dataset):
+    def _predict_proba(self, dataset: Dataset, output_name: str):
         if isinstance(dataset.data, np.ndarray) and isinstance(self.get_train_dataset().data, pd.DataFrame):
             dataset = deepcopy(dataset)
             dataset.data = pd.DataFrame(dataset, columns=self.get_train_dataset().data.columns)
 
         return Dataset(
-            name=dataset.name + '_predicted_probabilities',
+            name=output_name,
             dataframe=None,
             target=self.__model.predict_proba(dataset.data)
         )
@@ -165,5 +171,5 @@ class ModelFromSKLEARN(Model):
 
 
 class RandomForest(ModelFromSKLEARN):
-    def __init__(self, *args, **kwargs):
-        super().__init__(RandomForestClassifier(*args, **kwargs))
+    def __init__(self, name: str = '', *args, **kwargs):
+        super().__init__(RandomForestClassifier(*args, **kwargs), name=name)

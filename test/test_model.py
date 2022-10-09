@@ -51,3 +51,36 @@ def test_model_output(ds):
     assert y.check_binary_classification()
     y = model.predict_proba(ds)
     assert isinstance(y, Dataset)
+
+
+@pytest.mark.parametrize('ds', [
+    Dataset(name_1, df_1, target_1),
+    Dataset(name_2, df_2, target_2)
+])
+def test_model_output_names(ds):
+    ds.remove_nans()
+
+    model = RandomForest()
+    model.fit(ds)
+    y = model.predict(ds)
+    assert y.name == ds.name + '_predicted'
+
+    y = model.predict_proba(ds)
+    assert y.name == ds.name + '_predicted_probabilities'
+
+
+@pytest.mark.parametrize('ds,model_name', [
+    (Dataset(name_1, df_1, target_1), 'model_1'),
+    (Dataset(name_2, df_2, target_2), 'model_2')
+])
+def test_model_output_names(ds, model_name):
+    ds.remove_nans()
+
+    model = RandomForest(name=model_name)
+    model.fit(ds)
+    y = model.predict(ds)
+    assert y.name == ds.name + '_' + model_name + '_predicted'
+
+    y = model.predict_proba(ds)
+    assert y.name == ds.name + '_' + model_name + '_predicted_probabilities'
+
