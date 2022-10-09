@@ -86,5 +86,9 @@ def test_flow_array(df):
 
         t[0].plot(variable=df[0].data.columns[0], add_plot=[t1[0]])
 
+        t[0].compare(t1[0])
+        t[0].compare(t1[0], variable=df[0].data.columns[0])
+        t[0].compare(t1[0], variable=[df[0].data.columns[0], df[0].data.columns[1]])
+
     except (Exception,):
         assert False
