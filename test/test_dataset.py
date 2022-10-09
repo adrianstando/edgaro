@@ -14,6 +14,27 @@ def test_dataset_properties():
     assert ds.target.equals(target_1)
 
 
+@pytest.mark.parametrize('task_id', [
+    task_id_1,
+    task_id_2
+])
+def test_create_dataset_openml(task_id):
+    try:
+        DatasetFromOpenML(task_id=task_id)
+    except (Exception,):
+        assert False
+
+
+@pytest.mark.parametrize('path', [
+    example_path
+])
+def test_create_dataset_csv(path):
+    try:
+        DatasetFromCSV(path, target=example_target)
+    except (Exception,):
+        assert False
+
+
 @pytest.mark.parametrize('ds', [
     Dataset(name_1, df_1, target_1),
     Dataset(name_2, df_2, target_2),
@@ -58,7 +79,7 @@ def test_exception_imbalance_ratio(ds):
     DatasetFromCSV(path=example_path, target=example_target),
     DatasetFromOpenML(task_id=task_id_1)
 ])
-def test_csv_profiling(ds):
+def test_profiling(ds):
     try:
         ds.generate_report()
     except (Exception,):
