@@ -1,7 +1,8 @@
 import pytest
-from EDGAR.data.DatasetArray import DatasetArray
+from EDGAR.data.DatasetArray import DatasetArray, DatasetArrayFromOpenMLSuite
 from EDGAR.data.Dataset import Dataset, DatasetFromOpenML
 from copy import deepcopy
+import re
 from .resources.objects import *
 
 
@@ -107,3 +108,68 @@ def test_remove_nans():
     assert da[0].target.shape == (1,)
     assert da[1].data.shape == (1, 2)
     assert da[1].target.shape == (1,)
+
+
+@pytest.mark.parametrize('suite_name', [
+    suite_name_1,
+    # suite_name_2 # commented since it's a time-consuming test
+])
+class TestOpenMLSuite:
+    openml_suite = None
+
+    def test_dataset_array_from_openml_suite(self, suite_name):
+        try:
+            if self.openml_suite is None:
+                self.openml_suite = DatasetArrayFromOpenMLSuite(suite_name=suite_name)
+        except (Exception,):
+            assert False
+
+    def test_print_description_from_openml_suite(self, suite_name, capsys):
+        if self.openml_suite is None:
+            self.test_dataset_array_from_openml_suite(suite_name)
+
+        if self.openml_suite is None:
+            assert False
+
+        # clear stdout
+        capsys.readouterr()
+
+        ds = deepcopy(self.openml_suite)
+        ds.print_openml_description()
+        captured = capsys.readouterr()
+        pattern = '^Name: .* Description: .*$'
+        assert re.match(pattern, captured.out.replace('\n', ' '))
+
+    def test_remove_non_binary_target_datasets(self, suite_name):
+        if self.openml_suite is None:
+            self.test_dataset_array_from_openml_suite(suite_name)
+
+        if self.openml_suite is None:
+            assert False
+
+        # These OpenML suites contain also non-binary target datasets
+        da = deepcopy(self.openml_suite)
+        length_1 = len(da)
+
+        da.remove_non_binary_target_datasets()
+        length_2 = len(da)
+
+        assert length_2 < length_1
+
+
+@pytest.mark.parametrize('ds,expected_binary_n', [
+    ([Dataset(name_1, df_1, target_1), Dataset(name_2, df_1, target_1_fake), Dataset(name_3, df_1, target_1_fake)], 1),
+    ([Dataset(name_1, df_1, target_1), Dataset(name_2, df_1, target_1), Dataset(name_3, df_1, target_1_fake)], 2),
+    ([Dataset(name_1, df_1, target_1), Dataset(name_2, df_1, target_1), Dataset(name_3, df_1, target_1)], 3),
+    ([Dataset(name_1, df_1, target_1_fake), Dataset(name_2, df_1, target_1_fake), Dataset(name_3, df_1, target_1_fake)], 0)
+])
+def test_remove_non_binary_target_datasets_2(ds, expected_binary_n):
+    # These OpenML suites contain also non-binary target datasets
+    da = DatasetArray(ds)
+    length_1 = len(da)
+
+    da.remove_non_binary_target_datasets()
+    length_2 = len(da)
+
+    assert length_2 <= length_1
+    assert length_2 == expected_binary_n

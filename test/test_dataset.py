@@ -1,5 +1,6 @@
 import pytest
 from EDGAR.data.Dataset import Dataset, DatasetFromCSV, DatasetFromOpenML
+import re
 from .resources.objects import *
 
 
@@ -109,4 +110,15 @@ def test_remove_nans():
 
     assert ds.data.shape == (1, 2)
     assert ds.target.shape == (1,)
+
+
+@pytest.mark.parametrize('ds', [
+    DatasetFromOpenML(task_id=task_id_1),
+    DatasetFromOpenML(task_id=task_id_2)
+])
+def test_print_description_openml(ds, capsys):
+    ds.print_openml_description()
+    captured = capsys.readouterr()
+    pattern = '^Name: .* Description: .*$'
+    assert re.match(pattern, captured.out.replace('\n', ' '))
 

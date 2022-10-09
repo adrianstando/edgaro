@@ -33,3 +33,6 @@ example_target = 'target'
 
 task_id_1 = 3
 task_id_2 = 15
+
+suite_name_1 = 'OpenML100'
+suite_name_2 = 'OpenML-CC18'

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from typing import List, Union, Optional
-from EDGAR.data.Dataset import Dataset
+from EDGAR.data.Dataset import Dataset, DatasetFromOpenML
+import openml
 
 
 class DatasetArray:
@@ -40,6 +41,35 @@ class DatasetArray:
         for dataset in self.datasets:
             dataset.remove_nans()
 
+    def remove_non_binary_target_datasets(self):
+        self.datasets = [dataset for dataset in self.datasets if dataset.check_binary_classification()]
+
 
 class DatasetArrayFromOpenMLSuite(DatasetArray):
-    pass
+    def __init__(self, suite_name: str = 'OpenML100', apikey: Optional[str] = None, name: str = 'dataset_array'):
+        if openml.config.apikey == '':
+            if apikey is None:
+                raise Exception('API key is not available!')
+            else:
+                openml.config.apikey = apikey
+
+        benchmark_suite = openml.study.get_suite(suite_name)
+
+        dataset_array = []
+        for i in benchmark_suite.data:
+            try:
+                ds = DatasetFromOpenML(task_id=i, apikey=apikey)
+                dataset_array.append(ds)
+            except openml.exceptions.OpenMLServerException:
+                print(f'The dataset numer {i} was not downloaded due to the server exception!')
+
+        self.__openml_name = benchmark_suite.name if 'name' in benchmark_suite.__dict__.keys() else ''
+        self.__openml_description = benchmark_suite.description if 'description' in benchmark_suite.__dict__.keys() else ''
+
+        super().__init__(datasets=dataset_array, name=name)
+
+    def print_openml_description(self):
+        print('Name: ')
+        print(self.__openml_name)
+        print('Description: ')
+        print(self.__openml_description)

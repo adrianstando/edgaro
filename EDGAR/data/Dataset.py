@@ -75,8 +75,6 @@ class Dataset:
         self.target.drop(nans, axis=0, inplace=True)
 
 
-
-
 class DatasetFromCSV(Dataset):
     def __init__(self, path: str, target: str, name: str = 'dataset', *args, **kwargs):
         X = pd.read_csv(path, *args, **kwargs)
@@ -112,11 +110,13 @@ class DatasetFromOpenML(Dataset):
         if task_id is None and openml_dataset is None:
             raise Exception('Provide needed arguments!')
 
-        data = None
         if openml_dataset is None:
             data = openml.datasets.get_dataset(task_id)
         else:
             data = openml_dataset
+
+        self.__openml_name = data.name if 'name' in data.__dict__.keys() else ''
+        self.__openml_description = data.description if 'description' in data.__dict__.keys() else ''
 
         X, y, categorical_indicator, attribute_names = data.get_data(
             dataset_format='dataframe', target=data.default_target_attribute
@@ -126,3 +126,11 @@ class DatasetFromOpenML(Dataset):
         y = pd.Series(y, name='target')
 
         super().__init__(name=data.name, dataframe=X, target=y)
+
+    def print_openml_description(self):
+        print('Name: ')
+        print(self.__openml_name)
+        print('\n')
+
+        print('Description: ')
+        print(self.__openml_description)
