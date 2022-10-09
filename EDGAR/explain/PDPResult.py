@@ -75,7 +75,6 @@ class PDPResult:
                     })
                     for i in range(len(add_plot)):
                         df[add_plot_names[i]] = curves_add[i].y
-                    print(df)
                     df.plot(x='x', kind='bar', figsize=figsize)
                     plt.xticks(rotation=0)
 
@@ -84,7 +83,7 @@ class PDPResult:
             plt.xlabel(variable)
             plt.ylim([0, 1])
 
-    def compare(self, variable: Union[str, List[str]], other: PDPResult):
+    def compare(self, other: PDPResult, variable: Optional[Union[str, List[str]]] = None):
         if isinstance(variable, str):
             if self[variable] is None:
                 raise Exception('Variable is not available!')
@@ -96,6 +95,12 @@ class PDPResult:
             y_other = other.results[variable].y
             return np.sum(np.abs(y_this - y_other))
         else:
-            return np.mean(
-                self.compare(variable=var, other=other) for var in variable
-            )
+            if variable is None:
+                variable_all = list(self.results.keys())
+                return np.mean(
+                    [self.compare(variable=var, other=other) for var in variable_all]
+                )
+            else:
+                return np.mean(
+                    [self.compare(variable=var, other=other) for var in variable]
+                )
