@@ -21,7 +21,6 @@ setup(
         "Topic :: Scientific/Engineering :: Artificial Intelligence"
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
@@ -30,7 +29,7 @@ setup(
     ],
     keywords="XAI, imbalance, machine learning",
     packages=["EDGAR"] + [f"EDGAR.{item}" for item in find_packages(where="EDGAR")],
-    python_requires=">=3.7, <4",
+    python_requires=">=3.8, <4",
     install_requires=[
         'setuptools',
         'pandas>=1.2.5',
@@ -41,7 +40,7 @@ setup(
         'openml>=0.12.2',
         'pandas-profiling>=3.3.0',
         'pytest>=7.1.3',
-        'scikit-learn>=1.0.2',
+        'scikit-learn>=1.1.0',
         'imblearn>=0.0'
     ],
     project_urls={
