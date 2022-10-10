@@ -23,7 +23,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install tox tox-gh-actions
     - name: Test with tox
-      run: tox
       env:
-        credentials: ${{ secrets.OPENML_CREDENTIALS }}
+        OPENML_CREDENTIALS: ${{ secrets.OPENML_CREDENTIALS }}
         PLATFORM: ${{ matrix.platform }}
+      run: tox
