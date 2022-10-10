@@ -8,7 +8,7 @@ from .resources.objects import *
 
 @pytest.mark.parametrize('ds1,ds2', [
     (Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2)),
-    (DatasetFromOpenML(task_id=task_id_1), DatasetFromOpenML(task_id=task_id_2)),
+    (DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY), DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY)),
     (Dataset(name_3, df_3, target_3), Dataset(name_1, df_1, target_1))
 ])
 def test_dataset_array(ds1, ds2):
@@ -34,7 +34,7 @@ def test_no_unique_names(ds1, ds2):
 
 @pytest.mark.parametrize('ds1,ds2', [
     (Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2)),
-    (DatasetFromOpenML(task_id=task_id_1), DatasetFromOpenML(task_id=task_id_2)),
+    (DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY), DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY)),
     (Dataset(name_3, df_3, target_3), Dataset(name_2, df_3, target_3))
 ])
 def test_equal(ds1, ds2):
@@ -45,7 +45,7 @@ def test_equal(ds1, ds2):
 
 @pytest.mark.parametrize('ds1,ds2', [
     (Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2)),
-    (DatasetFromOpenML(task_id=task_id_1), DatasetFromOpenML(task_id=task_id_2))
+    (DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY), DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY))
 ])
 def test_equal_reverse(ds1, ds2):
     tab1 = DatasetArray([deepcopy(ds1), deepcopy(ds2)])
@@ -120,7 +120,7 @@ class TestOpenMLSuite:
     def test_dataset_array_from_openml_suite(self, suite_name):
         try:
             if self.openml_suite is None:
-                self.openml_suite = DatasetArrayFromOpenMLSuite(suite_name=suite_name)
+                self.openml_suite = DatasetArrayFromOpenMLSuite(suite_name=suite_name, apikey=APIKEY)
         except (Exception,):
             assert False
 

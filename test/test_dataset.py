@@ -20,7 +20,7 @@ def test_dataset_properties():
 ])
 def test_create_dataset_openml(task_id):
     try:
-        DatasetFromOpenML(task_id=task_id)
+        DatasetFromOpenML(task_id=task_id, apikey=APIKEY)
     except (Exception,):
         assert False
 
@@ -40,7 +40,7 @@ def test_create_dataset_csv(path):
     Dataset(name_2, df_2, target_2),
     Dataset(name_3, df_3, target_3),
     DatasetFromCSV(path=example_path, target=example_target),
-    DatasetFromOpenML(task_id=task_id_1)
+    DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY)
 ])
 def test_dataset(ds):
     ds = Dataset(name_1, df_1, target_1)
@@ -63,7 +63,7 @@ def test_imbalance_ratio(ds, expected):
     Dataset(name_2, df_2, target_2),
     Dataset(name_3, df_3, target_3),
     DatasetFromCSV(example_path, example_target),
-    DatasetFromOpenML(task_id=task_id_1)
+    DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY)
 ])
 def test_exception_imbalance_ratio(ds):
     try:
@@ -77,7 +77,7 @@ def test_exception_imbalance_ratio(ds):
     Dataset(name_2, df_2, target_2),
     Dataset(name_3, df_3, target_3),
     DatasetFromCSV(path=example_path, target=example_target),
-    DatasetFromOpenML(task_id=task_id_1)
+    DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY)
 ])
 def test_profiling(ds):
     try:
@@ -91,7 +91,7 @@ def test_profiling(ds):
     Dataset(name_2, df_2, target_2),
     Dataset(name_3, df_3, target_3),
     DatasetFromCSV(path=example_path, target=example_target),
-    DatasetFromOpenML(task_id=task_id_1)
+    DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY)
 ])
 def test_csv_check_binary(ds):
     assert ds.check_binary_classification()
@@ -108,7 +108,7 @@ def test_csv_check_no_binary(ds):
 @pytest.mark.parametrize('ds1,ds2', [
     (Dataset(name_1, df_1, target_1), Dataset(name_1, df_1, target_1)),
     (DatasetFromCSV(path=example_path, target=example_target), DatasetFromCSV(path=example_path, target=example_target)),
-    (DatasetFromOpenML(task_id=task_id_1), DatasetFromOpenML(task_id=task_id_1))
+    (DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY), DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY))
 ])
 def test_csv_equal(ds1, ds2):
     assert ds1 == ds2
@@ -119,7 +119,7 @@ def test_csv_equal(ds1, ds2):
     (Dataset(name_1, df_1, target_1), Dataset(name_1, df_2, target_1)),
     (Dataset(name_1, df_1, target_1), Dataset(name_2, df_1, target_1)),
     (DatasetFromCSV(path=example_path, target=example_target, name='x'), DatasetFromCSV(path=example_path, target=example_target, name='xx')),
-    (DatasetFromOpenML(task_id=task_id_1), DatasetFromOpenML(task_id=task_id_2))
+    (DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY), DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY))
 ])
 def test_csv_not_equal(ds1, ds2):
     assert not ds1 == ds2
@@ -134,8 +134,8 @@ def test_remove_nans():
 
 
 @pytest.mark.parametrize('ds', [
-    DatasetFromOpenML(task_id=task_id_1),
-    DatasetFromOpenML(task_id=task_id_2)
+    DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY),
+    DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY)
 ])
 def test_print_description_openml(ds, capsys):
     ds.print_openml_description()

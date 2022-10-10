@@ -7,7 +7,7 @@ from .resources.objects import *
 
 
 @pytest.mark.parametrize('ds', [
-    DatasetArray([DatasetFromOpenML(task_id=task_id_1), DatasetFromOpenML(task_id=task_id_2)]),
+    DatasetArray([DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY), DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY)]),
     DatasetArray([Dataset(name_3, df_3, target_3), Dataset(name_1, df_1, target_1)])
 ])
 def test_model_array(ds):
@@ -23,7 +23,7 @@ def test_model_array(ds):
 
 
 @pytest.mark.parametrize('ds', [
-    DatasetArray([DatasetFromOpenML(task_id=task_id_1), DatasetFromOpenML(task_id=task_id_2)]),
+    DatasetArray([DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY), DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY)]),
     DatasetArray([Dataset(name_3, df_3, target_3), Dataset(name_1, df_1, target_1)])
 ])
 def test_model_array_output(ds):

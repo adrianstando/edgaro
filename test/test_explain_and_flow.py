@@ -14,8 +14,8 @@ from .resources.objects import *
 
 
 @pytest.mark.parametrize('df', [
-    DatasetFromOpenML(task_id=task_id_1),
-    DatasetFromOpenML(task_id=task_id_2)
+    DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY),
+    DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY)
 ])
 def test_flow(df):
     try:
@@ -48,7 +48,7 @@ def test_flow(df):
 
 
 @pytest.mark.parametrize('df', [
-    DatasetArray([DatasetFromOpenML(task_id=task_id_1), DatasetFromOpenML(task_id=task_id_2)]),
+    DatasetArray([DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY), DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY)]),
     DatasetArray([Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2)])
 ])
 def test_flow_array(df):

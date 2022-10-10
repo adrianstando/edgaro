@@ -6,8 +6,8 @@ from .resources.objects import *
 
 
 @pytest.mark.parametrize('ds', [
-    DatasetFromOpenML(task_id=task_id_1),
-    DatasetFromOpenML(task_id=task_id_2),
+    DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY),
+    DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY),
 ])
 def test_model(ds):
     try:
@@ -22,8 +22,8 @@ def test_model(ds):
 
 
 @pytest.mark.parametrize('ds', [
-    DatasetFromOpenML(task_id=task_id_1),
-    DatasetFromOpenML(task_id=task_id_2),
+    DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY),
+    DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY),
 ])
 def test_model_2(ds):
     try:
@@ -38,8 +38,8 @@ def test_model_2(ds):
 
 
 @pytest.mark.parametrize('ds', [
-    DatasetFromOpenML(task_id=task_id_1),
-    DatasetFromOpenML(task_id=task_id_2),
+    DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY),
+    DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY),
 ])
 def test_model_output(ds):
     ds.remove_nans()
