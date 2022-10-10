@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.datasets import load_breast_cancer
 import os
+import openml
 
 df_1 = pd.DataFrame({
     'a': [1, 2, 3],
@@ -36,3 +37,9 @@ task_id_2 = 15
 
 suite_name_1 = 'OpenML100'
 suite_name_2 = 'OpenML-CC18'
+
+APIKEY = os.environ.get('OPENML_CREDENTIALS')
+
+if openml.config.apikey == '':
+    if APIKEY is not None:
+        openml.config.apikey = APIKEY
