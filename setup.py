@@ -29,7 +29,7 @@ setup(
         "Operating System :: OS Independent"
     ],
     keywords="XAI, imbalance, machine learning",
-    packages=find_packages(where="EDGAR"),
+    packages=["EDGAR"] + [f"EDGAR.{item}" for item in find_packages(where="EDGAR")],
     python_requires=">=3.7, <4",
     install_requires=[
         'setuptools',
