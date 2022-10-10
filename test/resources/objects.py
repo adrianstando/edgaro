@@ -38,8 +38,4 @@ task_id_2 = 15
 suite_name_1 = 'OpenML100'
 suite_name_2 = 'OpenML-CC18'
 
-APIKEY = os.environ.get('OPENML_CREDENTIALS')
-
-if openml.config.apikey == '':
-    if APIKEY is not None:
-        openml.config.apikey = APIKEY
+APIKEY = os.environ.get('OPENML_CREDENTIALS') if os.environ.get('OPENML_CREDENTIALS') is not None else ''

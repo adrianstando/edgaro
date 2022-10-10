@@ -42,6 +42,7 @@ setup(
         'pandas-profiling>=3.3.0',
         'pytest>=7.1.3',
         'scikit-learn>=1.1.1',
+        'imblearn>=0.0'
     ],
     project_urls={
         "Repository": "https://github.com/adrianstando/EDGAR"
