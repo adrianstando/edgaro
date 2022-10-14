@@ -8,12 +8,11 @@ from typing import Optional
 # TODO:
 # Error rate - comparing two datasets - "Stop Oversampling for Class Imbalance Learning: A
 # Critical Review"
-# Check length of target and data
 
 class Dataset:
     def __init__(self, name: str, dataframe: Optional[pd.DataFrame], target: Optional[pd.Series]):
         if dataframe is not None and target is not None:
-            if dataframe.shape[1] != target.shape[1]:
+            if dataframe.shape[0] != target.shape[0]:
                 raise Exception('Dataframe and target have different number of rows!')
 
         self.name = name
@@ -59,6 +58,8 @@ class Dataset:
             return max(counts) / min(counts)
 
     def __eq__(self, other):
+        if not isinstance(other, Dataset):
+            return False
         if self.name != other.name:
             return False
         if not self.data.equals(other.data):
@@ -91,9 +92,6 @@ class DatasetFromCSV(Dataset):
         X = X.drop([target], axis=1)
         super().__init__(name=name, dataframe=X, target=y)
 
-
-# TODO:
-# Add printing description
 
 class DatasetFromOpenML(Dataset):
     """
