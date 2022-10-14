@@ -66,6 +66,8 @@ class PDPResult:
                 plt.legend([self.name])
             else:
                 if variable not in self.categorical_columns:
+                    plt.subplots(figsize=figsize)
+                    plt.plot(curve_base.x, curve_base.y)
                     for curve in curves_add:
                         plt.plot(curve.x, curve.y)
                 else:

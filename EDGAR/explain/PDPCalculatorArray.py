@@ -23,8 +23,8 @@ class PDPCalculatorArray:
 
         self.sub_calculators = [create_sub_calculator(m[0]) for m in self.models.get_models()]
 
-    def transform(self, variables=None):
+    def transform(self, variables=None, N: int = 1000):
         if variables is None:
-            return [calc.transform() for calc in self.sub_calculators]
+            return [calc.transform(N=N) for calc in self.sub_calculators]
         else:
             return self.transform(variables=None)
