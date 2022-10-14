@@ -37,12 +37,28 @@ class DatasetArray:
                 return False
         return True
 
+    def __iter__(self):
+        self.current_i = 0
+        return self
+
+    def __next__(self):
+        if self.current_i < len(self.datasets):
+            out = self.datasets[self.current_i]
+            self.current_i += 1
+            return out
+        else:
+            raise StopIteration
+
     def remove_nans(self):
         for dataset in self.datasets:
             dataset.remove_nans()
+        self.remove_empty_datasets()
 
     def remove_non_binary_target_datasets(self):
         self.datasets = [dataset for dataset in self.datasets if dataset.check_binary_classification()]
+
+    def remove_empty_datasets(self):
+        self.datasets = [dataset for dataset in self.datasets if len(dataset.target) != 0 and len(dataset.data) != 0]
 
 
 class DatasetArrayFromOpenMLSuite(DatasetArray):

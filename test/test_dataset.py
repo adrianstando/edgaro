@@ -1,6 +1,7 @@
 import pytest
 from EDGAR.data.Dataset import Dataset, DatasetFromCSV, DatasetFromOpenML
 import re
+from copy import deepcopy
 from .resources.objects import *
 
 
@@ -126,11 +127,19 @@ def test_csv_not_equal(ds1, ds2):
 
 
 def test_remove_nans():
-    ds = Dataset(name_4_nans, df_4_nans, target_4_nans)
+    ds = Dataset(name_4_nans, deepcopy(df_4_nans), deepcopy(target_4_nans))
     ds.remove_nans()
 
     assert ds.data.shape == (1, 2)
     assert ds.target.shape == (1,)
+
+
+def test_remove_nans_2():
+    ds = Dataset(name_4_nans, deepcopy(df_4_nans), deepcopy(target_2))
+    ds.remove_nans(col_thresh=1)
+
+    assert ds.data.shape == (2, 2)
+    assert ds.target.shape == (2,)
 
 
 @pytest.mark.parametrize('ds', [

@@ -25,7 +25,7 @@ class Dataset:
         else:
             return False
 
-    def generate_report(self, output_path: Optional[str] = None, show_jupyter: bool = False):
+    def generate_report(self, output_path: Optional[str] = None, show_jupyter: bool = False, minimal: bool = False):
         if self.data is None and self.target is None:
             raise Exception('Both data and target are None!')
 
@@ -36,7 +36,7 @@ class Dataset:
         else:
             data = self.data.assign(target=self.target)
 
-        profile = ProfileReport(data, title='Pandas Profiling Report for ' + self.name)
+        profile = ProfileReport(data, title='Pandas Profiling Report for ' + self.name, minimal=minimal, progress_bar=False)
 
         if output_path is not None:
             profile.to_file(output_file=output_path)
@@ -63,7 +63,11 @@ class Dataset:
             return False
         return True
 
-    def remove_nans(self):
+    def remove_nans(self, col_thresh=0.9):
+        nans = self.data.isnull().sum() / self.data.shape[0]
+        nans = list(nans[nans > col_thresh].index)
+        self.data.drop(nans, axis=1, inplace=True)
+
         nans = self.data.isna().any(axis=1)
         nans = list(nans[nans == True].index)
         self.data.drop(nans, axis=0, inplace=True)
@@ -134,3 +138,6 @@ class DatasetFromOpenML(Dataset):
 
         print('Description: ')
         print(self.__openml_description)
+
+    def openml_description(self):
+        return self.__openml_description
