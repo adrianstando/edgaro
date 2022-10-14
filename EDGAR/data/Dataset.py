@@ -12,6 +12,10 @@ from typing import Optional
 
 class Dataset:
     def __init__(self, name: str, dataframe: Optional[pd.DataFrame], target: Optional[pd.Series]):
+        if dataframe is not None and target is not None:
+            if dataframe.shape[1] != target.shape[1]:
+                raise Exception('Dataframe and target have different number of rows!')
+
         self.name = name
         self.data = dataframe
         self.target = target
