@@ -6,7 +6,7 @@ import openml
 
 
 class DatasetArray:
-    def __init__(self, datasets: List[Dataset], name: str = 'dataset_array'):  # umożliwić DatasetArray
+    def __init__(self, datasets: List[Union[Dataset, DatasetArray]], name: str = 'dataset_array'):
         keys = [df.name for df in datasets]
         if len(set(keys)) == len(keys):
             self.datasets = datasets
@@ -14,8 +14,14 @@ class DatasetArray:
         else:
             raise Exception('Dataset names are not unique!')
 
-    def __getitem__(self, key: Union[str, int]) -> Optional[Dataset]:
-        if isinstance(key, str):
+    def __getitem__(self, key: Union[Union[str, int], List[Union[str, int]]]):
+        if isinstance(key, list):
+            out = DatasetArray([self.__getitem__(k) for k in key])
+            if len(out) == 0:
+                return None
+            else:
+                return out
+        elif isinstance(key, str):
             for df in self.datasets:
                 if df.name == key:
                     return df
@@ -28,6 +34,8 @@ class DatasetArray:
         return len(self.datasets)
 
     def __eq__(self, other):
+        if not isinstance(other, DatasetArray):
+            return False
         if not self.name == other.name:
             return False
         if not len(self) == len(other):
@@ -55,10 +63,36 @@ class DatasetArray:
         self.remove_empty_datasets()
 
     def remove_non_binary_target_datasets(self):
-        self.datasets = [dataset for dataset in self.datasets if dataset.check_binary_classification()]
+        for dataset in self.datasets:
+            if isinstance(dataset, DatasetArray):
+                dataset.remove_non_binary_target_datasets()
+
+        # remove empty DatasetArrays
+        self.datasets = [dataset for dataset in self.datasets if
+                         not isinstance(dataset, DatasetArray) or len(dataset) > 0]
+
+        # remove non-binary classification tasks
+        self.datasets = [dataset
+                         for dataset in self.datasets
+                         if isinstance(dataset, DatasetArray) or (
+                                 isinstance(dataset, Dataset) and dataset.check_binary_classification())
+                         ]
 
     def remove_empty_datasets(self):
-        self.datasets = [dataset for dataset in self.datasets if len(dataset.target) != 0 and len(dataset.data) != 0]
+        for dataset in self.datasets:
+            if isinstance(dataset, DatasetArray):
+                dataset.remove_empty_datasets()
+
+        # remove empty DatasetArrays
+        self.datasets = [dataset for dataset in self.datasets if
+                         not isinstance(dataset, DatasetArray) or len(dataset) > 0]
+
+        # remove empty Datasets
+        self.datasets = [dataset
+                         for dataset in self.datasets
+                         if isinstance(dataset, DatasetArray) or (
+                                 isinstance(dataset, Dataset) and len(dataset.target) != 0 and len(dataset.data) != 0)
+                         ]
 
 
 class DatasetArrayFromOpenMLSuite(DatasetArray):
