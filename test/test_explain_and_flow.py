@@ -61,19 +61,14 @@ def test_flow_array(df):
         transformator.fit(df)
         df_new = transformator.transform(df)
 
-        df_new[0][0].imbalance_ratio()
-        df_new[1][0].imbalance_ratio()
-
-        # TODO:
-        # this behaviour has to be changed
-        df_new = DatasetArray([df_new[0][0], df_new[1][0]])
+        df_new[0].imbalance_ratio()
+        df_new[1].imbalance_ratio()
 
         rf = ModelArray(RandomForest())
         rf.fit(df_new)
         y = rf.predict(df_new)
-        # TODO:
-        # this behaviour has to be changed
-        accuracy_score(y[0][0].target, rf.get_models()[0][0].get_train_dataset().target)
+
+        accuracy_score(y[0].target, rf.get_models()[0].get_train_dataset().target)
 
         pdp = PDPCalculatorArray(rf)
         pdp.fit()

@@ -147,6 +147,7 @@ def test_remove_nans():
         Dataset(name_4_nans + '_0', df_4_nans, target_4_nans),
         Dataset(name_4_nans + '_1', df_4_nans, target_4_nans)
     ])
+    da = deepcopy(da)
     da.remove_nans()
 
     assert da[0].data.shape == (1, 2)
@@ -164,6 +165,7 @@ def test_remove_nans_2():
             Dataset(name_4_nans + '_1', df_4_nans, target_4_nans),
         ])
     ])
+    da = deepcopy(da)
     da.remove_nans()
 
     assert da[0].data.shape == (1, 2)
@@ -234,6 +236,7 @@ class TestOpenMLSuite:
 def test_remove_non_binary_target_datasets_2(ds, expected_binary_n):
     # These OpenML suites contain also non-binary target datasets
     da = DatasetArray(ds)
+    da = deepcopy(da)
     length_1 = len(da)
 
     da.remove_non_binary_target_datasets()
@@ -243,7 +246,7 @@ def test_remove_non_binary_target_datasets_2(ds, expected_binary_n):
     assert length_2 == expected_binary_n
 
 
-def test_remove_non_binary_target_datasets_3():
+def test_remove_non_binary_target_datasets_3_1():
     da = DatasetArray([
         Dataset(name_4_nans + '_0', df_4_nans, target_1_fake),
         Dataset(name_4_nans + '_1', df_4_nans, target_4_nans),
@@ -253,10 +256,50 @@ def test_remove_non_binary_target_datasets_3():
         ])
     ])
 
-    assert len(da) == 4
-
-    da.remove_non_binary_target_datasets()
     assert len(da) == 3
+
+    da = deepcopy(da)
+    da.remove_non_binary_target_datasets()
+
+    assert len(da) == 0
+
+
+def test_remove_non_binary_target_datasets_3_2():
+    da = DatasetArray([
+        Dataset(name_4_nans + '_0', df_4_nans, target_1),
+        Dataset(name_4_nans + '_1', df_4_nans, target_4_nans),
+        DatasetArray([
+            Dataset(name_4_nans + '_0', df_4_nans, target_1),
+            Dataset(name_4_nans + '_1', df_4_nans, target_1),
+        ])
+    ])
+
+    assert len(da) == 3
+
+    da = deepcopy(da)
+    da.remove_non_binary_target_datasets()
+
+    assert len(da) == 2
+    assert len(da[1]) == 2
+
+
+def test_remove_non_binary_target_datasets_3_3():
+    da = DatasetArray([
+        Dataset(name_4_nans + '_0', df_4_nans, target_1),
+        Dataset(name_4_nans + '_1', df_4_nans, target_4_nans),
+        DatasetArray([
+            Dataset(name_4_nans + '_0', df_4_nans, target_1),
+            Dataset(name_4_nans + '_1', df_4_nans, target_4_nans),
+        ])
+    ])
+
+    assert len(da) == 3
+
+    da = deepcopy(da)
+    da.remove_non_binary_target_datasets()
+
+    assert len(da) == 2
+    assert len(da[1]) == 1
 
 
 def test_remove_non_binary_target_datasets_4():
@@ -272,6 +315,7 @@ def test_remove_non_binary_target_datasets_4():
     assert len(da) == 3
     assert len(da[2]) == 2
 
+    da = deepcopy(da)
     da.remove_non_binary_target_datasets()
 
     assert len(da) == 3
@@ -291,6 +335,7 @@ def test_remove_empty_datasets():
     assert len(da) == 3
     assert len(da[2]) == 2
 
+    da = deepcopy(da)
     da.remove_non_binary_target_datasets()
 
     assert len(da) == 2
@@ -310,6 +355,7 @@ def test_remove_empty_datasets_2():
     assert len(da) == 3
     assert len(da[2]) == 2
 
+    da = deepcopy(da)
     da.remove_non_binary_target_datasets()
 
     assert len(da) == 3

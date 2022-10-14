@@ -33,18 +33,13 @@ def test_model_array_output(ds):
     model.fit(ds)
     y = model.predict(ds)
 
-    assert isinstance(y, list)
+    assert isinstance(y, DatasetArray)
     assert len(y) == len(ds)
     for i in range(len(ds)):
-        assert isinstance(y[i], DatasetArray)
-        for j in range(len(y[i])):
-            assert isinstance(y[i][j], Dataset)
-            assert y[i][j].check_binary_classification()
+        assert isinstance(y[i], Dataset)
 
     y = model.predict_proba(ds)
-    assert isinstance(y, list)
+    assert isinstance(y, DatasetArray)
     assert len(y) == len(ds)
     for i in range(len(ds)):
-        assert isinstance(y[i], DatasetArray)
-        for j in range(len(y[i])):
-            assert isinstance(y[i][j], Dataset)
+        assert isinstance(y[i], Dataset)

@@ -6,12 +6,9 @@ from EDGAR.data.DatasetArray import DatasetArray
 from EDGAR.base.BaseTransformer import BaseTransformer
 
 
-# TODO:
-# DatasetArray of DatasetArray implementation
-
 class BaseTransformerArray:
-    def __init__(self, base_transfer: BaseTransformer, parameters: Optional[List[Dict[str, Any]]] = None):
-        self.__base_transformer = base_transfer
+    def __init__(self, base_transformer: BaseTransformer, parameters: Optional[List[Dict[str, Any]]] = None):
+        self.__base_transformer = base_transformer
         self.__transformers = []
         self.__input_array = None
         self.__parameters = parameters
@@ -37,20 +34,22 @@ class BaseTransformerArray:
             self.__input_array = True
             if self.__parameters is None:
                 self.__transformers = [
-                    [deepcopy(self.__base_transformer)] for _ in range(len(dataset))
-                    # dodać tutaj stworzenie TransformerArray jeśli któryś z DatasetArray jest też DatasetArray
+                    deepcopy(self.__base_transformer)
+                    if isinstance(dataset[i], Dataset)
+                    else BaseTransformerArray(deepcopy(self.__base_transformer))
+                    for i in range(len(dataset))
                 ]
                 for i in range(len(self.__transformers)):
-                    self.__transformers[i][0].fit(dataset[i])
+                    self.__transformers[i].fit(dataset[i])
             else:
                 if not len(dataset) == len(self.__parameters):
                     raise Exception('Not enough parameters were provided!')
-                tab = [self.__create_new_transformer(params) for params in self.__parameters]
-                self.__transformers = [deepcopy(tab) for _ in range(len(dataset))]  # dodać tutaj stworzenie
-                # TransformerArray jeśli któryś z DatasetArray jest też DatasetArray
+
+                tab = BaseTransformerArray(base_transformer=self.__base_transformer, parameters=self.__parameters)
+                self.__transformers = [deepcopy(tab) for _ in range(len(dataset))]
+
                 for i in range(len(dataset)):
-                    for j in range(len(self.__transformers[i])):
-                        self.__transformers[i][j].fit(dataset[i])
+                    self.__transformers[i].fit(dataset[i])
 
     def transform(self, dataset: Union[Dataset, DatasetArray]):
         # Single dataset case
@@ -59,18 +58,16 @@ class BaseTransformerArray:
                 raise Exception('DatasetArray was fitted, but single Dataset was provided!')
             return DatasetArray(
                 [transformator.transform(dataset) for transformator in self.__transformers],
-                name=dataset.name + '_array'
+                name=dataset.name + '_transformed_array'
             )
         # DatasetArray case
         else:
             if not self.__input_array:
                 raise Exception('Dataset was fitted, but DatasetArray was provided!')
-            return [
-                DatasetArray(
-                    [transformator.transform(dataset[i]) for transformator in self.__transformers[i]],
-                    name=dataset.name + '_array'
-                ) for i in range(len(dataset))
-            ]
+            return DatasetArray(
+                [self.__transformers[i].transform(dataset[i]) for i in range(len(dataset))],
+                name=dataset.name + '_transformed_array'
+            )
 
     """
     Each parameter has to be a list!!
@@ -95,11 +92,28 @@ class BaseTransformerArray:
 
         if len(self.__transformers) != 0:
             for i in range(len(self.__transformers)):
-                for j in range(len(self.__transformers[i])):
-                    self.__transformers[i][j].set_params(**tmp[j])
+                self.__transformers[i].set_params(**tmp[i])
 
     def get_params(self):
         return self.__parameters
 
     def get_transformers(self):
         return self.__transformers
+
+    def get_base_transformer(self):
+        return self.__base_transformer
+
+    def __len__(self):
+        return len(self.__transformers)
+
+    def __getitem__(self, key: Union[int, List[int]]):
+        if isinstance(key, list):
+            out = [self.__getitem__(k) for k in key]
+            if len(out) == 0:
+                return None
+            else:
+                return out
+        elif isinstance(key, int):
+            if key <= len(self.__transformers):
+                return self.__transformers[key]
+        return None

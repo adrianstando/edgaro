@@ -17,7 +17,9 @@ from .resources.objects import *
     Dataset(name_1, df_1, target_1),
     Dataset(name_2, df_2, target_2),
     DatasetArray([Dataset(name_1, df_1, target_1)]),
-    DatasetArray([Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2)])
+    DatasetArray([Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2)]),
+    DatasetArray([Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2), DatasetArray([Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2)])]),
+    DatasetArray([DatasetArray([Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2)], name='x'), DatasetArray([Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2)])])
 ])
 def test_transformer_array(imblearn_sampler, ds):
     try:
@@ -29,8 +31,6 @@ def test_transformer_array(imblearn_sampler, ds):
         assert False
 
 
-# TODO:
-# connect two tests below into one
 @pytest.mark.parametrize('imblearn_sampler', [
     RandomUnderSampler(sampling_strategy=1, random_state=42),
     RandomOverSampler(sampling_strategy=1, random_state=42)
@@ -70,14 +70,12 @@ def test_transformer_sufix_2_datasetarray(imblearn_sampler, ds, sufix):
     array.fit(ds)
     out = array.transform(ds)
 
+    assert out.name == ds.name + '_transformed_array'
+
     expected_names = [dataset.name + sufix for dataset in ds.datasets]
     assert len(expected_names) == len(out)
-
     for ds_array in out:
-        assert ds_array.name == ds.name + '_array'
-
-        for i in range(len(ds_array.datasets)):
-            assert ds_array.datasets[i].name in expected_names
+        assert ds_array.name in expected_names
 
 
 @pytest.mark.parametrize('imblearn_sampler', [
@@ -102,10 +100,7 @@ def test_transformer_sufix_tab_datasetarray(imblearn_sampler, ds, sufix):
     assert len(expected_names) == len(out)
 
     for ds_array in out:
-        assert ds_array.name == ds.name + '_array'
-
-        for i in range(len(ds_array.datasets)):
-            assert ds_array.datasets[i].name in expected_names
+        assert ds_array.name in expected_names
 
 
 @pytest.mark.parametrize('imblearn_sampler', [
@@ -130,10 +125,7 @@ def test_transformer_sufix_tab_2_datasetarray(imblearn_sampler, ds, sufix):
     assert len(expected_names) == len(out)
 
     for ds_array in out:
-        assert ds_array.name == ds.name + '_array'
-
-        for i in range(len(ds_array.datasets)):
-            assert ds_array.datasets[i].name in expected_names
+        assert ds_array.name in expected_names
 
 
 @pytest.mark.parametrize('imblearn_sampler', [
@@ -173,8 +165,7 @@ def test_imbalance_ratio(imblearn_sampler, ratio, ds):
     out = array.transform(ds)
 
     for ds_array in out:
-        for i in range(len(ds_array.datasets)):
-            assert ds_array.datasets[i].imbalance_ratio() == round(ratio, 2)
+        assert ds_array.imbalance_ratio() == round(ratio, 2)
 
 
 @pytest.mark.parametrize('imblearn_sampler,ratio', [
@@ -194,8 +185,7 @@ def test_imbalance_ratio_2(imblearn_sampler, ratio, ds):
     out = array.transform(ds)
 
     for ds_array in out:
-        for i in range(len(ds_array.datasets)):
-            assert round(1 / ds_array.datasets[i].imbalance_ratio(), 2) == round(ratio, 2)
+        assert round(1 / ds_array.imbalance_ratio(), 2) == round(ratio, 2)
 
 
 @pytest.mark.parametrize('imblearn_sampler', [
@@ -232,14 +222,13 @@ def test_set_get_params(imblearn_sampler, ds, param):
     assert array.get_params() == tmp
 
     for i in range(len(array.get_transformers())):
-        for j in range(len(array.get_transformers()[i])):
-            tmp = {}
-            for key in param:
-                tmp[key] = param[key][j]
+        tmp = {}
+        for key in param:
+            tmp[key] = param[key][i]
 
-            expected_params = list(tmp.items())
-            existing_params = list(array.get_transformers()[i][j].get_params().items())
-            assert np.alltrue([p in existing_params for p in expected_params])
+        expected_params = list(tmp.items())
+        existing_params = list(array.get_transformers()[i].get_params().items())
+        assert np.alltrue([p in existing_params for p in expected_params])
 
 
 @pytest.mark.parametrize('imblearn_sampler', [
@@ -276,14 +265,13 @@ def test_set_get_params_2(imblearn_sampler, ds, param):
     assert array.get_params() == tmp
 
     for i in range(len(array.get_transformers())):
-        for j in range(len(array.get_transformers()[i])):
-            tmp = {}
-            for key in param:
-                tmp[key] = param[key][j]
+        tmp = {}
+        for key in param:
+            tmp[key] = param[key][i]
 
-            expected_params = list(tmp.items())
-            existing_params = list(array.get_transformers()[i][j].get_params().items())
-            assert np.alltrue([p in existing_params for p in expected_params])
+        expected_params = tmp
+        existing_params = array.get_transformers()[i].get_params()
+        assert expected_params in existing_params
 
 
 @pytest.mark.parametrize('imblearn_sampler', [
@@ -382,12 +370,8 @@ def test_params_in_arguments_and_sufix(imblearn_sampler, ds, param, sufix):
 
     for j in range(len(out)):
         ds_array = out[j]
-        assert ds_array.name == ds.name + '_array'
-
         expected_names = [ds.datasets[j].name + sufix[i] for i in range(len(ds.datasets))]
-
-        for i in range(len(ds_array.datasets)):
-            assert ds_array.datasets[i].name in expected_names
+        assert np.alltrue([d.name in expected_names for d in ds_array])
 
 
 @pytest.mark.parametrize('imblearn_sampler', [
@@ -442,9 +426,5 @@ def test_params_in_arguments_and_sufix_2(imblearn_sampler, ds, param, sufix):
 
     for j in range(len(out)):
         ds_array = out[j]
-        assert ds_array.name == ds.name + '_array'
-
         expected_names = [ds.datasets[j].name + sufix[0] + '_' + str(i) for i in range(len(ds.datasets))]
-
-        for i in range(len(ds_array.datasets)):
-            assert ds_array.datasets[i].name in expected_names
+        assert np.alltrue([d.name in expected_names for d in ds_array])
