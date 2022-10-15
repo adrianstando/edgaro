@@ -16,9 +16,6 @@ from EDGAR.base.BaseTransformer import BaseTransformer
 from EDGAR.data.Dataset import Dataset
 
 
-# TODO:
-# Predefined model tunning (GridSearch, BayesSearch, RandomSearch)
-
 class Model(BaseTransformer, ABC):
     def __init__(self, name: str = '', test_size: float = 0.2):
         super().__init__()
