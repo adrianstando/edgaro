@@ -9,14 +9,15 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score, balanced_accuracy_score, precision_score, recall_score, roc_auc_score
 from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.model_selection import RandomizedSearchCV as RS
+from sklearn.model_selection import GridSearchCV as GS
+import xgboost as xgb
 from EDGAR.base.BaseTransformer import BaseTransformer
 from EDGAR.data.Dataset import Dataset
 
 
 # TODO:
-# XGBoost
 # Predefined model tunning (GridSearch, BayesSearch, RandomSearch)
-# train test split
 
 class Model(BaseTransformer, ABC):
     def __init__(self, name: str = '', test_size: float = 0.2):
@@ -90,8 +91,13 @@ class Model(BaseTransformer, ABC):
     def _predict_proba(self, dataset: Dataset, output_name: str):
         pass
 
-    @abstractmethod
     def set_params(self, **params):
+        if 'test_size_model' in params.keys():
+            self.test_size = params.pop('test_size_model')
+        self._set_params(**params)
+
+    @abstractmethod
+    def _set_params(self, **params):
         pass
 
     @abstractmethod
@@ -132,12 +138,12 @@ class Model(BaseTransformer, ABC):
         if len(metrics_output_class) > 0:
             y_hat = self.predict(ds)
             for f in metrics_output_class:
-                results[f.__name__] = f(ds.target, y_hat)
+                results[f.__name__] = f(self.__target_encoder.transform(ds.target), y_hat.target)
         if len(metrics_output_probabilities) > 0:
             y_hat = self.predict_proba(ds)
             for f in metrics_output_probabilities:
-                results[f.__name__] = f(ds.target, y_hat)
-        return pd.DataFrame(results)
+                results[f.__name__] = f(self.__target_encoder.transform(ds.target), y_hat.target[:, 1])
+        return pd.DataFrame(results.items(), columns=['metric', 'value'])
 
 
 class _TargetEncode(BaseEstimator, TransformerMixin):
@@ -167,13 +173,13 @@ class _TargetEncode(BaseEstimator, TransformerMixin):
 class ModelFromSKLEARN(Model):
     def __init__(self, base_model: BaseEstimator, name: str = '', test_size: float = 0.2):
         super().__init__(name=name, test_size=test_size)
-        self.__model = base_model
+        self._model = base_model
 
     def _fit(self, dataset: Dataset):
         if dataset.target is None:
             raise Exception('Target data is not provided!')
 
-        return self.__model.fit(dataset.data, dataset.target)
+        return self._model.fit(dataset.data, dataset.target)
 
     def _predict(self, dataset: Dataset, output_name: str):
         if isinstance(dataset.data, np.ndarray) and isinstance(self.get_train_dataset().data, pd.DataFrame):
@@ -183,7 +189,7 @@ class ModelFromSKLEARN(Model):
         return Dataset(
             name=output_name,
             dataframe=None,
-            target=self.__model.predict(dataset.data)
+            target=self._model.predict(dataset.data)
         )
 
     def _predict_proba(self, dataset: Dataset, output_name: str):
@@ -194,16 +200,39 @@ class ModelFromSKLEARN(Model):
         return Dataset(
             name=output_name,
             dataframe=None,
-            target=self.__model.predict_proba(dataset.data)
+            target=self._model.predict_proba(dataset.data)
         )
 
-    def set_params(self, **params):
-        return self.__model.set_params(**params)
+    def _set_params(self, **params):
+        return self._model.set_params(**params)
 
     def get_params(self):
-        return self.__model.get_params()
+        return self._model.get_params()
 
 
 class RandomForest(ModelFromSKLEARN):
     def __init__(self, name: str = '', test_size: float = 0.2, *args, **kwargs):
         super().__init__(RandomForestClassifier(*args, **kwargs), name=name, test_size=test_size)
+
+
+class XGBoost(ModelFromSKLEARN):
+    def __init__(self, name: str = '', test_size: float = 0.2, *args, **kwargs):
+        super().__init__(xgb.XGBClassifier(*args, **kwargs), name=name, test_size=test_size)
+
+
+class RandomSearchCV(ModelFromSKLEARN):
+    def __init__(self, base_model: ModelFromSKLEARN, param_grid, n_iter=10, cv=5, scoring='f1', name: str = '', test_size: float = 0.2, *args, **kwargs):
+        super().__init__(
+            RS(base_model._model, param_grid, cv=cv, scoring=scoring, n_iter=n_iter, *args, **kwargs),
+            name=name,
+            test_size=test_size
+        )
+
+
+class GridSearchCV(ModelFromSKLEARN):
+    def __init__(self, base_model: ModelFromSKLEARN, param_grid, cv=5, scoring='f1', name: str = '', test_size: float = 0.2, *args, **kwargs):
+        super().__init__(
+            GS(base_model._model, param_grid, cv=cv, scoring=scoring, *args, **kwargs),
+            name=name,
+            test_size=test_size
+        )

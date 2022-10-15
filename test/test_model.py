@@ -6,7 +6,7 @@ from copy import deepcopy
 import pytest
 from sklearn.ensemble import RandomForestClassifier
 from EDGAR.data.Dataset import Dataset, DatasetFromOpenML
-from EDGAR.model.Model import RandomForest, ModelFromSKLEARN
+from EDGAR.model.Model import RandomForest, ModelFromSKLEARN, XGBoost, RandomSearchCV, GridSearchCV
 from .resources.objects import *
 
 
@@ -25,6 +25,25 @@ def test_model(ds):
 
         model = RandomForest(test_size=0.01)
         model.fit(ds)
+        model.evaluate()
+        model.predict(ds)
+        model.predict_proba(ds)
+
+        model = XGBoost(test_size=0.01)
+        model.fit(ds)
+        model.evaluate()
+        model.predict(ds)
+        model.predict_proba(ds)
+
+        model = RandomSearchCV(base_model=RandomForest(), param_grid={'n_estimators': [10, 20, 50]}, test_size=0.01)
+        model.fit(ds)
+        model.evaluate()
+        model.predict(ds)
+        model.predict_proba(ds)
+
+        model = GridSearchCV(base_model=RandomForest(), param_grid={'n_estimators': [10, 20, 50]}, test_size=0.01)
+        model.fit(ds)
+        model.evaluate()
         model.predict(ds)
         model.predict_proba(ds)
     except (Exception,):
@@ -52,13 +71,20 @@ def test_model_2(ds):
     DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY),
     DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY),
 ])
-def test_model_output(ds):
+@pytest.mark.parametrize('model', [
+    RandomForest(test_size=0.01),
+    XGBoost(test_size=0.01),
+    RandomSearchCV(base_model=RandomForest(), param_grid={'n_estimators': [10, 20, 50]}, test_size=0.01),
+    GridSearchCV(base_model=RandomForest(), param_grid={'n_estimators': [10, 20, 50]}, test_size=0.01)
+])
+def test_model_output(ds, model):
     ds = deepcopy(ds)
-    ds.remove_nans()
+    model = deepcopy(model)
 
-    model = RandomForest(test_size=0.01)
+    ds.remove_nans()
     model.fit(ds)
     y = model.predict(ds)
+    model.evaluate()
     assert isinstance(y, Dataset)
     assert y.check_binary_classification()
     y = model.predict_proba(ds)
@@ -69,11 +95,17 @@ def test_model_output(ds):
     DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY),
     DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY),
 ])
-def test_model_output_names(ds):
+@pytest.mark.parametrize('model', [
+    RandomForest(test_size=0.01),
+    XGBoost(test_size=0.01),
+    RandomSearchCV(base_model=RandomForest(), param_grid={'n_estimators': [10, 20, 50]}, test_size=0.01),
+    GridSearchCV(base_model=RandomForest(), param_grid={'n_estimators': [10, 20, 50]}, test_size=0.01)
+])
+def test_model_output_names(ds, model):
     ds = deepcopy(ds)
+    model = deepcopy(model)
     ds.remove_nans()
 
-    model = RandomForest(test_size=0.01)
     model.fit(ds)
     y = model.predict(ds)
     assert y.name == ds.name + '_predicted'
@@ -86,11 +118,19 @@ def test_model_output_names(ds):
     (DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY), 'model_1'),
     (DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY), 'model_2')
 ])
-def test_model_output_names_2(ds, model_name):
+@pytest.mark.parametrize('model', [
+    RandomForest(test_size=0.01),
+    XGBoost(test_size=0.01),
+    RandomSearchCV(base_model=RandomForest(), param_grid={'n_estimators': [10, 20, 50]}, test_size=0.01),
+    GridSearchCV(base_model=RandomForest(), param_grid={'n_estimators': [10, 20, 50]}, test_size=0.01)
+])
+def test_model_output_names_2(ds, model_name, model):
     ds = deepcopy(ds)
+    model = deepcopy(model)
+    model.name = model_name
+
     ds.remove_nans()
 
-    model = RandomForest(name=model_name, test_size=0.01)
     model.fit(ds)
     y = model.predict(ds)
     assert y.name == ds.name + '_' + model_name + '_predicted'
