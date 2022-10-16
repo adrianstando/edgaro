@@ -86,16 +86,16 @@ class TransformerArray(BaseTransformerArray):
             if params is None:
                 for i in range(len(self.get_transformers())):
                     if len(self.__name_sufix) == 1:
-                        self.get_transformers()[i] = self.__base_transformer_to_transformer_array(
+                        self.get_transformers()[i] = self.__base_transformer_array_to_balancing_transformer_array(
                             self.get_transformers()[i])
                         self.get_transformers()[i].set_name_sufix(self.__name_sufix[0])
                     else:
-                        self.get_transformers()[i] = self.__base_transformer_to_transformer_array(
+                        self.get_transformers()[i] = self.__base_transformer_array_to_balancing_transformer_array(
                             self.get_transformers()[i])
                         self.get_transformers()[i].set_name_sufix(self.__name_sufix[i])
             else:
                 for i in range(len(dataset)):
-                    self.get_transformers()[i] = self.__base_transformer_to_transformer_array(
+                    self.get_transformers()[i] = self.__base_transformer_array_to_balancing_transformer_array(
                         self.get_transformers()[i])
                     for j in range(len(self.get_transformers()[i])):
                         if len(self.__name_sufix) == 1:
@@ -105,7 +105,7 @@ class TransformerArray(BaseTransformerArray):
                         else:
                             raise Exception('Wrong length of name_sufix!')
 
-    def __base_transformer_to_transformer_array(self, base):
+    def __base_transformer_array_to_balancing_transformer_array(self, base):
         if isinstance(base, Transformer):
             return base
         elif not isinstance(base, TransformerArray):
