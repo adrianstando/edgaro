@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 from imblearn.base import BaseSampler
+from imblearn.under_sampling import RandomUnderSampler as RUS
+from imblearn.over_sampling import RandomOverSampler as ROS
 from EDGAR.base.BaseTransformer import BaseTransformer
 from EDGAR.data.Dataset import Dataset
 
@@ -60,3 +62,15 @@ class TransformerFromIMBLEARN(Transformer):
 
     def get_params(self):
         return self.__transformer.get_params()
+
+
+class RandomUnderSampler(TransformerFromIMBLEARN):
+    def __init__(self, imbalance_ratio: float = 1, name_sufix: str = '_transformed', random_state: int = None, *args, **kwargs):
+        transformer = RUS(sampling_strategy=1/imbalance_ratio, random_state=random_state, *args, **kwargs)
+        super().__init__(transformer=transformer, name_sufix=name_sufix)
+
+
+class RandomOverSampler(TransformerFromIMBLEARN):
+    def __init__(self, imbalance_ratio: float = 1, name_sufix: str = '_transformed', random_state: int = None, *args, **kwargs):
+        transformer = ROS(sampling_strategy=1/imbalance_ratio, random_state=random_state, *args, **kwargs)
+        super().__init__(transformer=transformer, name_sufix=name_sufix)
