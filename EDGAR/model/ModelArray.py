@@ -5,8 +5,6 @@ from EDGAR.data.Dataset import Dataset
 from EDGAR.data.DatasetArray import DatasetArray
 
 
-# TODO:
-# delete inheritance and implement fit
 class ModelArray(BaseTransformerArray):
     def __init__(self, base_model: Model, parameters: Optional[List[Dict[str, Any]]] = None, name: str = ''):
         super().__init__(base_transformer=base_model, parameters=parameters)
