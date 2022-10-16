@@ -360,3 +360,16 @@ def test_remove_empty_datasets_2():
 
     assert len(da) == 3
     assert len(da[2]) == 1
+
+
+@pytest.mark.parametrize('ds1,ds2', [
+    (DatasetArray([Dataset(name_1, df_1, target_1)]), Dataset(name_2, df_2, target_2)),
+    (DatasetArray([Dataset(name_1, df_1, target_1)]), DatasetArray([Dataset(name_2, df_3, target_3), Dataset(name_1, df_3, target_3)]))
+])
+def test_append(ds1, ds2):
+    ds1 = deepcopy(ds1)
+    ds2 = deepcopy(ds2)
+
+    len_1 = len(ds1)
+    ds1.append(ds2)
+    assert len(ds1) == len_1 + 1

@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 from imblearn.under_sampling import RandomUnderSampler
 from imblearn.over_sampling import RandomOverSampler
-from EDGAR.balancing.Transformer import TransformerFromIMBLEARN
+from EDGAR.balancing.Transformer import TransformerFromIMBLEARN, RandomUnderSampler as RandomUnderSampler_EDAGR, RandomOverSampler as RandomOverSampler_EDGAR
 from EDGAR.data.Dataset import Dataset, DatasetFromOpenML
 from EDGAR.data.DatasetArray import DatasetArray
 from EDGAR.balancing.TransformerArray import TransformerArray
@@ -428,3 +428,18 @@ def test_params_in_arguments_and_sufix_2(imblearn_sampler, ds, param, sufix):
         ds_array = out[j]
         expected_names = [ds.datasets[j].name + sufix[0] + '_' + str(i) for i in range(len(ds.datasets))]
         assert np.alltrue([d.name in expected_names for d in ds_array])
+
+
+def test_over_under_sampler():
+    ds = Dataset(name_2, df_1, target_1)
+
+    try:
+        transformer_1 = RandomOverSampler_EDGAR()
+        transformer_1.fit(ds)
+        transformer_1.transform(ds)
+
+        transformer_2 = RandomUnderSampler_EDAGR()
+        transformer_2.fit(ds)
+        transformer_2.transform(ds)
+    except (Exception,):
+        assert False
