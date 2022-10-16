@@ -17,7 +17,7 @@ from EDGAR.data.Dataset import Dataset
 
 
 class Model(BaseTransformer, ABC):
-    def __init__(self, name: str = '', test_size: float = 0.2):
+    def __init__(self, name: str = '', test_size: float = 0.2, random_state: Optional[int] = None):
         super().__init__()
         self.__transform_to_probabilities = False
         self.__train_dataset = None
@@ -26,13 +26,14 @@ class Model(BaseTransformer, ABC):
         self.name = name
         self.__label_encoders = {}
         self.__target_encoder = None
+        self.random_state = random_state
 
-    def fit(self, dataset: Dataset, random_state: Optional[int] = None, print_scores: bool = False):
+    def fit(self, dataset: Dataset, print_scores: bool = False):
         if not dataset.check_binary_classification():
             raise Exception('Dataset does not represent binary classification task!')
 
         ds = deepcopy(dataset)
-        X_train, X_test, y_train, y_test = train_test_split(ds.data, ds.target, test_size=self.test_size, random_state=random_state, stratify=ds.target)
+        X_train, X_test, y_train, y_test = train_test_split(ds.data, ds.target, test_size=self.test_size, random_state=self.random_state, stratify=ds.target)
         self.__train_dataset = Dataset(dataset.name + '_train', X_train, y_train)
         self.__test_dataset = Dataset(dataset.name + '_test', X_test, y_test)
 
@@ -168,13 +169,16 @@ class _TargetEncode(BaseEstimator, TransformerMixin):
 
 
 class ModelFromSKLEARN(Model):
-    def __init__(self, base_model: BaseEstimator, name: str = '', test_size: float = 0.2):
-        super().__init__(name=name, test_size=test_size)
+    def __init__(self, base_model: BaseEstimator, name: str = '', test_size: float = 0.2, random_state: Optional[int] = None):
+        super().__init__(name=name, test_size=test_size, random_state=random_state)
         self._model = base_model
 
     def _fit(self, dataset: Dataset):
         if dataset.target is None:
             raise Exception('Target data is not provided!')
+
+        if self._model.get_params()['random_state'] is None and self.random_state is not None:
+            self._model.set_params(**{'random_state': self.random_state})
 
         return self._model.fit(dataset.data, dataset.target)
 
@@ -208,28 +212,30 @@ class ModelFromSKLEARN(Model):
 
 
 class RandomForest(ModelFromSKLEARN):
-    def __init__(self, name: str = '', test_size: float = 0.2, *args, **kwargs):
-        super().__init__(RandomForestClassifier(*args, **kwargs), name=name, test_size=test_size)
+    def __init__(self, name: str = '', test_size: float = 0.2, random_state: Optional[int] = None, *args, **kwargs):
+        super().__init__(RandomForestClassifier(*args, **kwargs), name=name, test_size=test_size, random_state=random_state)
 
 
 class XGBoost(ModelFromSKLEARN):
-    def __init__(self, name: str = '', test_size: float = 0.2, *args, **kwargs):
-        super().__init__(xgb.XGBClassifier(*args, **kwargs), name=name, test_size=test_size)
+    def __init__(self, name: str = '', test_size: float = 0.2, random_state: Optional[int] = None, *args, **kwargs):
+        super().__init__(xgb.XGBClassifier(*args, **kwargs), name=name, test_size=test_size, random_state=random_state)
 
 
 class RandomSearchCV(ModelFromSKLEARN):
-    def __init__(self, base_model: ModelFromSKLEARN, param_grid, n_iter=10, cv=5, scoring='f1', name: str = '', test_size: float = 0.2, *args, **kwargs):
+    def __init__(self, base_model: ModelFromSKLEARN, param_grid, n_iter=10, cv=5, scoring='f1', name: str = '', test_size: float = 0.2, random_state: Optional[int] = None, *args, **kwargs):
         super().__init__(
             RS(base_model._model, param_grid, cv=cv, scoring=scoring, n_iter=n_iter, *args, **kwargs),
             name=name,
-            test_size=test_size
+            test_size=test_size,
+            random_state=random_state
         )
 
 
 class GridSearchCV(ModelFromSKLEARN):
-    def __init__(self, base_model: ModelFromSKLEARN, param_grid, cv=5, scoring='f1', name: str = '', test_size: float = 0.2, *args, **kwargs):
+    def __init__(self, base_model: ModelFromSKLEARN, param_grid, cv=5, scoring='f1', name: str = '', test_size: float = 0.2, random_state: Optional[int] = None, *args, **kwargs):
         super().__init__(
             GS(base_model._model, param_grid, cv=cv, scoring=scoring, *args, **kwargs),
             name=name,
-            test_size=test_size
+            test_size=test_size,
+            random_state=random_state
         )
