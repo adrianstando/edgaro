@@ -94,6 +94,12 @@ class DatasetArray:
                                  isinstance(dataset, Dataset) and len(dataset.target) != 0 and len(dataset.data) != 0)
                          ]
 
+    def append(self, other: Union[Dataset, DatasetArray, List[Dataset, DatasetArray]]):
+        if isinstance(other, list):
+            self.datasets += other
+        else:
+            self.datasets.append(other)
+
 
 class DatasetArrayFromOpenMLSuite(DatasetArray):
     def __init__(self, suite_name: str = 'OpenML100', apikey: Optional[str] = None, name: str = 'dataset_array'):
