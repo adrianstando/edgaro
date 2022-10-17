@@ -37,6 +37,9 @@ def test_flow(df):
         pdp = PDPCalculator(rf, N=200)
         pdp.fit()
 
+        str(pdp)
+        repr(pdp)
+
         col = df.data.columns[0]
         t = pdp.transform([col])
         t.plot(variable=col)
@@ -83,6 +86,10 @@ def test_flow_array(df):
 
         pdp = PDPCalculatorArray(rf, N=200)
         pdp.fit()
+
+        str(pdp)
+        repr(pdp)
+
         t = pdp.transform()
         t[0].plot(variable=df[0].data.columns[0])
 
@@ -148,6 +155,10 @@ def test_flow_array_of_arrays(df):
 
         pdp = PDPCalculatorArray(rf, N=200)
         pdp.fit()
+
+        str(pdp)
+        repr(pdp)
+
         t = pdp.transform()
         t[0].plot(variable=df[0].data.columns[0])
 

@@ -49,3 +49,9 @@ class PDPCalculatorArray:
             return out
         else:
             raise StopIteration
+
+    def __str__(self):
+        return f"PDPCalculatorArray with {len(self.sub_calculators) if self.sub_calculators is not None else 0} calculators"
+
+    def __repr__(self):
+        return f"<PDPCalculatorArray with {len(self.sub_calculators) if self.sub_calculators is not None else 0} calculators>"

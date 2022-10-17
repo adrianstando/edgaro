@@ -62,3 +62,9 @@ class PDPCalculator:
         return {
             'model': self.model
         }
+
+    def __str__(self):
+        return f"PDPCalculator for model {self.name}"
+
+    def __repr__(self):
+        return f"<PDPCalculator for model {self.name}>"
