@@ -19,6 +19,8 @@ def test_transformer(imblearn_sampler, ds):
         transformer = TransformerFromIMBLEARN(imblearn_sampler)
         transformer.fit(ds)
         transformer.transform(ds)
+        str(transformer)
+        repr(transformer)
     except (Exception,):
         assert False
 

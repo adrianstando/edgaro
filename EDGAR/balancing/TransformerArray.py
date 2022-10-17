@@ -117,3 +117,9 @@ class TransformerArray(BaseTransformerArray):
             return out
         else:
             return base
+
+    def __str__(self):
+        return f"TransformerArray {self.__class__.__name__} with {len(self.get_transformers())} transformers"
+
+    def __repr__(self):
+        return f"<Transformer {self.__class__.__name__} with {len(self.get_transformers())} transformers>"

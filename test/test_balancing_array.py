@@ -26,6 +26,8 @@ def test_transformer_array(imblearn_sampler, ds):
         array = TransformerArray(transformer)
         array.fit(ds)
         array.transform(ds)
+        str(transformer)
+        repr(transformer)
     except (Exception,):
         assert False
 
