@@ -14,6 +14,12 @@ def test_dataset_properties():
     assert ds.data.equals(df_1)
     assert ds.target.equals(target_1)
 
+    try:
+        str(ds)
+        repr(ds)
+    except (Exception,):
+        assert False
+
 
 @pytest.mark.parametrize('task_id', [
     task_id_1,

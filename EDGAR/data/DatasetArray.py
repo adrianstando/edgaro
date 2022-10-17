@@ -100,6 +100,12 @@ class DatasetArray:
         else:
             self.datasets.append(other)
 
+    def __str__(self):
+        return ''.join([str(ds) + '\n' for ds in self.datasets])
+
+    def __repr__(self):
+        return f"<DatasetArray {self.name} with {len(self.datasets)} datasets>"
+
 
 class DatasetArrayFromOpenMLSuite(DatasetArray):
     def __init__(self, suite_name: str = 'OpenML100', apikey: Optional[str] = None, name: str = 'dataset_array'):

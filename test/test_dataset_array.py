@@ -22,6 +22,12 @@ def test_dataset_array(ds1, ds2):
     assert len(tab[[ds1.name, ds2.name]]) == 2
     assert tab[[ds1.name, ds2.name]] == tab
 
+    try:
+        str(tab)
+        repr(tab)
+    except (Exception,):
+        assert False
+
 
 @pytest.mark.parametrize('ds1,ds2', [
     (Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2)),

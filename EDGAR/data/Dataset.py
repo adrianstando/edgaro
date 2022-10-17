@@ -83,6 +83,18 @@ class Dataset:
         self.data.drop(nans, axis=0, inplace=True)
         self.target.drop(nans, axis=0, inplace=True)
 
+    def __str__(self):
+        return f"""
+        Name: {self.name}
+        Dataset:
+        {self.data.head()}
+        Target:
+        {self.target.head()}
+        """
+
+    def __repr__(self):
+        return f"<Dataset {self.name}>"
+
 
 class DatasetFromCSV(Dataset):
     def __init__(self, path: str, target: str, name: str = 'dataset', *args, **kwargs):
