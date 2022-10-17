@@ -31,7 +31,7 @@ class Transformer(BaseTransformer, ABC):
         self.name_sufix = name_sufix
 
     def __str__(self):
-        return "Transformer {self.__class__.__name__}"
+        return f"Transformer {self.__class__.__name__}"
 
     def __repr__(self):
         return f"<Transformer {self.__class__.__name__}>"
