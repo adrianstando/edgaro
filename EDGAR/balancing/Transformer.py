@@ -69,8 +69,20 @@ class RandomUnderSampler(TransformerFromIMBLEARN):
         transformer = RUS(sampling_strategy=1/imbalance_ratio, random_state=random_state, *args, **kwargs)
         super().__init__(transformer=transformer, name_sufix=name_sufix)
 
+    def set_params(self, **params):
+        if 'IR' in params.keys():
+            IR = params.pop('IR')
+            params['sampling_strategy'] = 1/IR
+        return super().set_params(**params)
+
 
 class RandomOverSampler(TransformerFromIMBLEARN):
     def __init__(self, imbalance_ratio: float = 1, name_sufix: str = '_transformed', random_state: int = None, *args, **kwargs):
         transformer = ROS(sampling_strategy=1/imbalance_ratio, random_state=random_state, *args, **kwargs)
         super().__init__(transformer=transformer, name_sufix=name_sufix)
+
+    def set_params(self, **params):
+        if 'IR' in params.keys():
+            IR = params.pop('IR')
+            params['sampling_strategy'] = 1/IR
+        return super().set_params(**params)
