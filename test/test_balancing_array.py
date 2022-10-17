@@ -1,5 +1,4 @@
 import pytest
-import numpy as np
 from imblearn.under_sampling import RandomUnderSampler
 from imblearn.over_sampling import RandomOverSampler
 from EDGAR.balancing.Transformer import TransformerFromIMBLEARN, RandomUnderSampler as RandomUnderSampler_EDAGR, RandomOverSampler as RandomOverSampler_EDGAR
