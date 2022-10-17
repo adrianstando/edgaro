@@ -1,3 +1,4 @@
+import pandas as pd
 import pytest
 from EDGAR.data.DatasetArray import DatasetArray
 from EDGAR.data.Dataset import Dataset, DatasetFromOpenML
@@ -23,6 +24,7 @@ def test_model_array(ds):
         model.fit(ds)
         model.predict(ds)
         model.predict_proba(ds)
+        model.evaluate()
     except (Exception,):
         assert False
 
@@ -48,6 +50,9 @@ def test_model_array_output(ds):
     assert len(y) == len(ds)
     for i in range(len(ds)):
         assert isinstance(y[i], Dataset)
+
+    out = model.evaluate()
+    assert isinstance(out, pd.DataFrame)
 
 
 @pytest.mark.parametrize('ds', [
@@ -76,3 +81,6 @@ def test_model_array_with_arrays_of_arrays_output(ds):
     assert isinstance(y[0], Dataset)
     assert isinstance(y[1], Dataset)
     assert isinstance(y[2], DatasetArray)
+
+    out = model.evaluate()
+    assert isinstance(out, pd.DataFrame)

@@ -1,4 +1,5 @@
 from typing import Optional, List, Dict, Any, Union
+import pandas as pd
 from EDGAR.base.BaseTransformerArray import BaseTransformerArray
 from EDGAR.model.Model import Model
 from EDGAR.data.Dataset import Dataset
@@ -51,3 +52,12 @@ class ModelArray(BaseTransformerArray):
             return out
         else:
             return base
+
+    def evaluate(self, metrics_output_class=None, metrics_output_probabilities=None, ds: Optional[DatasetArray] = None):
+        out = pd.DataFrame({'model': [], 'metric': [], 'value': []})
+        for i in range(len(self.get_models())):
+            m = self.get_models()[i]
+            data = ds[i] if isinstance(ds, DatasetArray) else None
+            eval_model = m.evaluate(metrics_output_class=metrics_output_class, metrics_output_probabilities=metrics_output_probabilities, ds=data)
+            out = pd.concat([out, eval_model])
+        return out
