@@ -13,6 +13,12 @@ class Curve:
         self.x = x
         self.y = y
 
+    def __str__(self):
+        return f"Curve with {len(self.x)} points\nx:\n" + str(self.x) + "\ny:\n" + str(self.y)
+
+    def __repr__(self):
+        return f"Curve with {len(self.x)} points>"
+
 
 class PDPResult:
     def __init__(self, results: Dict[str, Curve], name: str, categorical_columns: List[str]):
@@ -106,3 +112,9 @@ class PDPResult:
                 return np.mean(
                     [self.compare(variable=var, other=other) for var in variable]
                 )
+
+    def __str__(self):
+        return f"PDPResult {self.name} for {len(self.results.keys())} variables: {list(self.results.keys())}"
+
+    def __repr__(self):
+        return f"<PDPResult {self.name}>"

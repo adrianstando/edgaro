@@ -42,6 +42,10 @@ def test_flow(df):
 
         col = df.data.columns[0]
         t = pdp.transform([col])
+
+        str(t)
+        repr(t)
+
         t.plot(variable=col)
 
         cols = [df.data.columns[0], df.data.columns[1]]
@@ -91,6 +95,10 @@ def test_flow_array(df):
         repr(pdp)
 
         t = pdp.transform()
+
+        str(t[0])
+        repr(t[0])
+
         t[0].plot(variable=df[0].data.columns[0])
 
         t1 = deepcopy(t)
@@ -160,6 +168,10 @@ def test_flow_array_of_arrays(df):
         repr(pdp)
 
         t = pdp.transform()
+
+        str(t[0])
+        repr(t[0])
+
         t[0].plot(variable=df[0].data.columns[0])
 
         t1 = deepcopy(t)
