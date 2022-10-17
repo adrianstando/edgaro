@@ -88,7 +88,7 @@ class Dataset:
         if self.data is not None:
             out += f"Dataset: \n{self.data.head()}"
         if self.target is not None:
-            out += f"Target: \n{self.data.head()}"
+            out += f"Target: \n{self.target.head()}"
         if self.check_binary_classification():
             out += f"Imbalance ratio: \n{self.imbalance_ratio()}"
         return out

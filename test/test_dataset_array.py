@@ -58,6 +58,26 @@ def test_no_unique_names(ds1, ds2):
         pass
 
 
+@pytest.mark.parametrize('ds', [
+    Dataset(name_1, df_1, target_1),
+    DatasetArray([Dataset(name_2, df_2, target_2), Dataset(name_1, df_2, target_2)], name=name_2),
+    DatasetArray([
+        Dataset(name_2, df_2, target_2),
+        Dataset(name_1, df_2, target_2),
+        DatasetArray([Dataset(name_2, df_2, target_2), Dataset(name_1, df_2, target_2)], name=name_2 + 'x')
+    ], name=name_2),
+    Dataset(name_1, None, target_1),
+    Dataset(name_1, df_1, None),
+    Dataset(name_1, None, None)
+])
+def test_print(ds):
+    try:
+        str(ds)
+        repr(ds)
+    except (Exception,):
+        assert False
+
+
 def test_no_unique_names_array():
     try:
         DatasetArray([Dataset(name_2, df_1, target_1), DatasetArray([Dataset(name_1, df_2, target_2), Dataset(name_1, df_2, target_2)], name=name_1)])
