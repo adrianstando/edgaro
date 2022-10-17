@@ -5,7 +5,7 @@ from typing import Optional
 
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import OrdinalEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score, balanced_accuracy_score, precision_score, recall_score, roc_auc_score
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -41,8 +41,8 @@ class Model(BaseTransformer, ABC):
 
         columns_to_encode = list(dataset.data.select_dtypes(include=['category', 'object']))
         for col in columns_to_encode:
-            le = LabelEncoder()
-            ds.data[col] = le.fit_transform(ds.data[col])
+            le = OrdinalEncoder(handle_unknown='use_encoded_value', unknown_value=-1)
+            ds.data[col] = le.fit_transform(ds.data[[col]])
             self.__label_encoders[col] = le
 
         self.__target_encoder = _TargetEncode()
@@ -63,11 +63,19 @@ class Model(BaseTransformer, ABC):
     def _fit(self, dataset: Dataset):
         pass
 
-    def predict(self, dataset: Dataset):
+    def transform_data(self, dataset: Dataset):
         df = deepcopy(dataset)
         for key, le in self.__label_encoders.items():
-            df.data[key] = le.transform(df.data[key])
+            df.data[key] = le.transform(df.data[[key]])
+        return df
 
+    def transform_target(self, dataset: Dataset):
+        df = deepcopy(dataset)
+        df.target = self.__target_encoder.transform(df.target)
+        return df
+
+    def predict(self, dataset: Dataset):
+        df = self.transform_data(dataset)
         model_name = '_' + self.name if not self.name == dataset.name else ''
         name = dataset.name + model_name + '_predicted'
         return self._predict(df, output_name=name)
@@ -77,10 +85,7 @@ class Model(BaseTransformer, ABC):
         pass
 
     def predict_proba(self, dataset: Dataset):
-        df = deepcopy(dataset)
-        for key, le in self.__label_encoders.items():
-            df.data[key] = le.transform(df.data[key])
-
+        df = self.transform_data(dataset)
         model_name = '_' + self.name if not self.name == dataset.name else ''
         name = dataset.name + model_name + '_predicted_probabilities'
         return self._predict_proba(df, output_name=name)
@@ -177,7 +182,7 @@ class ModelFromSKLEARN(Model):
         if dataset.target is None:
             raise Exception('Target data is not provided!')
 
-        if self._model.get_params()['random_state'] is None and self.random_state is not None:
+        if 'random_state' in self._model.get_params().keys() and self._model.get_params()['random_state'] is None and self.random_state is not None:
             self._model.set_params(**{'random_state': self.random_state})
 
         return self._model.fit(dataset.data, dataset.target)
@@ -218,7 +223,10 @@ class RandomForest(ModelFromSKLEARN):
 
 class XGBoost(ModelFromSKLEARN):
     def __init__(self, name: str = '', test_size: float = 0.2, random_state: Optional[int] = None, *args, **kwargs):
-        super().__init__(xgb.XGBClassifier(*args, **kwargs), name=name, test_size=test_size, random_state=random_state)
+        super().__init__(
+            xgb.XGBClassifier(eval_metric='logloss' if not 'eval_metric' in kwargs.keys() else kwargs['eval_metric'], *args, **kwargs),
+            name=name, test_size=test_size, random_state=random_state
+        )
 
 
 class RandomSearchCV(ModelFromSKLEARN):
@@ -233,6 +241,9 @@ class RandomSearchCV(ModelFromSKLEARN):
 
 class GridSearchCV(ModelFromSKLEARN):
     def __init__(self, base_model: ModelFromSKLEARN, param_grid, cv=5, scoring='f1', name: str = '', test_size: float = 0.2, random_state: Optional[int] = None, *args, **kwargs):
+        if 'random_state' in base_model._model.get_params().keys():
+            base_model._model.set_params(**{'random_state': random_state})
+
         super().__init__(
             GS(base_model._model, param_grid, cv=cv, scoring=scoring, *args, **kwargs),
             name=name,

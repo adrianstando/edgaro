@@ -1,17 +1,11 @@
-import numpy as np
-import random
+from copy import deepcopy
 
 import pandas as pd
-from copy import deepcopy
 import pytest
 from sklearn.ensemble import RandomForestClassifier
 from EDGAR.data.Dataset import Dataset, DatasetFromOpenML
 from EDGAR.model.Model import RandomForest, ModelFromSKLEARN, XGBoost, RandomSearchCV, GridSearchCV
 from .resources.objects import *
-
-
-np.random.seed(42)
-random.seed(42)
 
 
 @pytest.mark.parametrize('ds', [
@@ -63,6 +57,24 @@ def test_model_2(ds):
         model.fit(ds)
         model.predict(ds)
         model.predict_proba(ds)
+    except (Exception,):
+        assert False
+
+
+@pytest.mark.parametrize('ds', [
+    DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY),
+    DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY),
+])
+def test_transform_model_target(ds):
+    try:
+        ds = deepcopy(ds)
+        ds.remove_nans()
+
+        model = ModelFromSKLEARN(RandomForestClassifier(), test_size=0.01)
+        model.fit(ds)
+
+        X = model.transform_data(ds)
+        Y = model.transform_target(ds)
     except (Exception,):
         assert False
 
