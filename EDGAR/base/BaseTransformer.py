@@ -21,3 +21,9 @@ class BaseTransformer(ABC):
     @abstractmethod
     def get_params(self):
         pass
+
+    def __str__(self):
+        return f"BaseTransformer {self.__class__.__name__}"
+
+    def __repr__(self):
+        return f"<BaseTransformer {self.__class__.__name__}>"

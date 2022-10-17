@@ -117,3 +117,9 @@ class BaseTransformerArray:
             if key <= len(self.__transformers):
                 return self.__transformers[key]
         return None
+
+    def __str__(self):
+        return f"BaseTransformerArray {self.__class__.__name__} with {len(self.get_transformers())} transformers"
+
+    def __repr__(self):
+        return f"<BaseTransformer {self.__class__.__name__} with {len(self.get_transformers())} transformers>"
