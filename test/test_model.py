@@ -1,6 +1,4 @@
 from copy import deepcopy
-
-import pandas as pd
 import pytest
 from sklearn.ensemble import RandomForestClassifier
 from EDGAR.data.Dataset import Dataset, DatasetFromOpenML
@@ -22,24 +20,32 @@ def test_model(ds):
         model.evaluate()
         model.predict(ds)
         model.predict_proba(ds)
+        str(model)
+        repr(model)
 
         model = XGBoost(test_size=0.01)
         model.fit(ds)
         model.evaluate()
         model.predict(ds)
         model.predict_proba(ds)
+        str(model)
+        repr(model)
 
         model = RandomSearchCV(base_model=RandomForest(), param_grid={'n_estimators': [10, 20, 50]}, test_size=0.01)
         model.fit(ds)
         model.evaluate()
         model.predict(ds)
         model.predict_proba(ds)
+        str(model)
+        repr(model)
 
         model = GridSearchCV(base_model=RandomForest(), param_grid={'n_estimators': [10, 20, 50]}, test_size=0.01)
         model.fit(ds)
         model.evaluate()
         model.predict(ds)
         model.predict_proba(ds)
+        str(model)
+        repr(model)
     except (Exception,):
         assert False
 

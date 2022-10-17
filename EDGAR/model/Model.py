@@ -148,6 +148,12 @@ class Model(BaseTransformer, ABC):
                 results[f.__name__] = f(self.__target_encoder.transform(ds.target), y_hat.target[:, 1])
         return pd.DataFrame(results.items(), columns=['metric', 'value'])
 
+    def __str__(self):
+        return f"{self.__class__.__name__} model with name {self.name}"
+
+    def __repr__(self):
+        return f"<{self.name} {self.__class__.__name__} model>"
+
 
 class _TargetEncode(BaseEstimator, TransformerMixin):
     def __init__(self):

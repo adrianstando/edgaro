@@ -25,6 +25,8 @@ def test_model_array(ds):
         model.predict(ds)
         model.predict_proba(ds)
         model.evaluate()
+        str(model)
+        repr(model)
     except (Exception,):
         assert False
 

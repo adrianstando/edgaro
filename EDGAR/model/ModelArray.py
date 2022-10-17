@@ -61,3 +61,9 @@ class ModelArray(BaseTransformerArray):
             eval_model = m.evaluate(metrics_output_class=metrics_output_class, metrics_output_probabilities=metrics_output_probabilities, ds=data)
             out = pd.concat([out, eval_model])
         return out
+
+    def __str__(self):
+        return f"ModelArray {self.name} with {len(self.get_models())} models"
+
+    def __repr__(self):
+        return f"<ModelArray {self.name} with {len(self.get_models())} models>"
