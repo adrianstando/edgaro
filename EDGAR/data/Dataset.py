@@ -84,13 +84,14 @@ class Dataset:
         self.target.drop(nans, axis=0, inplace=True)
 
     def __str__(self):
-        return f"""
-        Name: {self.name}
-        Dataset:
-        {self.data.head()}
-        Target:
-        {self.target.head()}
-        """
+        out = f"Name: {self.name}"
+        if self.data is not None:
+            out += f"Dataset: \n{self.data.head()}"
+        if self.target is not None:
+            out += f"Target: \n{self.data.head()}"
+        if self.check_binary_classification():
+            out += f"Imbalance ratio: \n{self.imbalance_ratio()}"
+        return out
 
     def __repr__(self):
         return f"<Dataset {self.name}>"
