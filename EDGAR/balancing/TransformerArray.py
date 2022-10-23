@@ -66,6 +66,11 @@ class TransformerArray(BaseTransformerArray):
     def get_name_sufix(self):
         return self.__name_sufix
 
+    def set_params(self, **params):
+        super().set_params(**params)
+        if len(self.__name_sufix) == 1:
+            self.set_name_sufix(self.__name_sufix[0])
+
     def fit(self, dataset: Union[Dataset, DatasetArray]):
         super().fit(dataset)
 
