@@ -59,6 +59,7 @@ class ModelArray(BaseTransformerArray):
             m = self.get_models()[i]
             data = ds[i] if isinstance(ds, DatasetArray) else None
             eval_model = m.evaluate(metrics_output_class=metrics_output_class, metrics_output_probabilities=metrics_output_probabilities, ds=data)
+            eval_model['model'] = m.name
             out = pd.concat([out, eval_model])
         return out
 

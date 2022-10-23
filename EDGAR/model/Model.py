@@ -136,7 +136,11 @@ class Model(BaseTransformer, ABC):
         if ds is None:
             ds = self.__test_dataset
         if metrics_output_class is None and metrics_output_probabilities is None:
-            metrics_output_class = [accuracy_score, f1_score, balanced_accuracy_score, precision_score, recall_score]
+
+            def f1_weighted(y_true, y_pred):
+                return f1_score(y_true, y_pred, average='weighted')
+
+            metrics_output_class = [accuracy_score, f1_score, balanced_accuracy_score, precision_score, recall_score, f1_weighted]
             metrics_output_probabilities = [roc_auc_score]
         if len(metrics_output_class) > 0:
             y_hat = self.predict(ds)
@@ -246,7 +250,7 @@ class RandomSearchCV(ModelFromSKLEARN):
 
 
 class GridSearchCV(ModelFromSKLEARN):
-    def __init__(self, base_model: ModelFromSKLEARN, param_grid, cv=5, scoring='f1', name: str = '', test_size: float = 0.2, random_state: Optional[int] = None, *args, **kwargs):
+    def __init__(self, base_model: ModelFromSKLEARN, param_grid, cv=5, scoring='f1_weighted', name: str = '', test_size: float = 0.2, random_state: Optional[int] = None, *args, **kwargs):
         if 'random_state' in base_model._model.get_params().keys():
             base_model._model.set_params(**{'random_state': random_state})
 
