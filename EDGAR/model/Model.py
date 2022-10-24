@@ -8,6 +8,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import OrdinalEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score, balanced_accuracy_score, precision_score, recall_score, roc_auc_score
+from imblearn.metrics import geometric_mean_score, specificity_score
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.model_selection import RandomizedSearchCV as RS
 from sklearn.model_selection import GridSearchCV as GS
@@ -140,7 +141,8 @@ class Model(BaseTransformer, ABC):
             def f1_weighted(y_true, y_pred):
                 return f1_score(y_true, y_pred, average='weighted')
 
-            metrics_output_class = [accuracy_score, f1_score, balanced_accuracy_score, precision_score, recall_score, f1_weighted]
+            metrics_output_class = [accuracy_score, balanced_accuracy_score, precision_score,
+                                    recall_score, specificity_score, f1_score, f1_weighted, geometric_mean_score]
             metrics_output_probabilities = [roc_auc_score]
         if len(metrics_output_class) > 0:
             y_hat = self.predict(ds)
@@ -240,7 +242,7 @@ class XGBoost(ModelFromSKLEARN):
 
 
 class RandomSearchCV(ModelFromSKLEARN):
-    def __init__(self, base_model: ModelFromSKLEARN, param_grid, n_iter=10, cv=5, scoring='f1', name: str = '', test_size: float = 0.2, random_state: Optional[int] = None, *args, **kwargs):
+    def __init__(self, base_model: ModelFromSKLEARN, param_grid, n_iter=10, cv=5, scoring='balanced_accuracy_score', name: str = '', test_size: float = 0.2, random_state: Optional[int] = None, *args, **kwargs):
         super().__init__(
             RS(base_model._model, param_grid, cv=cv, scoring=scoring, n_iter=n_iter, *args, **kwargs),
             name=name,
@@ -250,7 +252,7 @@ class RandomSearchCV(ModelFromSKLEARN):
 
 
 class GridSearchCV(ModelFromSKLEARN):
-    def __init__(self, base_model: ModelFromSKLEARN, param_grid, cv=5, scoring='f1_weighted', name: str = '', test_size: float = 0.2, random_state: Optional[int] = None, *args, **kwargs):
+    def __init__(self, base_model: ModelFromSKLEARN, param_grid, cv=5, scoring='balanced_accuracy_score', name: str = '', test_size: float = 0.2, random_state: Optional[int] = None, *args, **kwargs):
         if 'random_state' in base_model._model.get_params().keys():
             base_model._model.set_params(**{'random_state': random_state})
 
