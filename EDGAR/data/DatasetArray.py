@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 from typing import List, Union, Optional
+import pandas as pd
+import numpy as np
 from EDGAR.data.Dataset import Dataset, DatasetFromOpenML
 import openml
+import os
 
 
 class DatasetArray:
@@ -135,3 +138,34 @@ class DatasetArrayFromOpenMLSuite(DatasetArray):
         print(self.__openml_name)
         print('Description: ')
         print(self.__openml_description)
+
+
+class DatasetArrayFromDirectory(DatasetArray):
+    """
+    Attention!
+    The target class is assumed to be the last column!
+    """
+    def __init__(self, path: str, name: str = 'dataset_array'):
+        if not os.path.exists(path):
+            raise Exception('The path does not exist!')
+        if not os.path.isdir(path):
+            raise Exception('The path argument is not a directory!')
+
+        dataset_array = []
+        for filename in os.listdir(path):
+            f = os.path.join(path, filename)
+            if os.path.isfile(f):
+                if f.lower().endswith('.csv'):
+                    d = pd.read_csv(path)
+                elif f.lower().endswith('.npy'):
+                    d = np.load(f)
+                else:
+                    continue
+
+                y = d[d.columns[-1]]
+                X = d.drop(d.columns[-1], axis=1)
+                dataset_array.append(
+                    Dataset(dataframe=X, target=y, name=os.path.splitext(filename)[0])
+                )
+
+        super().__init__(datasets=dataset_array, name=name)
