@@ -71,7 +71,8 @@ def test_transformer_sufix_2_datasetarray(imblearn_sampler, ds, sufix):
     array.fit(ds)
     out = array.transform(ds)
 
-    assert out.name == ds.name + '_transformed_array'
+    s = sufix if isinstance(sufix, str) else '_transformed_array'
+    assert out.name == ds.name + s
 
     expected_names = [dataset.name + sufix for dataset in ds.datasets]
     assert len(expected_names) == len(out)

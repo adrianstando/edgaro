@@ -111,6 +111,10 @@ class TransformerArray(BaseTransformerArray):
                         else:
                             raise Exception('Wrong length of name_sufix!')
 
+        if isinstance(self.__name_sufix, list) and len(self.__name_sufix) == 1 and isinstance(self.__name_sufix[0], str):
+            if self.allow_transformer_sufix_change:
+                self.transformer_sufix = self.__name_sufix[0]
+
     def transform(self, dataset: Union[Dataset, DatasetArray]):
         out = super().transform(dataset=dataset)
         if self.keep_original:

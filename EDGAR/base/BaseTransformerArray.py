@@ -7,11 +7,14 @@ from EDGAR.base.BaseTransformer import BaseTransformer
 
 
 class BaseTransformerArray:
-    def __init__(self, base_transformer: BaseTransformer, parameters: Optional[List[Dict[str, Any]]] = None):
+    def __init__(self, base_transformer: BaseTransformer, parameters: Optional[List[Dict[str, Any]]] = None,
+                 transformer_sufix: str = '_transformed_array', allow_transformer_sufix_change: bool = True):
         self.__base_transformer = base_transformer
         self.__transformers = []
         self.__input_array = None
         self.__parameters = parameters
+        self.transformer_sufix = transformer_sufix
+        self.allow_transformer_sufix_change = allow_transformer_sufix_change
 
     def __create_new_transformer(self, param):
         t = deepcopy(self.__base_transformer)
@@ -58,7 +61,7 @@ class BaseTransformerArray:
                 raise Exception('DatasetArray was fitted, but single Dataset was provided!')
             return DatasetArray(
                 [transformator.transform(dataset) for transformator in self.__transformers],
-                name=dataset.name + '_transformed_array'
+                name=dataset.name + self.transformer_sufix
             )
         # DatasetArray case
         else:
@@ -66,7 +69,7 @@ class BaseTransformerArray:
                 raise Exception('Dataset was fitted, but DatasetArray was provided!')
             return DatasetArray(
                 [self.__transformers[i].transform(dataset[i]) for i in range(len(dataset))],
-                name=dataset.name + '_transformed_array'
+                name=dataset.name + self.transformer_sufix
             )
 
     """
