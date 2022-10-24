@@ -16,7 +16,7 @@ class ModelArray(BaseTransformerArray):
             self.name = dataset.name
         super().fit(dataset)
         for i in range(len(self.get_transformers())):
-            self.get_transformers()[i] = self.__base_transformer_array_to_model_array(self.get_transformers()[i])
+            self.get_transformers()[i] = self.__base_transformer_array_to_model_array(self.get_transformers()[i], dataset[i].name)
 
     def predict(self, dataset: Union[Dataset, DatasetArray]):
         return super().transform(dataset)
@@ -40,7 +40,7 @@ class ModelArray(BaseTransformerArray):
         for m in self.get_models():
             m.set_transform_to_classes()
 
-    def __base_transformer_array_to_model_array(self, base):
+    def __base_transformer_array_to_model_array(self, base, name):
         if isinstance(base, Model):
             return base
         elif not isinstance(base, ModelArray):
@@ -48,6 +48,7 @@ class ModelArray(BaseTransformerArray):
             out.__class__ = self.__class__
             for key, val in base.__dict__.items():
                 out.__dict__[key] = val
+            out.name = name
 
             return out
         else:
