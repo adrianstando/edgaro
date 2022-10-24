@@ -242,7 +242,7 @@ class XGBoost(ModelFromSKLEARN):
 
 
 class RandomSearchCV(ModelFromSKLEARN):
-    def __init__(self, base_model: ModelFromSKLEARN, param_grid, n_iter=10, cv=5, scoring='balanced_accuracy_score', name: str = '', test_size: float = 0.2, random_state: Optional[int] = None, *args, **kwargs):
+    def __init__(self, base_model: ModelFromSKLEARN, param_grid, n_iter=10, cv=5, scoring='balanced_accuracy', name: str = '', test_size: float = 0.2, random_state: Optional[int] = None, *args, **kwargs):
         super().__init__(
             RS(base_model._model, param_grid, cv=cv, scoring=scoring, n_iter=n_iter, *args, **kwargs),
             name=name,
@@ -252,7 +252,7 @@ class RandomSearchCV(ModelFromSKLEARN):
 
 
 class GridSearchCV(ModelFromSKLEARN):
-    def __init__(self, base_model: ModelFromSKLEARN, param_grid, cv=5, scoring='balanced_accuracy_score', name: str = '', test_size: float = 0.2, random_state: Optional[int] = None, *args, **kwargs):
+    def __init__(self, base_model: ModelFromSKLEARN, param_grid, cv=5, scoring='balanced_accuracy', name: str = '', test_size: float = 0.2, random_state: Optional[int] = None, *args, **kwargs):
         if 'random_state' in base_model._model.get_params().keys():
             base_model._model.set_params(**{'random_state': random_state})
 
