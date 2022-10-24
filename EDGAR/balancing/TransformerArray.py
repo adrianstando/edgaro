@@ -7,10 +7,11 @@ from EDGAR.base.BaseTransformerArray import BaseTransformerArray
 
 class TransformerArray(BaseTransformerArray):
     def __init__(self, base_transformer: Transformer, parameters: Optional[List[Dict[str, Any]]] = None,
-                 name_sufix: Union[str, List[str]] = '_transformed'):
+                 name_sufix: Union[str, List[str]] = '_transformed', keep_original: bool = False):
         super().__init__(base_transformer=base_transformer, parameters=parameters)
         self.__name_sufix = None
         self.set_name_sufix(name_sufix)
+        self.keep_original = keep_original
 
     def set_name_sufix(self, name_sufix: Union[str, List[str]]):
         params = self.get_params()
@@ -109,6 +110,12 @@ class TransformerArray(BaseTransformerArray):
                             self.get_transformers()[i][j].set_name_sufix(self.__name_sufix[j])
                         else:
                             raise Exception('Wrong length of name_sufix!')
+
+    def transform(self, dataset: Union[Dataset, DatasetArray]):
+        out = super().transform(dataset=dataset)
+        if self.keep_original:
+            out.append(dataset)
+        return out
 
     def __base_transformer_array_to_balancing_transformer_array(self, base):
         if isinstance(base, Transformer):
