@@ -16,7 +16,7 @@ class PDPCalculator:
         def predict_func(model, data):
             return model.predict_proba(Dataset('', data, None)).target[:, 1]
 
-        dataset = self.model.get_train_dataset()
+        dataset = self.model.get_test_dataset()
         self.explainer = dx.Explainer(self.model, dataset.data, dataset.target, label=dataset.name, verbose=False,
                                       predict_function=predict_func)
 
