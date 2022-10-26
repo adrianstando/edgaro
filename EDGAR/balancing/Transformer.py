@@ -11,12 +11,20 @@ class Transformer(BaseTransformer, ABC):
         super().__init__()
         self.name_sufix = name_sufix
 
-    @abstractmethod
     def fit(self, dataset: Dataset):
-        pass
+        d = dataset.train if dataset.was_split else dataset
+        self._fit(d)
 
     @abstractmethod
+    def _fit(self, dataset: Dataset):
+        pass
+
     def transform(self, dataset: Dataset):
+        d = dataset.train if dataset.was_split else dataset
+        return self._transform(d)
+
+    @abstractmethod
+    def _transform(self, dataset: Dataset):
         pass
 
     @abstractmethod
@@ -52,10 +60,10 @@ class TransformerFromIMBLEARN(Transformer):
         self.__transformer = transformer
         super().__init__(name_sufix=name_sufix)
 
-    def fit(self, dataset: Dataset):
+    def _fit(self, dataset: Dataset):
         return self.__transformer.fit(dataset.data, dataset.target)
 
-    def transform(self, dataset: Dataset) -> Dataset:
+    def _transform(self, dataset: Dataset):
         X, y = self.__transformer.fit_resample(dataset.data, dataset.target)
         name = dataset.name + self.name_sufix
         return Dataset(name=name, dataframe=X, target=y)

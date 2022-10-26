@@ -3,11 +3,9 @@ import numpy as np
 import openml
 from pandas_profiling import ProfileReport
 from typing import Optional
+from copy import deepcopy
+from sklearn.model_selection import train_test_split
 
-
-# TODO:
-# Error rate - comparing two datasets - "Stop Oversampling for Class Imbalance Learning: A
-# Critical Review"
 
 class Dataset:
     def __init__(self, name: str, dataframe: Optional[pd.DataFrame], target: Optional[pd.Series]):
@@ -16,8 +14,84 @@ class Dataset:
                 raise Exception('Dataframe and target have different number of rows!')
 
         self.name = name
-        self.data = dataframe
-        self.target = target
+        self.__data = dataframe
+        self.__target = target
+
+        self.__train_dataset = None
+        self.__test_dataset = None
+
+    @property
+    def data(self):
+        if self.__data is not None:
+            return self.__data
+        else:
+            if self.__train_dataset is None and self.__test_dataset is None:
+                return None
+            elif self.__train_dataset.data is not None and self.__test_dataset.data is not None:
+                return pd.concat([self.__train_dataset.data, self.__test_dataset.data])
+            elif self.__train_dataset.data is not None:
+                return self.__train_dataset.data
+            elif self.__test_dataset.data is not None:
+                return self.__test_dataset.data
+            else:
+                return None
+
+    @data.setter
+    def data(self, val):
+        if self.__train_dataset is None and self.__test_dataset is None:
+            self.__data = val
+        else:
+            raise Exception('Data cannot be set since the dataset was train-test-split!')
+
+    @property
+    def target(self):
+        if self.__target is not None:
+            return self.__target
+        else:
+            if self.__train_dataset is None and self.__test_dataset is None:
+                return None
+            elif self.__train_dataset.target is not None and self.__test_dataset.target is not None:
+                return pd.concat([self.__train_dataset.target, self.__test_dataset.target])
+            elif self.__train_dataset.target is not None:
+                return self.__train_dataset.target
+            elif self.__test_dataset.target is not None:
+                return self.__test_dataset.target
+            else:
+                return None
+
+    @target.setter
+    def target(self, val):
+        if self.__train_dataset is None and self.__test_dataset is None:
+            self.__target = val
+        else:
+            raise Exception('Target cannot be set since the dataset was train-test-split!')
+
+    @property
+    def train(self):
+        if self.__train_dataset is not None:
+            return self.__train_dataset
+        else:
+            raise Exception('The dataset as not train-test-split!')
+
+    @property
+    def test(self):
+        if self.__test_dataset is not None:
+            return self.__test_dataset
+        else:
+            raise Exception('The dataset as not train-test-split!')
+
+    @property
+    def was_split(self):
+        return self.__train_dataset is not None and self.__test_dataset is not None
+
+    def train_test_split(self, test_size: float = 0.2, random_state: Optional[int] = None):
+        X_train, X_test, y_train, y_test = train_test_split(deepcopy(self.__data), deepcopy(self.__target), test_size=test_size,
+                                                            random_state=random_state, stratify=self.__target)
+        self.__train_dataset = Dataset(self.name + '_train', X_train, y_train)
+        self.__test_dataset = Dataset(self.name + '_test', X_test, y_test)
+
+        self.__data = None
+        self.__target = None
 
     def check_binary_classification(self):
         if self.target is not None:
@@ -39,7 +113,8 @@ class Dataset:
         else:
             data = self.data.assign(target=self.target)
 
-        profile = ProfileReport(data, title='Pandas Profiling Report for ' + self.name, minimal=minimal, progress_bar=False)
+        profile = ProfileReport(data, title='Pandas Profiling Report for ' + self.name, minimal=minimal,
+                                progress_bar=False)
 
         if output_path is not None:
             profile.to_file(output_file=output_path)

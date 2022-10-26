@@ -2,11 +2,10 @@ from abc import ABC, abstractmethod
 from copy import deepcopy
 import numpy as np
 from typing import Optional
-
+import warnings
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import OrdinalEncoder
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score, balanced_accuracy_score, precision_score, recall_score, roc_auc_score
 from imblearn.metrics import geometric_mean_score, specificity_score
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -33,10 +32,13 @@ class Model(BaseTransformer, ABC):
         if not dataset.check_binary_classification():
             raise Exception('Dataset does not represent binary classification task!')
 
-        ds = deepcopy(dataset)
-        X_train, X_test, y_train, y_test = train_test_split(ds.data, ds.target, test_size=self.test_size, random_state=self.random_state, stratify=ds.target)
-        self.__train_dataset = Dataset(dataset.name + '_train', X_train, y_train)
-        self.__test_dataset = Dataset(dataset.name + '_test', X_test, y_test)
+        if not dataset.was_split:
+            warnings.warn('Dataset was not train-test-split! The training dataset will be the same as the test dataset.')
+            self.__train_dataset = deepcopy(dataset)
+            self.__test_dataset = deepcopy(dataset)
+        else:
+            self.__train_dataset = deepcopy(dataset.train)
+            self.__test_dataset = deepcopy(dataset.test)
 
         ds = deepcopy(self.__train_dataset)
 

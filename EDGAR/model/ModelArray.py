@@ -16,7 +16,8 @@ class ModelArray(BaseTransformerArray):
             self.name = dataset.name
         super().fit(dataset)
         for i in range(len(self.get_transformers())):
-            self.get_transformers()[i] = self.__base_transformer_array_to_model_array(self.get_transformers()[i], dataset[i].name)
+            self.get_transformers()[i] = self.__base_transformer_array_to_model_array(self.get_transformers()[i],
+                                                                                      dataset[i].name)
 
     def predict(self, dataset: Union[Dataset, DatasetArray]):
         return super().transform(dataset)
@@ -59,8 +60,10 @@ class ModelArray(BaseTransformerArray):
         for i in range(len(self.get_models())):
             m = self.get_models()[i]
             data = ds[i] if isinstance(ds, DatasetArray) else None
-            eval_model = m.evaluate(metrics_output_class=metrics_output_class, metrics_output_probabilities=metrics_output_probabilities, ds=data)
-            eval_model['model'] = m.name
+            eval_model = m.evaluate(metrics_output_class=metrics_output_class,
+                                    metrics_output_probabilities=metrics_output_probabilities, ds=data)
+            if 'model' not in eval_model.columns:
+                eval_model['model'] = m.name
             out = pd.concat([out, eval_model])
         return out
 

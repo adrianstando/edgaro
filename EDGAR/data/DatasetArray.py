@@ -60,6 +60,20 @@ class DatasetArray:
         else:
             raise StopIteration
 
+    def train_test_split(self, test_size: float = 0.2, random_state: Optional[int] = None):
+        for ds in self.datasets:
+            ds.train_test_split(test_size, random_state)
+
+    @property
+    def train(self):
+        out = [ds.train for ds in self.datasets]
+        return DatasetArray(out, self.name + '_train')
+
+    @property
+    def test(self):
+        out = [ds.test for ds in self.datasets]
+        return DatasetArray(out, self.name + '_test')
+
     def remove_nans(self):
         for dataset in self.datasets:
             dataset.remove_nans()
