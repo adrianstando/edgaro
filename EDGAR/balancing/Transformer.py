@@ -27,7 +27,7 @@ class Transformer(BaseTransformer, ABC):
     def get_params(self):
         pass
 
-    def set_name_sufix(self, name_sufix: str):
+    def set_dataset_suffixes(self, name_sufix: str):
         self.name_sufix = name_sufix
 
     def __str__(self):
