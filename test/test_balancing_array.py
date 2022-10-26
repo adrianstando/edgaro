@@ -46,7 +46,7 @@ def test_transformer_array(imblearn_sampler, ds):
 ])
 def test_transformer_sufix(imblearn_sampler, ds, sufix):
     transformer = TransformerFromIMBLEARN(imblearn_sampler)
-    array = TransformerArray(transformer, name_sufix=sufix)
+    array = TransformerArray(transformer, dataset_suffixes=sufix)
     array.fit(ds)
     out = array.transform(ds)
     for dataset in out.datasets:
@@ -67,7 +67,7 @@ def test_transformer_sufix(imblearn_sampler, ds, sufix):
 ])
 def test_transformer_sufix_2_datasetarray(imblearn_sampler, ds, sufix):
     transformer = TransformerFromIMBLEARN(imblearn_sampler)
-    array = TransformerArray(transformer, name_sufix=sufix)
+    array = TransformerArray(transformer, dataset_suffixes=sufix)
     array.fit(ds)
     out = array.transform(ds)
 
@@ -94,7 +94,7 @@ def test_transformer_sufix_2_datasetarray(imblearn_sampler, ds, sufix):
 ])
 def test_transformer_sufix_tab_datasetarray(imblearn_sampler, ds, sufix):
     transformer = TransformerFromIMBLEARN(imblearn_sampler)
-    array = TransformerArray(transformer, name_sufix=sufix)
+    array = TransformerArray(transformer, dataset_suffixes=sufix)
     array.fit(ds)
     out = array.transform(ds)
 
@@ -119,7 +119,7 @@ def test_transformer_sufix_tab_datasetarray(imblearn_sampler, ds, sufix):
 ])
 def test_transformer_sufix_tab_2_datasetarray(imblearn_sampler, ds, sufix):
     transformer = TransformerFromIMBLEARN(imblearn_sampler)
-    array = TransformerArray(transformer, name_sufix=sufix)
+    array = TransformerArray(transformer, dataset_suffixes=sufix)
     array.fit(ds)
     out = array.transform(ds)
 
@@ -145,7 +145,7 @@ def test_transformer_sufix_tab_2_datasetarray(imblearn_sampler, ds, sufix):
 def test_transformer_sufix_tab_datasetarray_wrong_length(imblearn_sampler, ds, sufix):
     try:
         transformer = TransformerFromIMBLEARN(imblearn_sampler)
-        array = TransformerArray(transformer, name_sufix=sufix)
+        array = TransformerArray(transformer, dataset_suffixes=sufix)
         array.fit(ds)
         array.transform(ds)
     except (Exception,):
@@ -353,7 +353,7 @@ def test_params_in_arguments(imblearn_sampler, ds, param):
 ])
 def test_params_in_arguments_and_sufix(imblearn_sampler, ds, param, sufix):
     transformer = TransformerFromIMBLEARN(imblearn_sampler)
-    array = TransformerArray(transformer, parameters=param, name_sufix=sufix)
+    array = TransformerArray(transformer, parameters=param, dataset_suffixes=sufix)
     array.fit(ds)
     out = array.transform(ds)
 
@@ -410,7 +410,7 @@ def test_params_in_arguments_and_sufix(imblearn_sampler, ds, param, sufix):
 ])
 def test_params_in_arguments_and_sufix_2(imblearn_sampler, ds, param, sufix):
     transformer = TransformerFromIMBLEARN(imblearn_sampler)
-    array = TransformerArray(transformer, parameters=param, name_sufix=sufix)
+    array = TransformerArray(transformer, parameters=param, dataset_suffixes=sufix)
     array.fit(ds)
     out = array.transform(ds)
 

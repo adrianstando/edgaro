@@ -8,13 +8,12 @@ from EDGAR.base.BaseTransformer import BaseTransformer
 
 class BaseTransformerArray:
     def __init__(self, base_transformer: BaseTransformer, parameters: Optional[List[Dict[str, Any]]] = None,
-                 transformer_sufix: str = '_transformed_array', allow_transformer_sufix_change: bool = True):
+                 transformer_sufix: str = '_transformed_array'):
         self.__base_transformer = base_transformer
         self.__transformers = []
         self.__input_array = None
         self.__parameters = parameters
         self.transformer_sufix = transformer_sufix
-        self.allow_transformer_sufix_change = allow_transformer_sufix_change
 
     def __create_new_transformer(self, param):
         t = deepcopy(self.__base_transformer)
