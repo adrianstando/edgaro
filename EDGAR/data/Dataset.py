@@ -1,3 +1,4 @@
+from __future__ import annotations
 import pandas as pd
 import numpy as np
 import openml
@@ -89,6 +90,13 @@ class Dataset:
                                                             random_state=random_state, stratify=self.__target)
         self.__train_dataset = Dataset(self.name + '_train', X_train, y_train)
         self.__test_dataset = Dataset(self.name + '_test', X_test, y_test)
+
+        self.__data = None
+        self.__target = None
+
+    def custom_train_test_split(self, train: Dataset, test: Dataset):
+        self.__train_dataset = train
+        self.__test_dataset = test
 
         self.__data = None
         self.__target = None
