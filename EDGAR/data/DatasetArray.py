@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 from typing import List, Union, Optional
 import pandas as pd
 import numpy as np
@@ -9,7 +8,7 @@ import os
 
 
 class DatasetArray:
-    def __init__(self, datasets: List[Union[Dataset, DatasetArray]], name: str = 'dataset_array'):
+    def __init__(self, datasets: List[Union[Dataset, DatasetArray]], name: str = 'dataset_array') -> None:
         keys = [df.name for df in datasets]
         if len(set(keys)) == len(keys):
             self.datasets = datasets
@@ -17,7 +16,7 @@ class DatasetArray:
         else:
             raise Exception('Dataset names are not unique!')
 
-    def __getitem__(self, key: Union[Union[str, int], List[Union[str, int]]]):
+    def __getitem__(self, key: Union[Union[str, int], List[Union[str, int]]]) -> Optional[Union[DatasetArray, Dataset]]:
         if isinstance(key, list):
             out = DatasetArray([self.__getitem__(k) for k in key])
             if len(out) == 0:
@@ -33,10 +32,10 @@ class DatasetArray:
                 return self.datasets[key]
         return None
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.datasets)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if not isinstance(other, DatasetArray):
             return False
         if not self.name == other.name:
@@ -48,11 +47,11 @@ class DatasetArray:
                 return False
         return True
 
-    def __iter__(self):
+    def __iter__(self) -> DatasetArray:
         self.current_i = 0
         return self
 
-    def __next__(self):
+    def __next__(self) -> Union[Dataset, DatasetArray]:
         if self.current_i < len(self.datasets):
             out = self.datasets[self.current_i]
             self.current_i += 1
@@ -60,26 +59,30 @@ class DatasetArray:
         else:
             raise StopIteration
 
-    def train_test_split(self, test_size: float = 0.2, random_state: Optional[int] = None):
+    def train_test_split(self, test_size: float = 0.2, random_state: Optional[int] = None) -> None:
         for ds in self.datasets:
             ds.train_test_split(test_size, random_state)
 
     @property
-    def train(self):
+    def train(self) -> DatasetArray:
         out = [ds.train for ds in self.datasets]
         return DatasetArray(out, self.name + '_train')
 
     @property
-    def test(self):
+    def test(self) -> DatasetArray:
         out = [ds.test for ds in self.datasets]
         return DatasetArray(out, self.name + '_test')
 
-    def remove_nans(self):
+    def remove_nans(self) -> None:
         for dataset in self.datasets:
             dataset.remove_nans()
         self.remove_empty_datasets()
 
-    def remove_non_binary_target_datasets(self):
+    def remove_outliers(self, n_std: Union[float, int] = 3) -> None:
+        for dataset in self.datasets:
+            dataset.remove_outliers(n_std=n_std)
+
+    def remove_non_binary_target_datasets(self) -> None:
         for dataset in self.datasets:
             if isinstance(dataset, DatasetArray):
                 dataset.remove_non_binary_target_datasets()
@@ -95,7 +98,7 @@ class DatasetArray:
                                  isinstance(dataset, Dataset) and dataset.check_binary_classification())
                          ]
 
-    def remove_empty_datasets(self):
+    def remove_empty_datasets(self) -> None:
         for dataset in self.datasets:
             if isinstance(dataset, DatasetArray):
                 dataset.remove_empty_datasets()
@@ -111,21 +114,21 @@ class DatasetArray:
                                  isinstance(dataset, Dataset) and len(dataset.target) != 0 and len(dataset.data) != 0)
                          ]
 
-    def append(self, other: Union[Dataset, DatasetArray, List[Dataset, DatasetArray]]):
+    def append(self, other: Union[Dataset, DatasetArray, List[Dataset, DatasetArray]]) -> None:
         if isinstance(other, list):
             self.datasets += other
         else:
             self.datasets.append(other)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return ''.join([str(ds) + '\n' for ds in self.datasets])
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<DatasetArray {self.name} with {len(self.datasets)} datasets>"
 
 
 class DatasetArrayFromOpenMLSuite(DatasetArray):
-    def __init__(self, suite_name: str = 'OpenML100', apikey: Optional[str] = None, name: str = 'dataset_array'):
+    def __init__(self, suite_name: str = 'OpenML100', apikey: Optional[str] = None, name: str = 'dataset_array') -> None:
         if openml.config.apikey == '':
             if apikey is None:
                 raise Exception('API key is not available!')
@@ -147,11 +150,8 @@ class DatasetArrayFromOpenMLSuite(DatasetArray):
 
         super().__init__(datasets=dataset_array, name=name)
 
-    def print_openml_description(self):
-        print('Name: ')
-        print(self.__openml_name)
-        print('Description: ')
-        print(self.__openml_description)
+    def openml_description(self) -> str:
+        return "Name: " + self.__openml_name + '\n' + 'Description: ' + '\n' + self.__openml_description
 
 
 class DatasetArrayFromDirectory(DatasetArray):
@@ -159,7 +159,7 @@ class DatasetArrayFromDirectory(DatasetArray):
     Attention!
     The target class is assumed to be the last column!
     """
-    def __init__(self, path: str, name: str = 'dataset_array'):
+    def __init__(self, path: str, name: str = 'dataset_array') -> None:
         if not os.path.exists(path):
             raise Exception('The path does not exist!')
         if not os.path.isdir(path):
