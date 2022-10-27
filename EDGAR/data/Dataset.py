@@ -3,13 +3,13 @@ import pandas as pd
 import numpy as np
 import openml
 from pandas_profiling import ProfileReport
-from typing import Optional
+from typing import Optional, Union
 from copy import deepcopy
 from sklearn.model_selection import train_test_split
 
 
 class Dataset:
-    def __init__(self, name: str, dataframe: Optional[pd.DataFrame], target: Optional[pd.Series]):
+    def __init__(self, name: str, dataframe: Optional[pd.DataFrame], target: Optional[pd.Series]) -> None:
         if dataframe is not None and target is not None:
             if dataframe.shape[0] != target.shape[0]:
                 raise Exception('Dataframe and target have different number of rows!')
@@ -22,71 +22,78 @@ class Dataset:
         self.__test_dataset = None
 
     @property
-    def data(self):
+    def data(self) -> Optional[pd.DataFrame]:
         if self.__data is not None:
             return self.__data
         else:
             if self.__train_dataset is None and self.__test_dataset is None:
                 return None
-            elif self.__train_dataset.data is not None and self.__test_dataset.data is not None:
-                return pd.concat([self.__train_dataset.data, self.__test_dataset.data])
-            elif self.__train_dataset.data is not None:
+            elif self.__train_dataset is not None and self.__test_dataset is not None:
+                if self.__train_dataset.data is not None and self.__test_dataset.data is not None:
+                    return pd.concat([self.__train_dataset.data, self.__test_dataset.data])
+                else:
+                    return None
+            elif self.__train_dataset is not None and self.__train_dataset.data is not None:
                 return self.__train_dataset.data
-            elif self.__test_dataset.data is not None:
+            elif self.__test_dataset is not None and self.__test_dataset.data is not None:
                 return self.__test_dataset.data
             else:
                 return None
 
     @data.setter
-    def data(self, val):
+    def data(self, val) -> None:
         if self.__train_dataset is None and self.__test_dataset is None:
             self.__data = val
         else:
             raise Exception('Data cannot be set since the dataset was train-test-split!')
 
     @property
-    def target(self):
+    def target(self) -> Optional[pd.Series]:
         if self.__target is not None:
             return self.__target
         else:
             if self.__train_dataset is None and self.__test_dataset is None:
                 return None
-            elif self.__train_dataset.target is not None and self.__test_dataset.target is not None:
-                return pd.concat([self.__train_dataset.target, self.__test_dataset.target])
-            elif self.__train_dataset.target is not None:
+            elif self.__train_dataset is not None and self.__test_dataset is not None:
+                if self.__train_dataset.target is not None and self.__test_dataset.target is not None:
+                    return pd.concat([self.__train_dataset.target, self.__test_dataset.target])
+                else:
+                    return None
+            elif self.__train_dataset is not None and self.__train_dataset.target is not None:
                 return self.__train_dataset.target
-            elif self.__test_dataset.target is not None:
+            elif self.__test_dataset is not None and self.__test_dataset.target is not None:
                 return self.__test_dataset.target
             else:
                 return None
 
     @target.setter
-    def target(self, val):
+    def target(self, val) -> None:
         if self.__train_dataset is None and self.__test_dataset is None:
             self.__target = val
         else:
             raise Exception('Target cannot be set since the dataset was train-test-split!')
 
     @property
-    def train(self):
+    def train(self) -> Dataset:
         if self.__train_dataset is not None:
             return self.__train_dataset
         else:
             raise Exception('The dataset as not train-test-split!')
 
     @property
-    def test(self):
+    def test(self) -> Dataset:
         if self.__test_dataset is not None:
             return self.__test_dataset
         else:
             raise Exception('The dataset as not train-test-split!')
 
     @property
-    def was_split(self):
+    def was_split(self) -> bool:
         return self.__train_dataset is not None and self.__test_dataset is not None
 
-    def train_test_split(self, test_size: float = 0.2, random_state: Optional[int] = None):
-        X_train, X_test, y_train, y_test = train_test_split(deepcopy(self.__data), deepcopy(self.__target), test_size=test_size,
+    def train_test_split(self, test_size: float = 0.2, random_state: Optional[int] = None) -> None:
+        X_train, X_test, y_train, y_test = train_test_split(deepcopy(self.__data), deepcopy(self.__target),
+                                                            test_size=test_size,
                                                             random_state=random_state, stratify=self.__target)
         self.__train_dataset = Dataset(self.name + '_train', X_train, y_train)
         self.__test_dataset = Dataset(self.name + '_test', X_test, y_test)
@@ -94,14 +101,14 @@ class Dataset:
         self.__data = None
         self.__target = None
 
-    def custom_train_test_split(self, train: Dataset, test: Dataset):
+    def custom_train_test_split(self, train: Dataset, test: Dataset) -> None:
         self.__train_dataset = train
         self.__test_dataset = test
 
         self.__data = None
         self.__target = None
 
-    def check_binary_classification(self):
+    def check_binary_classification(self) -> bool:
         if self.target is not None:
             unique = np.unique(self.target)
             if len(unique) > 2:
@@ -110,7 +117,8 @@ class Dataset:
         else:
             return False
 
-    def generate_report(self, output_path: Optional[str] = None, show_jupyter: bool = False, minimal: bool = False):
+    def generate_report(self, output_path: Optional[str] = None, show_jupyter: bool = False,
+                        minimal: bool = False) -> None:
         if self.data is None and self.target is None:
             raise Exception('Both data and target are None!')
 
@@ -129,18 +137,18 @@ class Dataset:
         if show_jupyter:
             profile.to_notebook_iframe()
 
-    def imbalance_ratio(self):
+    def imbalance_ratio(self) -> float:
         if self.target is None:
-            return 0
+            return float(0)
         names, counts = np.unique(self.target, return_counts=True)
         if len(names) == 1:
-            return 0
+            return float(0)
         elif len(names) > 2:
             raise Exception('Target has too many classes for binary classification!')
         else:
-            return max(counts) / min(counts)
+            return float(max(counts) / min(counts))
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if not isinstance(other, Dataset):
             return False
         if self.name != other.name:
@@ -151,7 +159,7 @@ class Dataset:
             return False
         return True
 
-    def remove_nans(self, col_thresh=0.9):
+    def remove_nans(self, col_thresh=0.9) -> None:
         nans = self.data.isnull().sum() / self.data.shape[0]
         nans = list(nans[nans > col_thresh].index)
         self.data.drop(nans, axis=1, inplace=True)
@@ -166,7 +174,18 @@ class Dataset:
         self.data.drop(nans, axis=0, inplace=True)
         self.target.drop(nans, axis=0, inplace=True)
 
-    def __str__(self):
+    def remove_outliers(self, n_std: Union[float, int] = 3):
+        categorical_columns = list(self.data.select_dtypes(include=['category', 'object', 'int']))
+        numerical_columns = list(set(self.data.columns).difference(categorical_columns))
+
+        for col in numerical_columns:
+            mean = self.data[col].mean()
+            std = self.data[col].std()
+            index = np.logical_and(self.data[col] <= mean + (n_std * std), (self.data[col] >= mean - (n_std * std)))
+            self.data = self.data[index]
+            self.target = self.target[index]
+
+    def __str__(self) -> str:
         out = f"Name: {self.name}"
         if self.data is not None:
             out += f"Dataset: \n{self.data.head()}"
@@ -176,14 +195,18 @@ class Dataset:
             out += f"Imbalance ratio: \n{self.imbalance_ratio()}"
         return out
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<Dataset {self.name}>"
 
 
 class DatasetFromCSV(Dataset):
-    def __init__(self, path: str, target: str, name: str = 'dataset', *args, **kwargs):
+    def __init__(self, path: str, target: Optional[str] = None, name: str = 'dataset', *args, **kwargs) -> None:
         X = pd.read_csv(path, *args, **kwargs)
-        y = X[target]
+        if target is None:
+            y = X.iloc[:, -1]
+            target = X.columns[-1]
+        else:
+            y = X[target]
         y = pd.Series(y, name='target')
         X = X.drop([target], axis=1)
         super().__init__(name=name, dataframe=X, target=y)
@@ -195,28 +218,17 @@ class DatasetFromOpenML(Dataset):
     and create file '~/.openml/config' with content: ‘apikey=KEY’; in a new line add 'cache_dir = ‘DIR’' to cache data
     Or give API key as an argument apikey.
 
-    In parameters give either task_id or openml_dataset
+    In parameters give either task_id
     """
 
-    def __init__(self, task_id: Optional[int] = None,
-                 openml_dataset: Optional[openml.datasets.dataset.OpenMLDataset] = None, apikey: Optional[str] = None):
+    def __init__(self, task_id: Optional[int] = None, apikey: Optional[str] = None) -> None:
         if openml.config.apikey == '':
             if apikey is None:
                 raise Exception('API key is not available!')
             else:
                 openml.config.apikey = apikey
 
-        if task_id is not None and openml_dataset is not None:
-            raise Exception('Provide only one argument of task_id and openml_dataset!')
-
-        if task_id is None and openml_dataset is None:
-            raise Exception('Provide needed arguments!')
-
-        if openml_dataset is None:
-            data = openml.datasets.get_dataset(task_id)
-        else:
-            data = openml_dataset
-
+        data = openml.datasets.get_dataset(task_id)
         self.__openml_name = data.name if 'name' in data.__dict__.keys() else ''
         self.__openml_description = data.description if 'description' in data.__dict__.keys() else ''
 
@@ -229,13 +241,5 @@ class DatasetFromOpenML(Dataset):
 
         super().__init__(name=data.name, dataframe=X, target=y)
 
-    def print_openml_description(self):
-        print('Name: ')
-        print(self.__openml_name)
-        print('\n')
-
-        print('Description: ')
-        print(self.__openml_description)
-
-    def openml_description(self):
-        return self.__openml_description
+    def openml_description(self) -> Optional[str]:
+        return "Name: " + self.name + '\n' + 'Description: ' + '\n' + self.__openml_description
