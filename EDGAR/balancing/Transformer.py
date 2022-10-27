@@ -1,7 +1,10 @@
+import warnings
 from abc import ABC, abstractmethod
 from imblearn.base import BaseSampler
 from imblearn.under_sampling import RandomUnderSampler as RUS
-from imblearn.over_sampling import RandomOverSampler as ROS, SMOTE as SM
+from imblearn.over_sampling import RandomOverSampler as ROS
+from imblearn.over_sampling import SMOTE as SM_C, SMOTENC as SM_NC, SMOTEN as SM_N
+from sklearn.utils.validation import check_is_fitted
 from EDGAR.base.BaseTransformer import BaseTransformer
 from EDGAR.data.Dataset import Dataset
 
@@ -60,6 +63,12 @@ class TransformerFromIMBLEARN(Transformer):
         self.__transformer = transformer
         super().__init__(name_sufix=name_sufix)
 
+    def _change_transformer(self, transformer: BaseSampler):
+        if check_is_fitted(transformer):
+            warnings.warn('Transformer was not changed! The existing one was already fitted.')
+        else:
+            self.__transformer = transformer
+
     def _fit(self, dataset: Dataset):
         return self.__transformer.fit(dataset.data, dataset.target)
 
@@ -104,8 +113,24 @@ class RandomOverSampler(TransformerFromIMBLEARN):
 
 class SMOTE(TransformerFromIMBLEARN):
     def __init__(self, imbalance_ratio: float = 1, name_sufix: str = '_transformed', random_state: int = None, *args, **kwargs):
-        transformer = SM(sampling_strategy=1/imbalance_ratio, random_state=random_state, *args, **kwargs)
+        self.__sampling_strategy = 1/imbalance_ratio
+        self.__random_state = random_state
+        self.__args = args
+        self.__kwargs = kwargs
+        transformer = SM_C(sampling_strategy=1/imbalance_ratio, random_state=random_state, *args, **kwargs)
         super().__init__(transformer=transformer, name_sufix=name_sufix)
+
+    def _fit(self, dataset: Dataset):
+        columns_categorical = list(dataset.data.select_dtypes(include=['category', 'object', 'int']))
+
+        if len(columns_categorical) > 0:
+            columns = dataset.data.columns
+            if len(columns_categorical) == len(columns):
+                super()._change_transformer(SM_N(sampling_strategy=1/self.__sampling_strategy, random_state=self.__random_state, *self.__args, **self.__kwargs))
+            elif len(columns_categorical) < len(columns):
+                SM_NC(columns_categorical, sampling_strategy=1/self.__sampling_strategy, random_state=self.__random_state, *self.__args, **self.__kwargs)
+
+        super()._fit(dataset)
 
     def set_params(self, **params):
         if 'IR' in params.keys():
