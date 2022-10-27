@@ -165,12 +165,12 @@ class Dataset:
         self.data.drop(nans, axis=1, inplace=True)
 
         nans = self.data.isna().any(axis=1)
-        nans = list(nans[nans == True].index)
+        nans = list(nans[nans].index)
         self.data.drop(nans, axis=0, inplace=True)
         self.target.drop(nans, axis=0, inplace=True)
 
         nans = self.target.isna()
-        nans = list(nans[nans == True].index)
+        nans = list(nans[nans].index)
         self.data.drop(nans, axis=0, inplace=True)
         self.target.drop(nans, axis=0, inplace=True)
 
