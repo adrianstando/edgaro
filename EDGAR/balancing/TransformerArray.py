@@ -8,14 +8,14 @@ from EDGAR.base.BaseTransformerArray import BaseTransformerArray
 class TransformerArray(BaseTransformerArray):
     def __init__(self, base_transformer: Transformer, parameters: Optional[List[Dict[str, Any]]] = None,
                  keep_original_dataset: bool = False, dataset_suffixes: Union[str, List[str]] = '_transformed',
-                 result_array_sufix: str = '_transformed_array', allow_dataset_array_sufix_change: bool = True):
+                 result_array_sufix: str = '_transformed_array', allow_dataset_array_sufix_change: bool = True) -> None:
         super().__init__(base_transformer=base_transformer, parameters=parameters, transformer_sufix=result_array_sufix)
         self.__dataset_suffixes = None
         self.set_dataset_suffixes(dataset_suffixes)
         self.keep_original_dataset = keep_original_dataset
         self.allow_dataset_array_sufix_change = allow_dataset_array_sufix_change
 
-    def set_dataset_suffixes(self, name_sufix: Union[str, List[str]]):
+    def set_dataset_suffixes(self, name_sufix: Union[str, List[str]]) -> None:
         params = self.get_params()
         length_params = len(params) if params is not None else 0
         set_names = True if len(self.get_transformers()) > 0 else False
@@ -66,15 +66,15 @@ class TransformerArray(BaseTransformerArray):
             else:
                 raise Exception('Parameter dataset_suffixes has invalid length!')
 
-    def get_name_sufix(self):
+    def get_dataset_suffixes(self) -> Optional[Union[str, List[str]]]:
         return self.__dataset_suffixes
 
-    def set_params(self, **params):
+    def set_params(self, **params) -> None:
         super().set_params(**params)
         if len(self.__dataset_suffixes) == 1:
             self.set_dataset_suffixes(self.__dataset_suffixes[0])
 
-    def fit(self, dataset: Union[Dataset, DatasetArray]):
+    def fit(self, dataset: Union[Dataset, DatasetArray]) -> None:
         super().fit(dataset)
 
         # Setting suffixes
@@ -117,13 +117,13 @@ class TransformerArray(BaseTransformerArray):
             if self.allow_dataset_array_sufix_change:
                 self.transformer_sufix = self.__dataset_suffixes[0]
 
-    def transform(self, dataset: Union[Dataset, DatasetArray]):
+    def transform(self, dataset: Union[Dataset, DatasetArray]) -> Union[Dataset, DatasetArray]:
         out = super().transform(dataset=dataset)
         if self.keep_original_dataset:
             out.append(dataset)
         return out
 
-    def __base_transformer_array_to_balancing_transformer_array(self, base):
+    def __base_transformer_array_to_balancing_transformer_array(self, base: Any) -> Any:
         if isinstance(base, Transformer):
             return base
         elif not isinstance(base, TransformerArray):
@@ -136,8 +136,8 @@ class TransformerArray(BaseTransformerArray):
         else:
             return base
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"TransformerArray {self.__class__.__name__} with {len(self.get_transformers())} transformers"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<Transformer {self.__class__.__name__} with {len(self.get_transformers())} transformers>"
