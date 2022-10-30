@@ -62,7 +62,7 @@ class TestDatasetBasicProperties:
     def test_imbalance_ratio(self, name, df, target, expected_IR, target_fake):
         try:
             ds = Dataset(name, df, target)
-            IR = ds.imbalance_ratio()
+            IR = ds.imbalance_ratio
         except (Exception,):
             assert False
 
@@ -154,7 +154,7 @@ def dataset_csv(request):
 class TestCSV:
     def test_calculate_imbalance_ratio(self, dataset_csv):
         try:
-            dataset_csv.imbalance_ratio()
+            IR = dataset_csv.imbalance_ratio
         except (Exception,):
             assert False
 
@@ -170,7 +170,7 @@ def dataset_openml(request):
 class TestOpenML:
     def test_calculate_imbalance_ratio(self, dataset_openml):
         try:
-            dataset_openml.imbalance_ratio()
+            IR = dataset_openml.imbalance_ratio
         except (Exception,):
             assert False
 

@@ -66,4 +66,4 @@ def test_imbalance_ratio(imblearn_sampler, expected_imbalance_ratio):
     transformer.fit(ds)
     out = transformer.transform(ds)
 
-    assert out.imbalance_ratio() == expected_imbalance_ratio
+    assert out.imbalance_ratio == expected_imbalance_ratio

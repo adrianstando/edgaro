@@ -20,11 +20,11 @@ from .resources.objects import *
 def test_flow(df):
     try:
         df.remove_nans()
-        df.imbalance_ratio()
+        IR = df.imbalance_ratio
         transformator = TransformerFromIMBLEARN(RandomUnderSampler(sampling_strategy=1, random_state=42))
         transformator.fit(df)
         df_new = transformator.transform(df)
-        df_new.imbalance_ratio()
+        IR = df_new.imbalance_ratio
 
         rf = RandomForest(test_size=0.1)
         rf.fit(df_new)
@@ -65,16 +65,16 @@ def test_flow(df):
 def test_flow_array(df):
     try:
         df.remove_nans()
-        df[0].imbalance_ratio()
-        df[1].imbalance_ratio()
+        IR = df[0].imbalance_ratio
+        IR = df[1].imbalance_ratio
 
         transformator = TransformerArray(
             TransformerFromIMBLEARN(RandomUnderSampler(sampling_strategy=1, random_state=42)))
         transformator.fit(df)
         df_new = transformator.transform(df)
 
-        df_new[0].imbalance_ratio()
-        df_new[1].imbalance_ratio()
+        IR = df_new[0].imbalance_ratio
+        IR = df_new[1].imbalance_ratio
 
         rf = ModelArray(RandomForest(test_size=0.1))
         rf.fit(df_new)
@@ -135,19 +135,19 @@ def test_flow_array(df):
 def test_flow_array_of_arrays(df):
     try:
         df.remove_nans()
-        df[0].imbalance_ratio()
-        df[1].imbalance_ratio()
-        df[2][0].imbalance_ratio()
-        df[2][1].imbalance_ratio()
+        IR = df[0].imbalance_ratio
+        IR = df[1].imbalance_ratio
+        IR = df[2][0].imbalance_ratio
+        IR = df[2][1].imbalance_ratio
 
         transformator = TransformerArray(RUS(imbalance_ratio=1, random_state=42))
         transformator.fit(df)
         df_new = transformator.transform(df)
 
-        df_new[0].imbalance_ratio()
-        df_new[1].imbalance_ratio()
-        df_new[2][0].imbalance_ratio()
-        df_new[2][1].imbalance_ratio()
+        IR = df_new[0].imbalance_ratio
+        IR = df_new[1].imbalance_ratio
+        IR = df_new[2][0].imbalance_ratio
+        IR = df_new[2][1].imbalance_ratio
 
         rf = ModelArray(RandomForest(test_size=0.1))
         rf.fit(df_new)

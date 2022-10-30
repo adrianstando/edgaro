@@ -137,6 +137,7 @@ class Dataset:
         if show_jupyter:
             profile.to_notebook_iframe()
 
+    @property
     def imbalance_ratio(self) -> float:
         if self.target is None:
             return float(0)
@@ -192,7 +193,7 @@ class Dataset:
         if self.target is not None:
             out += f"Target: \n{self.target.head()}"
         if self.check_binary_classification():
-            out += f"Imbalance ratio: \n{self.imbalance_ratio()}"
+            out += f"Imbalance ratio: \n{self.imbalance_ratio}"
         return out
 
     def __repr__(self) -> str:

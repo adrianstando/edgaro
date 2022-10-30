@@ -167,7 +167,7 @@ def test_imbalance_ratio(imblearn_sampler, ratio, ds):
     out = array.transform(ds)
 
     for ds_array in out:
-        assert ds_array.imbalance_ratio() == round(ratio, 2)
+        assert ds_array.imbalance_ratio == round(ratio, 2)
 
 
 @pytest.mark.parametrize('imblearn_sampler,ratio', [
@@ -187,7 +187,7 @@ def test_imbalance_ratio_2(imblearn_sampler, ratio, ds):
     out = array.transform(ds)
 
     for ds_array in out:
-        assert round(1 / ds_array.imbalance_ratio(), 2) == round(ratio, 2)
+        assert round(1 / ds_array.imbalance_ratio, 2) == round(ratio, 2)
 
 
 @pytest.mark.parametrize('imblearn_sampler', [
