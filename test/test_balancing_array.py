@@ -9,8 +9,9 @@ from EDGAR.balancing.TransformerArray import TransformerArray
 from .resources.objects import *
 
 
-ds_openml_1 = DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY)
-ds_openml_2 = DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY)
+ds_openml_1 = DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY)
+ds_openml_2 = deepcopy(ds_openml_1)
+ds_openml_2.name += '__xx'
 
 
 @pytest.mark.parametrize('imblearn_sampler', [
@@ -116,7 +117,7 @@ def test_transformer_sufix_tab_datasetarray(imblearn_sampler, ds, sufix):
 ])
 @pytest.mark.parametrize('ds', [
     DatasetArray([Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2)]),
-    DatasetArray([Dataset(name_1, df_1, target_1), deepcopy(ds_openml_1)])
+    DatasetArray([Dataset(name_1, df_1, target_1), deepcopy(ds_openml_2)])
 ])
 @pytest.mark.parametrize('sufix', [
     ['_transformed_0', '_transformed_1'],
@@ -182,7 +183,7 @@ def test_imbalance_ratio(imblearn_sampler, ratio, ds):
     (RandomOverSampler(sampling_strategy=0.95, random_state=42), 0.95)
 ])
 @pytest.mark.parametrize('ds', [
-    DatasetArray([deepcopy(ds_openml_1)]),
+    DatasetArray([deepcopy(ds_openml_2)]),
     DatasetArray([deepcopy(ds_openml_1), deepcopy(ds_openml_2)])
 ])
 def test_imbalance_ratio_2(imblearn_sampler, ratio, ds):
@@ -201,7 +202,7 @@ def test_imbalance_ratio_2(imblearn_sampler, ratio, ds):
 ])
 @pytest.mark.parametrize('ds', [
     DatasetArray([Dataset(name_2, df_1, target_1), Dataset(name_1, df_1, target_1)]),
-    DatasetArray([deepcopy(ds_openml_1), deepcopy(ds_openml_2)])
+    DatasetArray([Dataset(name_1, df_1, target_1), deepcopy(ds_openml_2)])
 ])
 @pytest.mark.parametrize('param', [
     {
@@ -244,7 +245,7 @@ def test_set_get_params(imblearn_sampler, ds, param):
 ])
 @pytest.mark.parametrize('ds', [
     DatasetArray([Dataset(name_2, df_1, target_1), Dataset(name_1, df_1, target_1)]),
-    DatasetArray([deepcopy(ds_openml_1), deepcopy(ds_openml_2)])
+    DatasetArray([Dataset(name_1, df_1, target_1), deepcopy(ds_openml_2)])
 ])
 @pytest.mark.parametrize('param', [
     {
@@ -287,7 +288,7 @@ def test_set_get_params_2(imblearn_sampler, ds, param):
 ])
 @pytest.mark.parametrize('ds', [
     DatasetArray([Dataset(name_2, df_1, target_1), Dataset(name_1, df_1, target_1)]),
-    DatasetArray([deepcopy(ds_openml_1), deepcopy(ds_openml_2)])
+    DatasetArray([Dataset(name_1, df_1, target_1), deepcopy(ds_openml_2)])
 ])
 @pytest.mark.parametrize('param', [
     [
@@ -330,7 +331,7 @@ def test_params_in_arguments(imblearn_sampler, ds, param):
 ])
 @pytest.mark.parametrize('ds', [
     DatasetArray([Dataset(name_2, df_1, target_1), Dataset(name_1, df_1, target_1)]),
-    DatasetArray([deepcopy(ds_openml_1), deepcopy(ds_openml_2)])
+    DatasetArray([Dataset(name_1, df_1, target_1), deepcopy(ds_openml_2)])
 ])
 @pytest.mark.parametrize('param', [
     [
@@ -387,7 +388,7 @@ def test_params_in_arguments_and_sufix(imblearn_sampler, ds, param, sufix):
 ])
 @pytest.mark.parametrize('ds', [
     DatasetArray([Dataset(name_2, df_1, target_1), Dataset(name_1, df_1, target_1)]),
-    DatasetArray([deepcopy(ds_openml_1), deepcopy(ds_openml_2)])
+    DatasetArray([Dataset(name_1, df_1, target_1), deepcopy(ds_openml_2)])
 ])
 @pytest.mark.parametrize('param', [
     [

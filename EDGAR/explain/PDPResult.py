@@ -17,7 +17,7 @@ class Curve:
         return f"Curve with {len(self.x)} points\nx:\n" + str(self.x) + "\ny:\n" + str(self.y)
 
     def __repr__(self):
-        return f"Curve with {len(self.x)} points>"
+        return f"<Curve with {len(self.x)} points>"
 
 
 class PDPResult:

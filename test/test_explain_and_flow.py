@@ -14,7 +14,7 @@ from .resources.objects import *
 
 
 @pytest.mark.parametrize('df', [
-    DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY),
+    Dataset(name_1, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)])),
     DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY)
 ])
 def test_flow(df):
@@ -26,7 +26,7 @@ def test_flow(df):
         df_new = transformator.transform(df)
         IR = df_new.imbalance_ratio
 
-        rf = RandomForest(test_size=0.1)
+        rf = RandomForest(test_size=0.3, max_depth=1, n_estimators=1, random_state=42)
         rf.fit(df_new)
         rf.evaluate()
 
@@ -34,7 +34,7 @@ def test_flow(df):
         y = rf.predict(test)
         accuracy_score(y.target, rf.transform_target(test).target)
 
-        pdp = PDPCalculator(rf, N=200)
+        pdp = PDPCalculator(rf, N=10)
         pdp.fit()
 
         str(pdp)
@@ -58,9 +58,10 @@ def test_flow(df):
 
 
 @pytest.mark.parametrize('df', [
-    DatasetArray(
-        [DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY), DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY)]),
-    DatasetArray([Dataset(name_1, df_3, target_3), Dataset(name_2, df_3, target_3)])
+    DatasetArray([
+        Dataset(name_1, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)])),
+        DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY)
+    ])
 ])
 def test_flow_array(df):
     try:
@@ -76,7 +77,7 @@ def test_flow_array(df):
         IR = df_new[0].imbalance_ratio
         IR = df_new[1].imbalance_ratio
 
-        rf = ModelArray(RandomForest(test_size=0.1))
+        rf = ModelArray(RandomForest(test_size=0.3, max_depth=1, n_estimators=1, random_state=42))
         rf.fit(df_new)
 
         for m in rf:
@@ -88,7 +89,7 @@ def test_flow_array(df):
             y = m.predict(test)
             accuracy_score(y.target, m.transform_target(test).target)
 
-        pdp = PDPCalculatorArray(rf, N=200)
+        pdp = PDPCalculatorArray(rf, N=10)
         pdp.fit()
 
         str(pdp)
@@ -127,9 +128,12 @@ def test_flow_array(df):
 
 @pytest.mark.parametrize('df', [
     DatasetArray([
-        DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY),
+        Dataset(name_1, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)])),
         DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY),
-        DatasetArray([Dataset(name_1, df_3, target_3), Dataset(name_2, df_3, target_3)])
+        DatasetArray([
+            Dataset(name_1, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)])),
+            Dataset(name_2, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)]))
+        ])
     ])
 ])
 def test_flow_array_of_arrays(df):
@@ -149,7 +153,7 @@ def test_flow_array_of_arrays(df):
         IR = df_new[2][0].imbalance_ratio
         IR = df_new[2][1].imbalance_ratio
 
-        rf = ModelArray(RandomForest(test_size=0.1))
+        rf = ModelArray(RandomForest(test_size=0.3, max_depth=1, n_estimators=1, random_state=42))
         rf.fit(df_new)
 
         def evaluate(model):
@@ -161,7 +165,7 @@ def test_flow_array_of_arrays(df):
 
         evaluate(rf)
 
-        pdp = PDPCalculatorArray(rf, N=200)
+        pdp = PDPCalculatorArray(rf, N=10)
         pdp.fit()
 
         str(pdp)
@@ -192,11 +196,8 @@ def test_flow_array_of_arrays(df):
 
         t[2][0].plot(variable=df[2][0].data.columns[0])
 
-        try:
+        with pytest.raises(Exception):
             t_2[0].plot(variable=df[0].data.columns[2])
-            assert False
-        except (Exception,):
-            pass
 
     except (Exception,):
         assert False
