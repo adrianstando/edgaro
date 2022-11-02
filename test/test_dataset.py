@@ -134,6 +134,19 @@ class TestDatasetBasicProperties:
 
         assert ds.was_split
 
+    def test_train_test_split_double_raise_exception(self, name, df, target, expected_IR, target_fake):
+        ds = Dataset(name, pd.concat([df for _ in range(3)]), pd.concat([target for _ in range(3)]))
+
+        try:
+            ds.train_test_split(test_size=0.3, random_state=42)
+            train = ds.train
+            test = ds.test
+        except (Exception,):
+            assert False
+
+        with pytest.raises(Exception):
+            ds.train_test_split(test_size=0.3, random_state=42)
+
 
 @pytest.mark.parametrize('ds1,ds2', [
     (Dataset(name_1, df_1, target_1), Dataset(name_1, df_1, target_2)),

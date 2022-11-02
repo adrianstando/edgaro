@@ -92,6 +92,8 @@ class Dataset:
         return self.__train_dataset is not None and self.__test_dataset is not None
 
     def train_test_split(self, test_size: float = 0.2, random_state: Optional[int] = None) -> None:
+        if self.was_split:
+            raise Exception('The dataset has already been train-test-split!')
         X_train, X_test, y_train, y_test = train_test_split(deepcopy(self.__data), deepcopy(self.__target),
                                                             test_size=test_size,
                                                             random_state=random_state, stratify=self.__target)
