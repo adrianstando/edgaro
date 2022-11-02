@@ -1,12 +1,15 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from copy import deepcopy
 import numpy as np
-from typing import Optional
+from typing import Optional, Protocol, Any, Dict, List
 import warnings
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import OrdinalEncoder
-from sklearn.metrics import accuracy_score, f1_score, balanced_accuracy_score, precision_score, recall_score, roc_auc_score
+from sklearn.metrics import accuracy_score, f1_score, balanced_accuracy_score, precision_score
+from sklearn.metrics import roc_auc_score, recall_score
 from imblearn.metrics import geometric_mean_score, specificity_score
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.model_selection import RandomizedSearchCV as RS
@@ -17,7 +20,7 @@ from EDGAR.data.Dataset import Dataset
 
 
 class Model(BaseTransformer, ABC):
-    def __init__(self, name: str = '', test_size: float = 0.2, random_state: Optional[int] = None):
+    def __init__(self, name: str = '', test_size: Optional[float] = None, random_state: Optional[int] = None) -> None:
         super().__init__()
         self.__transform_to_probabilities = False
         self.__train_dataset = None
@@ -28,15 +31,20 @@ class Model(BaseTransformer, ABC):
         self.__target_encoder = None
         self.random_state = random_state
 
-    def fit(self, dataset: Dataset, print_scores: bool = False):
+    def fit(self, dataset: Dataset, print_scores: bool = False) -> None:
         if not dataset.check_binary_classification():
             raise Exception('Dataset does not represent binary classification task!')
 
-        if not dataset.was_split:
-            warnings.warn('Dataset was not train-test-split! The training dataset will be the same as the test dataset.')
+        if not dataset.was_split and self.test_size is None:
+            warnings.warn(
+                'Dataset was not train-test-split! The training dataset will be the same as the test dataset.')
             self.__train_dataset = deepcopy(dataset)
             self.__test_dataset = deepcopy(dataset)
         else:
+            if not dataset.was_split and self.test_size is not None:
+                dataset.train_test_split(test_size=self.test_size, random_state=self.random_state)
+            if dataset.was_split and self.test_size is not None:
+                warnings.warn('Dataset was train-test-split! Dataset will not be split the second time.')
             self.__train_dataset = deepcopy(dataset.train)
             self.__test_dataset = deepcopy(dataset.test)
 
@@ -55,91 +63,97 @@ class Model(BaseTransformer, ABC):
         if self.name == '':
             self.name = dataset.name
 
-        out = self._fit(ds)
+        self._fit(ds)
 
         if print_scores:
             self.evaluate()
 
-        return out
-
     @abstractmethod
-    def _fit(self, dataset: Dataset):
+    def _fit(self, dataset: Dataset) -> None:
         pass
 
-    def transform_data(self, dataset: Dataset):
-        df = deepcopy(dataset)
+    def transform_data(self, dataset: Dataset) -> Dataset:
+        df = Dataset(
+            name=dataset.name,
+            dataframe=deepcopy(dataset.data),
+            target=deepcopy(dataset.target)
+        )
         for key, le in self.__label_encoders.items():
             df.data[key] = le.transform(df.data[[key]])
         return df
 
-    def transform_target(self, dataset: Dataset):
-        df = deepcopy(dataset)
+    def transform_target(self, dataset: Dataset) -> Dataset:
+        df = Dataset(
+            name=dataset.name,
+            dataframe=deepcopy(dataset.data),
+            target=deepcopy(dataset.target)
+        )
         df.target = self.__target_encoder.transform(df.target)
         return df
 
-    def predict(self, dataset: Dataset):
+    def predict(self, dataset: Dataset) -> Dataset:
         df = self.transform_data(dataset)
         model_name = '_' + self.name if not self.name == dataset.name else ''
         name = dataset.name + model_name + '_predicted'
         return self._predict(df, output_name=name)
 
     @abstractmethod
-    def _predict(self, dataset: Dataset, output_name: str):
+    def _predict(self, dataset: Dataset, output_name: str) -> Dataset:
         pass
 
-    def predict_proba(self, dataset: Dataset):
+    def predict_proba(self, dataset: Dataset) -> Dataset:
         df = self.transform_data(dataset)
         model_name = '_' + self.name if not self.name == dataset.name else ''
         name = dataset.name + model_name + '_predicted_probabilities'
         return self._predict_proba(df, output_name=name)
 
     @abstractmethod
-    def _predict_proba(self, dataset: Dataset, output_name: str):
+    def _predict_proba(self, dataset: Dataset, output_name: str) -> Dataset:
         pass
 
-    def set_params(self, **params):
+    def set_params(self, **params) -> None:
         if 'test_size_model' in params.keys():
             self.test_size = params.pop('test_size_model')
         self._set_params(**params)
 
     @abstractmethod
-    def _set_params(self, **params):
+    def _set_params(self, **params) -> None:
         pass
 
     @abstractmethod
-    def get_params(self):
+    def get_params(self) -> Dict:
         pass
 
-    def transform(self, dataset: Dataset):
+    def transform(self, dataset: Dataset) -> Dataset:
         return self.__transform(dataset)
 
-    def __transform(self, dataset: Dataset):
+    def __transform(self, dataset: Dataset) -> Dataset:
         if self.__transform_to_probabilities:
             return self.predict_proba(dataset)
         else:
             return self.predict(dataset)
 
-    def set_transform_to_probabilities(self):
+    def set_transform_to_probabilities(self) -> None:
         self.__transform_to_probabilities = True
 
-    def set_transform_to_classes(self):
+    def set_transform_to_classes(self) -> None:
         self.__transform_to_probabilities = False
 
-    def get_train_dataset(self):
+    def get_train_dataset(self) -> Dataset:
         return self.__train_dataset
 
-    def get_test_dataset(self):
+    def get_test_dataset(self) -> Dataset:
         return self.__test_dataset
 
-    def get_category_colnames(self):
+    def get_category_colnames(self) -> List[str]:
         return list(self.__label_encoders.keys())
 
-    def evaluate(self, metrics_output_class=None, metrics_output_probabilities=None, ds: Optional[Dataset] = None):
+    def evaluate(self, metrics_output_class=None, metrics_output_probabilities=None,
+                 ds: Optional[Dataset] = None) -> pd.DataFrame:
         results = {}
         if ds is None:
             ds = self.__test_dataset
         if metrics_output_class is None and metrics_output_probabilities is None:
-
             def f1_weighted(y_true, y_pred):
                 return f1_score(y_true, y_pred, average='weighted')
 
@@ -156,19 +170,19 @@ class Model(BaseTransformer, ABC):
                 results[f.__name__] = f(self.__target_encoder.transform(ds.target), y_hat.target[:, 1])
         return pd.DataFrame(results.items(), columns=['metric', 'value'])
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.__class__.__name__} model with name {self.name}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<{self.name} {self.__class__.__name__} model>"
 
 
 class _TargetEncode(BaseEstimator, TransformerMixin):
-    def __init__(self):
+    def __init__(self) -> None:
         self.mapping = None
         super().__init__()
 
-    def fit(self, y):
+    def fit(self, y: pd.Series) -> _TargetEncode:
         names, counts = np.unique(y, return_counts=True)
         if counts[0] < counts[1]:
             index_min = 0
@@ -183,25 +197,45 @@ class _TargetEncode(BaseEstimator, TransformerMixin):
         }
         return self
 
-    def transform(self, y):
+    def transform(self, y: pd.Series) -> pd.Series:
         return y.map(self.mapping)
 
 
+class SKLEARNModelProtocol(Protocol):
+    def fit(self, X: pd.DataFrame, y: pd.Series) -> Any:
+        ...
+
+    def predict(self, X: pd.DataFrame) -> Any:
+        ...
+
+    def predict_proba(self, X: pd.DataFrame) -> Any:
+        ...
+
+    def get_params(self) -> Dict:
+        ...
+
+    def set_params(self, **params) -> Any:
+        ...
+
+
 class ModelFromSKLEARN(Model):
-    def __init__(self, base_model: BaseEstimator, name: str = '', test_size: float = 0.2, random_state: Optional[int] = None):
+    def __init__(self, base_model: SKLEARNModelProtocol, name: str = '', test_size: Optional[float] = None,
+                 random_state: Optional[int] = None) -> None:
         super().__init__(name=name, test_size=test_size, random_state=random_state)
         self._model = base_model
 
-    def _fit(self, dataset: Dataset):
+    def _fit(self, dataset: Dataset) -> None:
         if dataset.target is None:
             raise Exception('Target data is not provided!')
 
-        if 'random_state' in self._model.get_params().keys() and self._model.get_params()['random_state'] is None and self.random_state is not None:
+        if 'random_state' in self._model.get_params().keys() and \
+                self._model.get_params()['random_state'] is None and \
+                self.random_state is not None:
             self._model.set_params(**{'random_state': self.random_state})
 
-        return self._model.fit(dataset.data, dataset.target)
+        self._model.fit(dataset.data, dataset.target)
 
-    def _predict(self, dataset: Dataset, output_name: str):
+    def _predict(self, dataset: Dataset, output_name: str) -> Dataset:
         if isinstance(dataset.data, np.ndarray) and isinstance(self.get_train_dataset().data, pd.DataFrame):
             dataset = deepcopy(dataset)
             dataset.data = pd.DataFrame(dataset, columns=self.get_train_dataset().data.columns)
@@ -212,7 +246,7 @@ class ModelFromSKLEARN(Model):
             target=self._model.predict(dataset.data)
         )
 
-    def _predict_proba(self, dataset: Dataset, output_name: str):
+    def _predict_proba(self, dataset: Dataset, output_name: str) -> Dataset:
         if isinstance(dataset.data, np.ndarray) and isinstance(self.get_train_dataset().data, pd.DataFrame):
             dataset = deepcopy(dataset)
             dataset.data = pd.DataFrame(dataset, columns=self.get_train_dataset().data.columns)
@@ -223,28 +257,34 @@ class ModelFromSKLEARN(Model):
             target=self._model.predict_proba(dataset.data)
         )
 
-    def _set_params(self, **params):
+    def _set_params(self, **params) -> None:
         return self._model.set_params(**params)
 
-    def get_params(self):
+    def get_params(self) -> Dict:
         return self._model.get_params()
 
 
 class RandomForest(ModelFromSKLEARN):
-    def __init__(self, name: str = '', test_size: float = 0.2, random_state: Optional[int] = None, *args, **kwargs):
-        super().__init__(RandomForestClassifier(*args, **kwargs), name=name, test_size=test_size, random_state=random_state)
+    def __init__(self, name: str = '', test_size: Optional[float] = None, random_state: Optional[int] = None, *args,
+                 **kwargs) -> None:
+        super().__init__(RandomForestClassifier(*args, **kwargs), name=name, test_size=test_size,
+                         random_state=random_state)
 
 
 class XGBoost(ModelFromSKLEARN):
-    def __init__(self, name: str = '', test_size: float = 0.2, random_state: Optional[int] = None, *args, **kwargs):
+    def __init__(self, name: str = '', test_size: Optional[float] = None, random_state: Optional[int] = None, *args,
+                 **kwargs) -> None:
         super().__init__(
-            xgb.XGBClassifier(eval_metric='logloss' if not 'eval_metric' in kwargs.keys() else kwargs['eval_metric'], *args, **kwargs),
+            xgb.XGBClassifier(eval_metric='logloss' if 'eval_metric' not in kwargs.keys() else kwargs['eval_metric'],
+                              *args, **kwargs),
             name=name, test_size=test_size, random_state=random_state
         )
 
 
 class RandomSearchCV(ModelFromSKLEARN):
-    def __init__(self, base_model: ModelFromSKLEARN, param_grid, n_iter=10, cv=5, scoring='balanced_accuracy', name: str = '', test_size: float = 0.2, random_state: Optional[int] = None, *args, **kwargs):
+    def __init__(self, base_model: ModelFromSKLEARN, param_grid, n_iter=10, cv=5, scoring='balanced_accuracy',
+                 name: str = '', test_size: Optional[float] = None, random_state: Optional[int] = None, *args,
+                 **kwargs) -> None:
         super().__init__(
             RS(base_model._model, param_grid, cv=cv, scoring=scoring, n_iter=n_iter, *args, **kwargs),
             name=name,
@@ -254,7 +294,8 @@ class RandomSearchCV(ModelFromSKLEARN):
 
 
 class GridSearchCV(ModelFromSKLEARN):
-    def __init__(self, base_model: ModelFromSKLEARN, param_grid, cv=5, scoring='balanced_accuracy', name: str = '', test_size: float = 0.2, random_state: Optional[int] = None, *args, **kwargs):
+    def __init__(self, base_model: ModelFromSKLEARN, param_grid, cv=5, scoring='balanced_accuracy', name: str = '',
+                 test_size: Optional[float] = None, random_state: Optional[int] = None, *args, **kwargs) -> None:
         if 'random_state' in base_model._model.get_params().keys():
             base_model._model.set_params(**{'random_state': random_state})
 

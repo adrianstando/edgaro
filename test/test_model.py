@@ -1,4 +1,7 @@
+import random
+import string
 from copy import deepcopy
+import pandas as pd
 import pytest
 from sklearn.ensemble import RandomForestClassifier
 from EDGAR.data.Dataset import Dataset, DatasetFromOpenML
@@ -6,153 +9,287 @@ from EDGAR.model.Model import RandomForest, ModelFromSKLEARN, XGBoost, RandomSea
 from .resources.objects import *
 
 
-@pytest.mark.parametrize('ds', [
-    DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY),
+@pytest.fixture(scope='module', params=[
     DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY),
+    Dataset(name_1, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)]))
 ])
-def test_model(ds):
+def ds_test_fitting(request):
+    ds = request.param
+    ds = deepcopy(ds)
+    ds.remove_nans()
+    return ds
+
+
+@pytest.fixture(scope='module', params=[
+    DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY),
+    Dataset(name_1, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)]))
+])
+def ds_test_fitting_with_split(request):
+    ds = request.param
+    ds = deepcopy(ds)
+    ds.remove_nans()
+    ds.train_test_split(test_size=0.3, random_state=42)
+    return ds
+
+
+class TestFitting:
+    def test_random_forest(self, ds_test_fitting):
+        try:
+            model = RandomForest(test_size=None, max_depth=1, n_estimators=1, random_state=42)
+            model.fit(ds_test_fitting)
+            model.evaluate()
+            model.predict(ds_test_fitting)
+            model.predict_proba(ds_test_fitting)
+            str(model)
+            repr(model)
+        except (Exception,):
+            assert False
+
+        with pytest.raises(Exception):
+            model.predict(ds_test_fitting.test)
+            model.predict_proba(ds_test_fitting.test)
+
+    def test_xgboost(self, ds_test_fitting):
+        try:
+            model = XGBoost(test_size=None, max_depth=1, n_estimators=1, random_state=42)
+            model.fit(ds_test_fitting)
+            model.evaluate()
+            model.predict(ds_test_fitting)
+            model.predict_proba(ds_test_fitting)
+            str(model)
+            repr(model)
+        except (Exception,):
+            assert False
+
+        with pytest.raises(Exception):
+            model.predict(ds_test_fitting.test)
+            model.predict_proba(ds_test_fitting.test)
+
+    def test_grid_search(self, ds_test_fitting):
+        try:
+            model = GridSearchCV(test_size=None, base_model=RandomForest(),
+                                 param_grid={'n_estimators': [1, 2], 'max_depth': [1]}, random_state=42)
+            model.fit(ds_test_fitting)
+            model.evaluate()
+            model.predict(ds_test_fitting)
+            model.predict_proba(ds_test_fitting)
+            str(model)
+            repr(model)
+        except (Exception,):
+            assert False
+
+        with pytest.raises(Exception):
+            model.predict(ds_test_fitting.test)
+            model.predict_proba(ds_test_fitting.test)
+
+    def test_random_search(self, ds_test_fitting):
+        try:
+            model = RandomSearchCV(test_size=None, base_model=RandomForest(),
+                                   param_grid={'n_estimators': [1, 2], 'max_depth': [1]}, random_state=42)
+            model.fit(ds_test_fitting)
+            model.evaluate()
+            model.predict(ds_test_fitting)
+            model.predict_proba(ds_test_fitting)
+            str(model)
+            repr(model)
+        except (Exception,):
+            assert False
+
+        with pytest.raises(Exception):
+            model.predict(ds_test_fitting.test)
+            model.predict_proba(ds_test_fitting.test)
+
+
+class TestFittingWithSplit:
+    def test_random_forest_with_test(self, ds_test_fitting):
+        try:
+            ds = deepcopy(ds_test_fitting)
+            model = RandomForest(test_size=0.3, max_depth=1, n_estimators=1, random_state=42)
+            model.fit(ds)
+            model.evaluate()
+            model.predict(ds)
+            model.predict_proba(ds)
+            str(model)
+            repr(model)
+            model.predict(ds.test)
+            model.predict_proba(ds.test)
+        except (Exception,):
+            assert False
+
+    def test_xgboost_with_test(self, ds_test_fitting):
+        try:
+            ds = deepcopy(ds_test_fitting)
+            model = XGBoost(test_size=0.3, max_depth=1, n_estimators=1, random_state=42)
+            model.fit(ds)
+            model.evaluate()
+            model.predict(ds)
+            model.predict_proba(ds)
+            str(model)
+            repr(model)
+            model.predict(ds.test)
+            model.predict_proba(ds.test)
+        except (Exception,):
+            assert False
+
+    def test_grid_search_with_test(self, ds_test_fitting):
+        try:
+            ds = deepcopy(ds_test_fitting)
+            model = GridSearchCV(test_size=0.3, base_model=RandomForest(),
+                                 param_grid={'n_estimators': [1, 2], 'max_depth': [1]}, random_state=42)
+            model.fit(ds)
+            model.evaluate()
+            model.predict(ds)
+            model.predict_proba(ds)
+            str(model)
+            repr(model)
+            model.predict(ds.test)
+            model.predict_proba(ds.test)
+        except (Exception,):
+            assert False
+
+    def test_random_search_with_test(self, ds_test_fitting):
+        try:
+            ds = deepcopy(ds_test_fitting)
+            model = RandomSearchCV(test_size=0.3, base_model=RandomForest(),
+                                   param_grid={'n_estimators': [1, 2], 'max_depth': [1]}, random_state=42)
+            model.fit(ds)
+            model.evaluate()
+            model.predict(ds)
+            model.predict_proba(ds)
+            str(model)
+            repr(model)
+            model.predict(ds.test)
+            model.predict_proba(ds.test)
+        except (Exception,):
+            assert False
+
+
+class TestFittingWithEarlierSplit:
+    def test_random_forest(self, ds_test_fitting_with_split):
+        try:
+            model = RandomForest(test_size=None, max_depth=1, n_estimators=1, random_state=42)
+            model.fit(ds_test_fitting_with_split)
+            model.evaluate()
+            model.predict(ds_test_fitting_with_split)
+            model.predict_proba(ds_test_fitting_with_split)
+            str(model)
+            repr(model)
+            model.predict(ds_test_fitting_with_split.test)
+            model.predict_proba(ds_test_fitting_with_split.test)
+        except (Exception,):
+            assert False
+
+    def test_xgboost(self, ds_test_fitting_with_split):
+        try:
+            model = XGBoost(test_size=None, max_depth=1, n_estimators=1, random_state=42)
+            model.fit(ds_test_fitting_with_split)
+            model.evaluate()
+            model.predict(ds_test_fitting_with_split)
+            model.predict_proba(ds_test_fitting_with_split)
+            str(model)
+            repr(model)
+            model.predict(ds_test_fitting_with_split.test)
+            model.predict_proba(ds_test_fitting_with_split.test)
+        except (Exception,):
+            assert False
+
+    def test_grid_search(self, ds_test_fitting_with_split):
+        try:
+            model = GridSearchCV(test_size=None, base_model=RandomForest(),
+                                 param_grid={'n_estimators': [1, 2], 'max_depth': [1]}, random_state=42)
+            model.fit(ds_test_fitting_with_split)
+            model.evaluate()
+            model.predict(ds_test_fitting_with_split)
+            model.predict_proba(ds_test_fitting_with_split)
+            str(model)
+            repr(model)
+            model.predict(ds_test_fitting_with_split.test)
+            model.predict_proba(ds_test_fitting_with_split.test)
+        except (Exception,):
+            assert False
+
+    def test_random_search(self, ds_test_fitting_with_split):
+        try:
+            model = RandomSearchCV(test_size=None, base_model=RandomForest(),
+                                   param_grid={'n_estimators': [1, 2], 'max_depth': [1]}, random_state=42)
+            model.fit(ds_test_fitting_with_split)
+            model.evaluate()
+            model.predict(ds_test_fitting_with_split)
+            model.predict_proba(ds_test_fitting_with_split)
+            str(model)
+            repr(model)
+            model.predict(ds_test_fitting_with_split.test)
+            model.predict_proba(ds_test_fitting_with_split.test)
+        except (Exception,):
+            assert False
+
+
+def test_fitting_from_sklearn_model(ds_test_fitting_with_split):
     try:
-        ds = deepcopy(ds)
-        ds.remove_nans()
-
-        model = RandomForest(test_size=0.01)
-        model.fit(ds)
-        model.evaluate()
-        model.predict(ds)
-        model.predict_proba(ds)
-        str(model)
-        repr(model)
-
-        model = XGBoost(test_size=0.01)
-        model.fit(ds)
-        model.evaluate()
-        model.predict(ds)
-        model.predict_proba(ds)
-        str(model)
-        repr(model)
-
-        model = RandomSearchCV(base_model=RandomForest(), param_grid={'n_estimators': [10, 20, 50]}, test_size=0.01)
-        model.fit(ds)
-        model.evaluate()
-        model.predict(ds)
-        model.predict_proba(ds)
-        str(model)
-        repr(model)
-
-        model = GridSearchCV(base_model=RandomForest(), param_grid={'n_estimators': [10, 20, 50]}, test_size=0.01)
-        model.fit(ds)
-        model.evaluate()
-        model.predict(ds)
-        model.predict_proba(ds)
-        str(model)
-        repr(model)
+        model = ModelFromSKLEARN(RandomForestClassifier(max_depth=1, n_estimators=1, random_state=42), test_size=0.3)
+        model.fit(ds_test_fitting_with_split)
+        model.predict(ds_test_fitting_with_split)
+        model.predict_proba(ds_test_fitting_with_split)
+        model.predict(ds_test_fitting_with_split.test)
+        model.predict_proba(ds_test_fitting_with_split.test)
     except (Exception,):
         assert False
 
 
-@pytest.mark.parametrize('ds', [
-    DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY),
-    DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY),
+@pytest.mark.parametrize('model', [
+    RandomForest(max_depth=1, n_estimators=1, random_state=42),
+    XGBoost(max_depth=1, n_estimators=1, random_state=42)
 ])
-def test_model_2(ds):
-    try:
-        ds = deepcopy(ds)
-        ds.remove_nans()
+class TestModel:
+    def test_transform_data(self, model, ds_test_fitting):
+        model = deepcopy(model)
+        ds = deepcopy(ds_test_fitting)
 
-        model = ModelFromSKLEARN(RandomForestClassifier(), test_size=0.01)
         model.fit(ds)
-        model.predict(ds)
-        model.predict_proba(ds)
-    except (Exception,):
-        assert False
+        try:
+            X = model.transform_data(ds)
+        except (Exception,):
+            assert False
 
+    def test_transform_target(self, model, ds_test_fitting):
+        model = deepcopy(model)
+        ds = deepcopy(ds_test_fitting)
 
-@pytest.mark.parametrize('ds', [
-    DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY),
-    DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY),
-])
-def test_transform_model_target(ds):
-    try:
-        ds = deepcopy(ds)
-        ds.remove_nans()
+        model.fit(ds)
+        try:
+            Y = model.transform_target(ds)
+        except (Exception,):
+            assert False
 
-        model = ModelFromSKLEARN(RandomForestClassifier(), test_size=0.01)
+    def test_output_types(self, model, ds_test_fitting):
+        model = deepcopy(model)
+        ds = deepcopy(ds_test_fitting)
         model.fit(ds)
 
-        X = model.transform_data(ds)
-        Y = model.transform_target(ds)
-    except (Exception,):
-        assert False
+        y = model.predict(ds)
+        assert isinstance(y, Dataset)
+        assert y.check_binary_classification()
+        y = model.predict_proba(ds)
+        assert isinstance(y, Dataset)
 
+    def test_output_names(self, model, ds_test_fitting):
+        model = deepcopy(model)
+        ds = deepcopy(ds_test_fitting)
+        model.fit(ds)
 
-@pytest.mark.parametrize('ds', [
-    DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY),
-    DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY),
-])
-@pytest.mark.parametrize('model', [
-    RandomForest(test_size=0.01),
-    XGBoost(test_size=0.01),
-    RandomSearchCV(base_model=RandomForest(), param_grid={'n_estimators': [10, 20, 50]}, test_size=0.01),
-    GridSearchCV(base_model=RandomForest(), param_grid={'n_estimators': [10, 20, 50]}, test_size=0.01)
-])
-def test_model_output(ds, model):
-    ds = deepcopy(ds)
-    model = deepcopy(model)
+        y = model.predict(ds)
+        assert y.name == ds.name + '_predicted'
+        y = model.predict_proba(ds)
+        assert y.name == ds.name + '_predicted_probabilities'
 
-    ds.remove_nans()
-    model.fit(ds)
-    y = model.predict(ds)
-    model.evaluate()
-    assert isinstance(y, Dataset)
-    assert y.check_binary_classification()
-    y = model.predict_proba(ds)
-    assert isinstance(y, Dataset)
+    def test_output_names_with_model_name(self, model, ds_test_fitting):
+        model_name = ''.join(random.choice(string.ascii_uppercase) for _ in range(5))
+        model = deepcopy(model)
+        model.name = model_name
+        ds = deepcopy(ds_test_fitting)
+        model.fit(ds)
 
-
-@pytest.mark.parametrize('ds', [
-    DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY),
-    DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY),
-])
-@pytest.mark.parametrize('model', [
-    RandomForest(test_size=0.01),
-    XGBoost(test_size=0.01),
-    RandomSearchCV(base_model=RandomForest(), param_grid={'n_estimators': [10, 20, 50]}, test_size=0.01),
-    GridSearchCV(base_model=RandomForest(), param_grid={'n_estimators': [10, 20, 50]}, test_size=0.01)
-])
-def test_model_output_names(ds, model):
-    ds = deepcopy(ds)
-    model = deepcopy(model)
-    ds.remove_nans()
-
-    model.fit(ds)
-    y = model.predict(ds)
-    assert y.name == ds.name + '_predicted'
-
-    y = model.predict_proba(ds)
-    assert y.name == ds.name + '_predicted_probabilities'
-
-
-@pytest.mark.parametrize('ds,model_name', [
-    (DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY), 'model_1'),
-    (DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY), 'model_2')
-])
-@pytest.mark.parametrize('model', [
-    RandomForest(test_size=0.01),
-    XGBoost(test_size=0.01),
-    RandomSearchCV(base_model=RandomForest(), param_grid={'n_estimators': [10, 20, 50]}, test_size=0.01),
-    GridSearchCV(base_model=RandomForest(), param_grid={'n_estimators': [10, 20, 50]}, test_size=0.01)
-])
-def test_model_output_names_2(ds, model_name, model):
-    ds = deepcopy(ds)
-    model = deepcopy(model)
-    model.name = model_name
-
-    ds.remove_nans()
-
-    model.fit(ds)
-    y = model.predict(ds)
-    assert y.name == ds.name + '_' + model_name + '_predicted'
-
-    y = model.predict_proba(ds)
-    assert y.name == ds.name + '_' + model_name + '_predicted_probabilities'
-
+        y = model.predict(ds)
+        assert y.name == ds.name + '_' + model_name + '_predicted'
+        y = model.predict_proba(ds)
+        assert y.name == ds.name + '_' + model_name + '_predicted_probabilities'
