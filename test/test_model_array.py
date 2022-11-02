@@ -8,19 +8,23 @@ from .resources.objects import *
 
 
 @pytest.mark.parametrize('ds', [
-    DatasetArray([DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY), DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY)]),
-    DatasetArray([Dataset(name_3, df_3, target_3), Dataset(name_3 + 'x', df_3, target_3)]),
     DatasetArray([
-        DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY),
-        DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY),
-        DatasetArray([Dataset(name_3, df_3, target_3), Dataset(name_3 + 'x', df_3, target_3)])
+        Dataset(name_1, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)])),
+        Dataset(name_2, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)]))
+    ]),
+    DatasetArray([
+        Dataset(name_1, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)])),
+        DatasetArray([
+            Dataset(name_1, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)])),
+            Dataset(name_2, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)]))
+        ])
     ])
 ])
 def test_model_array(ds):
     try:
         ds.remove_nans()
 
-        model = ModelArray(RandomForest(random_state=42))
+        model = ModelArray(RandomForest(max_depth=1, n_estimators=1, random_state=42))
         model.fit(ds)
         model.predict(ds)
         model.predict_proba(ds)
@@ -32,13 +36,15 @@ def test_model_array(ds):
 
 
 @pytest.mark.parametrize('ds', [
-    DatasetArray([DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY), DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY)]),
-    DatasetArray([Dataset(name_3, df_3, target_3), Dataset(name_3 + 'x', df_3, target_3)])
+    DatasetArray([
+        Dataset(name_1, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)])),
+        Dataset(name_2, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)]))
+    ])
 ])
 def test_model_array_output(ds):
     ds.remove_nans()
 
-    model = ModelArray(RandomForest(random_state=42))
+    model = ModelArray(RandomForest(max_depth=1, n_estimators=1, random_state=42))
     model.fit(ds)
     y = model.predict(ds)
 
@@ -59,30 +65,30 @@ def test_model_array_output(ds):
 
 @pytest.mark.parametrize('ds', [
     DatasetArray([
-        DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY),
-        DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY),
-        DatasetArray([Dataset(name_3, df_3, target_3), Dataset(name_3 + 'x', df_3, target_3)])
+        Dataset(name_1, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)])),
+        DatasetArray([
+            Dataset(name_1, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)])),
+            Dataset(name_2, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)]))
+        ])
     ])
 ])
-def test_model_array_with_arrays_of_arrays_output(ds):
+def test_model_array_nested_output(ds):
     ds.remove_nans()
 
-    model = ModelArray(RandomForest(random_state=42))
+    model = ModelArray(RandomForest(max_depth=1, n_estimators=1, random_state=42))
     model.fit(ds)
     y = model.predict(ds)
 
     assert isinstance(y, DatasetArray)
     assert len(y) == len(ds)
     assert isinstance(y[0], Dataset)
-    assert isinstance(y[1], Dataset)
-    assert isinstance(y[2], DatasetArray)
+    assert isinstance(y[1], DatasetArray)
 
     y = model.predict_proba(ds)
     assert isinstance(y, DatasetArray)
     assert len(y) == len(ds)
     assert isinstance(y[0], Dataset)
-    assert isinstance(y[1], Dataset)
-    assert isinstance(y[2], DatasetArray)
+    assert isinstance(y[1], DatasetArray)
 
     out = model.evaluate()
     assert isinstance(out, pd.DataFrame)

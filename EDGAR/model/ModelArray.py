@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Optional, List, Dict, Any, Union
 import pandas as pd
 from EDGAR.base.BaseTransformerArray import BaseTransformerArray
@@ -7,22 +9,24 @@ from EDGAR.data.DatasetArray import DatasetArray
 
 
 class ModelArray(BaseTransformerArray):
-    def __init__(self, base_model: Model, parameters: Optional[List[Dict[str, Any]]] = None, name: str = ''):
+    def __init__(self, base_model: Model, parameters: Optional[List[Dict[str, Any]]] = None, name: str = '') -> None:
         super().__init__(base_transformer=base_model, parameters=parameters)
         self.name = name
 
-    def fit(self, dataset: Union[Dataset, DatasetArray]):
+    def fit(self, dataset: Union[Dataset, DatasetArray]) -> None:
         if self.name == '':
             self.name = dataset.name
         super().fit(dataset)
         for i in range(len(self.get_transformers())):
-            self.get_transformers()[i] = self.__base_transformer_array_to_model_array(self.get_transformers()[i],
-                                                                                      dataset[i].name)
+            self.get_transformers()[i] = self.__base_transformer_array_to_model_array(
+                self.get_transformers()[i],
+                dataset[i].name
+            )
 
-    def predict(self, dataset: Union[Dataset, DatasetArray]):
+    def predict(self, dataset: Union[Dataset, DatasetArray]) -> Union[Dataset, DatasetArray]:
         return super().transform(dataset)
 
-    def predict_proba(self, dataset: Union[Dataset, DatasetArray]):
+    def predict_proba(self, dataset: Union[Dataset, DatasetArray]) -> Union[Dataset, DatasetArray]:
         for model_arr in self.get_models():
             model_arr.set_transform_to_probabilities()
         out = super().transform(dataset)
@@ -30,18 +34,18 @@ class ModelArray(BaseTransformerArray):
             model_arr.set_transform_to_classes()
         return out
 
-    def get_models(self):
+    def get_models(self) -> List[Union[Model, ModelArray]]:
         return self.get_transformers()
 
-    def set_transform_to_probabilities(self):
+    def set_transform_to_probabilities(self) -> None:
         for m in self.get_models():
             m.set_transform_to_probabilities()
 
-    def set_transform_to_classes(self):
+    def set_transform_to_classes(self) -> None:
         for m in self.get_models():
             m.set_transform_to_classes()
 
-    def __base_transformer_array_to_model_array(self, base, name):
+    def __base_transformer_array_to_model_array(self, base: Union[Model, ModelArray, BaseTransformerArray], name: str) -> Union[Model, ModelArray]:
         if isinstance(base, Model):
             return base
         elif not isinstance(base, ModelArray):
@@ -55,7 +59,7 @@ class ModelArray(BaseTransformerArray):
         else:
             return base
 
-    def evaluate(self, metrics_output_class=None, metrics_output_probabilities=None, ds: Optional[DatasetArray] = None):
+    def evaluate(self, metrics_output_class=None, metrics_output_probabilities=None, ds: Optional[DatasetArray] = None) -> pd.DataFrame:
         out = pd.DataFrame({'model': [], 'metric': [], 'value': []})
         for i in range(len(self.get_models())):
             m = self.get_models()[i]
@@ -67,8 +71,8 @@ class ModelArray(BaseTransformerArray):
             out = pd.concat([out, eval_model])
         return out
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"ModelArray {self.name} with {len(self.get_models())} models"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<ModelArray {self.name} with {len(self.get_models())} models>"
