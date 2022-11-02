@@ -71,7 +71,7 @@ class TestDatasetBasicProperties:
     def test_generate_report(self, name, df, target, expected_IR, target_fake):
         try:
             ds = Dataset(name, df, target)
-            ds.generate_report(show_jupyter=True, minimal=True)
+            ds.generate_report(output_path=os.path.join('resources', 'out.html'), minimal=True)
         except (Exception,):
             assert False
 

@@ -34,7 +34,7 @@ name_4_nans = 'name_4'
 example_path = os.path.join('resources', 'data_1.csv')
 example_target = 'target'
 
-task_id_1 = 3
+task_id_1 = 29
 task_id_2 = 15
 
 suite_name_1 = 'OpenML100'
