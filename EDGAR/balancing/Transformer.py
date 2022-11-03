@@ -155,9 +155,10 @@ class SMOTE(TransformerFromIMBLEARN):
                 super()._change_transformer(
                     SM_N(sampling_strategy=1 / self.__sampling_strategy, random_state=self.__random_state,
                          *self.__args, **self.__kwargs))
-            elif len(columns_categorical) < len(columns):
-                SM_NC(columns_categorical, sampling_strategy=1 / self.__sampling_strategy,
-                      random_state=self.__random_state, *self.__args, **self.__kwargs)
+            else:
+                super()._change_transformer(
+                    SM_NC(columns_categorical, sampling_strategy=1 / self.__sampling_strategy,
+                          random_state=self.__random_state, *self.__args, **self.__kwargs))
 
         super()._fit(dataset)
 
