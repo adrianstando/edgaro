@@ -170,7 +170,7 @@ class DatasetArrayFromDirectory(DatasetArray):
             f = os.path.join(path, filename)
             if os.path.isfile(f):
                 if f.lower().endswith('.csv'):
-                    d = pd.read_csv(path)
+                    d = pd.read_csv(f)
                 elif f.lower().endswith('.npy'):
                     d = np.load(f)
                 else:

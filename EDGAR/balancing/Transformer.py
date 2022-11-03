@@ -23,8 +23,17 @@ class Transformer(BaseTransformer, ABC):
         pass
 
     def transform(self, dataset: Dataset) -> Dataset:
-        d = dataset.train if dataset.was_split else dataset
-        return self._transform(d)
+        if dataset.was_split:
+            d = dataset.train
+            new_train = self._transform(d)
+            out = Dataset(name=dataset.name + self.name_sufix, dataframe=None, target=None)
+            out.custom_train_test_split(
+                train=new_train,
+                test=dataset.test
+            )
+            return out
+        else:
+            return self._transform(dataset)
 
     @abstractmethod
     def _transform(self, dataset: Dataset) -> Dataset:
