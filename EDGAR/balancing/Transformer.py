@@ -5,6 +5,7 @@ from imblearn.under_sampling import RandomUnderSampler as RUS
 from imblearn.over_sampling import RandomOverSampler as ROS
 from imblearn.over_sampling import SMOTE as SM_C, SMOTENC as SM_NC, SMOTEN as SM_N
 from sklearn.utils.validation import check_is_fitted
+from sklearn.exceptions import NotFittedError
 from EDGAR.base.BaseTransformer import BaseTransformer
 from EDGAR.data.Dataset import Dataset
 
@@ -87,9 +88,10 @@ class TransformerFromIMBLEARN(Transformer):
         super().__init__(name_sufix=name_sufix)
 
     def _change_transformer(self, transformer: ImblearnProtocol) -> None:
-        if check_is_fitted(transformer):
+        try:
+            check_is_fitted(transformer)
             warnings.warn('Transformer was not changed! The existing one was already fitted.')
-        else:
+        except NotFittedError:
             self.__transformer = transformer
 
     def _fit(self, dataset: Dataset) -> None:
@@ -156,8 +158,10 @@ class SMOTE(TransformerFromIMBLEARN):
                     SM_N(sampling_strategy=1 / self.__sampling_strategy, random_state=self.__random_state,
                          *self.__args, **self.__kwargs))
             else:
+                all_columns = list(dataset.data.columns)
+                categorical_indexes = [all_columns.index(c) for c in columns_categorical]
                 super()._change_transformer(
-                    SM_NC(columns_categorical, sampling_strategy=1 / self.__sampling_strategy,
+                    SM_NC(categorical_indexes, sampling_strategy=1 / self.__sampling_strategy,
                           random_state=self.__random_state, *self.__args, **self.__kwargs))
 
         super()._fit(dataset)
