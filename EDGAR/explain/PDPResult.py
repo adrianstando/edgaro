@@ -6,6 +6,7 @@ import warnings
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from  matplotlib.axes import Axes
 
 
 class Curve:
@@ -32,12 +33,19 @@ class PDPResult:
         else:
             return None
 
-    def plot(self, variable: str, figsize: Tuple[int, int] = (8, 8), add_plot: Optional[List[PDPResult]] = None):
+    def plot(self, variable: str, figsize: Optional[Tuple[int, int]] = (8, 8), add_plot: Optional[List[PDPResult]] = None, ax: Optional[Axes] = None):
+        if figsize is None and ax is None:
+            figsize = (8, 8)
+
         if add_plot is None:
             curve = self.results[variable]
             if curve is None:
                 raise Exception('Variable is not available!')
-            plt.subplots(figsize=figsize)
+
+            if ax is not None:
+                plt.sca(ax)
+            elif figsize is not None:
+                plt.subplots(figsize=figsize)
 
             if variable not in self.categorical_columns:
                 plt.plot(curve.x, curve.y)
@@ -62,7 +70,12 @@ class PDPResult:
 
             if len(curves_add) == 0:
                 warnings.warn(f'None of the added plots have variable called {variable}!')
-                plt.subplots(figsize=figsize)
+
+                if ax is not None:
+                    plt.sca(ax)
+                elif figsize is not None:
+                    plt.subplots(figsize=figsize)
+
                 plt.title("PDP curve for variable: " + variable)
                 if variable not in self.categorical_columns:
                     plt.plot(curve_base.x, curve_base.y)
@@ -72,7 +85,12 @@ class PDPResult:
                 plt.legend([self.name])
             else:
                 if variable not in self.categorical_columns:
-                    plt.subplots(figsize=figsize)
+
+                    if ax is not None:
+                        plt.sca(ax)
+                    elif figsize is not None:
+                        plt.subplots(figsize=figsize)
+
                     plt.plot(curve_base.x, curve_base.y)
                     for curve in curves_add:
                         plt.plot(curve.x, curve.y)
@@ -83,7 +101,12 @@ class PDPResult:
                     })
                     for i in range(len(add_plot)):
                         df[add_plot_names[i]] = curves_add[i].y
-                    df.plot(x='x', kind='bar', figsize=figsize)
+
+                    if ax is not None:
+                        df.plot(x='x', kind='bar', ax=ax)
+                    else:
+                        df.plot(x='x', kind='bar', figsize=figsize)
+
                     plt.xticks(rotation=0)
 
                 plt.title("PDP curves for variable: " + variable)
