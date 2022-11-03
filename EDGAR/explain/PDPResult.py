@@ -6,7 +6,7 @@ import warnings
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from  matplotlib.axes import Axes
+from matplotlib.axes import Axes
 
 
 class Curve:
@@ -33,7 +33,10 @@ class PDPResult:
         else:
             return None
 
-    def plot(self, variable: str, figsize: Optional[Tuple[int, int]] = (8, 8), add_plot: Optional[List[PDPResult]] = None, ax: Optional[Axes] = None):
+    def plot(self, variable: str, figsize: Optional[Tuple[int, int]] = (8, 8),
+             add_plot: Optional[List[PDPResult]] = None, ax: Optional[Axes] = None,
+             show_legend: bool = True, y_lim: Optional[Tuple[float, float]] = None
+             ):
         if figsize is None and ax is None:
             figsize = (8, 8)
 
@@ -53,9 +56,11 @@ class PDPResult:
                 plt.bar(curve.x, curve.y)
 
             plt.title("PDP curve for variable: " + variable)
-            plt.legend([self.name])
             plt.xlabel(variable)
-            plt.ylim([0, 1])
+            if show_legend:
+                plt.legend([self.name])
+            if y_lim is not None:
+                plt.ylim(y_lim)
         else:
             curve_base = self.results[variable]
             if curve_base is None:
@@ -82,7 +87,10 @@ class PDPResult:
                 else:
                     plt.bar(curve_base.x, curve_base.y)
 
-                plt.legend([self.name])
+                if show_legend:
+                    plt.legend([self.name])
+                if y_lim is not None:
+                    plt.ylim(y_lim)
             else:
                 if variable not in self.categorical_columns:
 
@@ -110,9 +118,11 @@ class PDPResult:
                     plt.xticks(rotation=0)
 
                 plt.title("PDP curves for variable: " + variable)
-                plt.legend([self.name] + add_plot_names)
+                if show_legend:
+                    plt.legend([self.name] + add_plot_names)
+                if y_lim is not None:
+                    plt.ylim(y_lim)
             plt.xlabel(variable)
-            plt.ylim([0, 1])
 
     def compare(self, other: PDPResult, variable: Optional[Union[str, List[str]]] = None):
         if isinstance(variable, str):
