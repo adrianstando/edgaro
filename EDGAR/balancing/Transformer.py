@@ -1,6 +1,7 @@
 import warnings
 from abc import ABC, abstractmethod
 from typing import Dict, Protocol, Any
+from copy import deepcopy
 from imblearn.under_sampling import RandomUnderSampler as RUS
 from imblearn.over_sampling import RandomOverSampler as ROS
 from imblearn.over_sampling import SMOTE as SM_C, SMOTENC as SM_NC, SMOTEN as SM_N
@@ -24,17 +25,18 @@ class Transformer(BaseTransformer, ABC):
         pass
 
     def transform(self, dataset: Dataset) -> Dataset:
-        if dataset.was_split:
-            d = dataset.train
+        ds = deepcopy(dataset)
+        if ds.was_split:
+            d = ds.train
             new_train = self._transform(d)
-            out = Dataset(name=dataset.name + self.name_sufix, dataframe=None, target=None)
+            out = Dataset(name=ds.name + self.name_sufix, dataframe=None, target=None)
             out.custom_train_test_split(
                 train=new_train,
-                test=dataset.test
+                test=ds.test
             )
             return out
         else:
-            return self._transform(dataset)
+            return self._transform(ds)
 
     @abstractmethod
     def _transform(self, dataset: Dataset) -> Dataset:
