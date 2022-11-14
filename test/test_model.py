@@ -99,6 +99,12 @@ class TestFitting:
             model.predict(ds_test_fitting.test)
             model.predict_proba(ds_test_fitting.test)
 
+    def test_was_fitted(self, ds_test_fitting):
+        model = RandomForest(test_size=None, max_depth=1, n_estimators=1, random_state=42)
+        assert not model.was_fitted
+        model.fit(ds_test_fitting)
+        assert model.was_fitted
+
 
 class TestFittingWithSplit:
     def test_random_forest_with_test(self, ds_test_fitting):

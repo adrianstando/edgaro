@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import List, Dict, Optional, Any, Union
 from EDGAR.data.Dataset import Dataset
 from EDGAR.data.DatasetArray import DatasetArray
@@ -18,8 +20,8 @@ class TransformerArray(BaseTransformerArray):
     def set_dataset_suffixes(self, name_sufix: Union[str, List[str]]) -> None:
         params = self.get_params()
         length_params = len(params) if params is not None else 0
-        set_names = True if len(self.get_transformers()) > 0 else False
-        transformers = self.get_transformers()
+        set_names = True if len(self.transformers) > 0 else False
+        transformers = self.transformers
 
         if params is None:
             if isinstance(name_sufix, str):
@@ -76,6 +78,7 @@ class TransformerArray(BaseTransformerArray):
 
     def fit(self, dataset: Union[Dataset, DatasetArray]) -> None:
         super().fit(dataset)
+        self.__fix_classes()
 
         # Setting suffixes
         params = self.get_params()
@@ -83,33 +86,27 @@ class TransformerArray(BaseTransformerArray):
         # Dataset case
         if isinstance(dataset, Dataset):
             if params is None:
-                self.get_transformers()[0].set_dataset_suffixes(self.__dataset_suffixes[0])
-            elif len(self.__dataset_suffixes) == len(self.get_transformers()):
-                for i in range(len(self.get_transformers())):
-                    self.get_transformers()[i].set_dataset_suffixes(self.__dataset_suffixes[i])
+                self.transformers[0].set_dataset_suffixes(self.__dataset_suffixes[0])
+            elif len(self.__dataset_suffixes) == len(self.transformers):
+                for i in range(len(self.transformers)):
+                    self.transformers[i].set_dataset_suffixes(self.__dataset_suffixes[i])
             else:
                 raise Exception('Wrong length of dataset_suffixes!')
         # DatasetArray case
         else:
             if params is None:
-                for i in range(len(self.get_transformers())):
+                for i in range(len(self.transformers)):
                     if len(self.__dataset_suffixes) == 1:
-                        self.get_transformers()[i] = self.__base_transformer_array_to_balancing_transformer_array(
-                            self.get_transformers()[i])
-                        self.get_transformers()[i].set_dataset_suffixes(self.__dataset_suffixes[0])
+                        self.transformers[i].set_dataset_suffixes(self.__dataset_suffixes[0])
                     else:
-                        self.get_transformers()[i] = self.__base_transformer_array_to_balancing_transformer_array(
-                            self.get_transformers()[i])
-                        self.get_transformers()[i].set_dataset_suffixes(self.__dataset_suffixes[i])
+                        self.transformers[i].set_dataset_suffixes(self.__dataset_suffixes[i])
             else:
                 for i in range(len(dataset)):
-                    self.get_transformers()[i] = self.__base_transformer_array_to_balancing_transformer_array(
-                        self.get_transformers()[i])
-                    for j in range(len(self.get_transformers()[i])):
+                    for j in range(len(self.transformers[i])):
                         if len(self.__dataset_suffixes) == 1:
-                            self.get_transformers()[i][j].set_dataset_suffixes(self.__dataset_suffixes[0] + '_' + str(j))
-                        elif len(self.__dataset_suffixes) == len(self.get_transformers()):
-                            self.get_transformers()[i][j].set_dataset_suffixes(self.__dataset_suffixes[j])
+                            self.transformers[i][j].set_dataset_suffixes(self.__dataset_suffixes[0] + '_' + str(j))
+                        elif len(self.__dataset_suffixes) == len(self.transformers):
+                            self.transformers[i][j].set_dataset_suffixes(self.__dataset_suffixes[j])
                         else:
                             raise Exception('Wrong length of dataset_suffixes!')
 
@@ -123,11 +120,16 @@ class TransformerArray(BaseTransformerArray):
             out.append(dataset)
         return out
 
+    def __fix_classes(self) -> None:
+        for i in range(len(self.transformers)):
+            self.transformers[i] = self.__base_transformer_array_to_balancing_transformer_array(
+                self.transformers[i])
+
     def __base_transformer_array_to_balancing_transformer_array(self, base: Any) -> Any:
         if isinstance(base, Transformer):
             return base
         elif not isinstance(base, TransformerArray):
-            out = TransformerArray(base_transformer=self.get_base_transformer())
+            out = TransformerArray(base_transformer=self.base_transformer)
             out.__class__ = self.__class__
             for key, val in base.__dict__.items():
                 out.__dict__[key] = val
@@ -136,8 +138,24 @@ class TransformerArray(BaseTransformerArray):
         else:
             return base
 
+    @property
+    def transformers(self) -> List[Union[Transformer, TransformerArray, List[Any]]]:
+        return super().transformers
+
+    @transformers.setter
+    def transformers(self, val: List[Union[Transformer, TransformerArray, List[Any]]]) -> None:
+        super().transformers = val
+
+    @property
+    def base_transformer(self) -> Union[Transformer, TransformerArray, List[Any]]:
+        return super().base_transformer
+
+    @base_transformer.setter
+    def base_transformer(self, val: Union[Transformer, TransformerArray, List[Any]]):
+        super().base_transformer = val
+
     def __str__(self) -> str:
-        return f"TransformerArray {self.__class__.__name__} with {len(self.get_transformers())} transformers"
+        return f"TransformerArray{(' ' + self.__class__.__name__) if self.__class__.__name__ != 'TransformerArray' else ''} with {len(self.transformers)} transformers"
 
     def __repr__(self) -> str:
-        return f"<Transformer {self.__class__.__name__} with {len(self.get_transformers())} transformers>"
+        return f"<TransformerArray{(' ' + self.__class__.__name__) if self.__class__.__name__ != 'TransformerArray' else ''} with {len(self.transformers)} transformers>"

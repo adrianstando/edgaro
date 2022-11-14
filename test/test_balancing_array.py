@@ -34,6 +34,8 @@ def test_transformer_array(imblearn_sampler, ds):
         array.transform(ds)
         str(transformer)
         repr(transformer)
+        str(array)
+        repr(array)
     except (Exception,):
         assert False
 
@@ -82,8 +84,8 @@ def test_transformer_sufix_2_datasetarray(imblearn_sampler, ds, sufix):
 
     expected_names = [dataset.name + sufix for dataset in ds.datasets]
     assert len(expected_names) == len(out)
-    for ds_array in out:
-        assert ds_array.name in expected_names
+    for k in range(len(out)):
+        assert out[k].name == expected_names[k]
 
 
 @pytest.mark.parametrize('imblearn_sampler', [
@@ -107,8 +109,8 @@ def test_transformer_sufix_tab_datasetarray(imblearn_sampler, ds, sufix):
     expected_names = [ds.datasets[i].name + sufix[i] for i in range(len(ds.datasets))]
     assert len(expected_names) == len(out)
 
-    for ds_array in out:
-        assert ds_array.name in expected_names
+    for k in range(len(out)):
+        assert out[k].name == expected_names[k]
 
 
 @pytest.mark.parametrize('imblearn_sampler', [
@@ -132,8 +134,8 @@ def test_transformer_sufix_tab_2_datasetarray(imblearn_sampler, ds, sufix):
     expected_names = [ds.datasets[i].name + sufix[i] for i in range(len(ds.datasets))]
     assert len(expected_names) == len(out)
 
-    for ds_array in out:
-        assert ds_array.name in expected_names
+    for k in range(len(out)):
+        assert out[k].name == expected_names[k]
 
 
 @pytest.mark.parametrize('imblearn_sampler', [
@@ -141,21 +143,18 @@ def test_transformer_sufix_tab_2_datasetarray(imblearn_sampler, ds, sufix):
     RandomOverSampler(sampling_strategy=1, random_state=42)
 ])
 @pytest.mark.parametrize('ds', [
-    DatasetArray([Dataset(name_1, df_1, target_1)]),
-    DatasetArray([Dataset(name_2, df_2, target_2)])
+    DatasetArray([Dataset(name_1, df_1, target_1), Dataset(name_2, df_1, target_1), Dataset(name_1 + '3', df_1, target_1)])
 ])
 @pytest.mark.parametrize('sufix', [
     ['_transformed_0', '_transformed_1'],
     ['_example_sufix_0', '_example_sufix_1']
 ])
 def test_transformer_sufix_tab_datasetarray_wrong_length(imblearn_sampler, ds, sufix):
-    try:
+    with pytest.raises(Exception):
         transformer = TransformerFromIMBLEARN(imblearn_sampler)
         array = TransformerArray(transformer, dataset_suffixes=sufix)
         array.fit(ds)
         array.transform(ds)
-    except (Exception,):
-        pass
 
 
 @pytest.mark.parametrize('imblearn_sampler,ratio', [
@@ -229,13 +228,13 @@ def test_set_get_params(imblearn_sampler, ds, param):
 
     assert array.get_params() == tmp
 
-    for i in range(len(array.get_transformers())):
+    for i in range(len(array.transformers)):
         tmp = {}
         for key in param:
             tmp[key] = param[key][i]
 
         expected_params = list(tmp.items())
-        existing_params = list(array.get_transformers()[i].get_params().items())
+        existing_params = list(array.transformers[i].get_params().items())
         assert np.alltrue([p in existing_params for p in expected_params])
 
 
@@ -272,13 +271,13 @@ def test_set_get_params_2(imblearn_sampler, ds, param):
 
     assert array.get_params() == tmp
 
-    for i in range(len(array.get_transformers())):
+    for i in range(len(array.transformers)):
         tmp = {}
         for key in param:
             tmp[key] = param[key][i]
 
         expected_params = tmp
-        existing_params = array.get_transformers()[i].get_params()
+        existing_params = array.transformers[i].get_params()
         assert expected_params in existing_params
 
 
@@ -318,10 +317,10 @@ def test_params_in_arguments(imblearn_sampler, ds, param):
 
     assert array.get_params() == param
 
-    for i in range(len(array.get_transformers())):
-        for j in range(len(array.get_transformers()[i])):
+    for i in range(len(array.transformers)):
+        for j in range(len(array.transformers[i])):
             expected_params = list(param[j].items())
-            existing_params = list(array.get_transformers()[i][j].get_params().items())
+            existing_params = list(array.transformers[i][j].get_params().items())
             assert np.alltrue([p in existing_params for p in expected_params])
 
 
@@ -354,7 +353,7 @@ def test_params_in_arguments(imblearn_sampler, ds, param):
     ]
 ])
 @pytest.mark.parametrize('sufix', [
-    ['_transformed_0', '_transformed_1'],
+    ['_transformed_0x', '_transformed_1x'],
     ['_example_sufix_0', '_example_sufix_1']
 ])
 def test_params_in_arguments_and_sufix(imblearn_sampler, ds, param, sufix):
@@ -366,10 +365,10 @@ def test_params_in_arguments_and_sufix(imblearn_sampler, ds, param, sufix):
     # params
     assert array.get_params() == param
 
-    for i in range(len(array.get_transformers())):
-        for j in range(len(array.get_transformers()[i])):
+    for i in range(len(array.transformers)):
+        for j in range(len(array.transformers[i])):
             expected_params = list(param[j].items())
-            existing_params = list(array.get_transformers()[i][j].get_params().items())
+            existing_params = list(array.transformers[i][j].get_params().items())
             assert np.alltrue([p in existing_params for p in expected_params])
 
     # sufix
@@ -423,10 +422,10 @@ def test_params_in_arguments_and_sufix_2(imblearn_sampler, ds, param, sufix):
     # params
     assert array.get_params() == param
 
-    for i in range(len(array.get_transformers())):
-        for j in range(len(array.get_transformers()[i])):
+    for i in range(len(array.transformers)):
+        for j in range(len(array.transformers[i])):
             expected_params = list(param[j].items())
-            existing_params = list(array.get_transformers()[i][j].get_params().items())
+            existing_params = list(array.transformers[i][j].get_params().items())
             assert np.alltrue([p in existing_params for p in expected_params])
 
     # sufix
@@ -451,3 +450,18 @@ def test_over_under_sampler():
         transformer_2.transform(ds)
     except (Exception,):
         assert False
+
+
+@pytest.mark.parametrize('imblearn_sampler', [
+    RandomUnderSampler(sampling_strategy=1, random_state=42)
+])
+@pytest.mark.parametrize('ds', [
+    DatasetArray([Dataset(name_1, df_1, target_1)]),
+    DatasetArray([Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2)])
+])
+def test_was_fitted(imblearn_sampler, ds):
+    transformer = TransformerFromIMBLEARN(imblearn_sampler)
+    array = TransformerArray(transformer)
+    assert not array.was_fitted
+    array.fit(ds)
+    assert array.was_fitted

@@ -15,14 +15,20 @@ class Transformer(BaseTransformer, ABC):
     def __init__(self, name_sufix: str = '_transformed') -> None:
         super().__init__()
         self.name_sufix = name_sufix
+        self.__was_fitted = False
 
     def fit(self, dataset: Dataset) -> None:
         d = dataset.train if dataset.was_split else dataset
         self._fit(d)
+        self.__was_fitted = True
 
     @abstractmethod
     def _fit(self, dataset: Dataset) -> None:
         pass
+
+    @property
+    def was_fitted(self) -> bool:
+        return self.__was_fitted
 
     def transform(self, dataset: Dataset) -> Dataset:
         ds = deepcopy(dataset)

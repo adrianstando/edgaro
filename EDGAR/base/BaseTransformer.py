@@ -22,6 +22,11 @@ class BaseTransformer(ABC):
     def get_params(self):
         pass
 
+    @property
+    @abstractmethod
+    def was_fitted(self) -> bool:
+        pass
+
     def __str__(self):
         return f"BaseTransformer {self.__class__.__name__}"
 

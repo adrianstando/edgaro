@@ -9,7 +9,7 @@ from EDGAR.data.DatasetArray import DatasetArray
 
 
 class ModelArray(BaseTransformerArray):
-    def __init__(self, base_model: Model, parameters: Optional[List[Dict[str, Any]]] = None, name: str = '') -> None:
+    def __init__(self, base_model: Union[Model, ModelArray, List[Union[Model, ModelArray]]], parameters: Optional[List[Dict[str, Any]]] = None, name: str = '') -> None:
         super().__init__(base_transformer=base_model, parameters=parameters)
         self.name = name
 
@@ -17,9 +17,9 @@ class ModelArray(BaseTransformerArray):
         if self.name == '':
             self.name = dataset.name
         super().fit(dataset)
-        for i in range(len(self.get_transformers())):
-            self.get_transformers()[i] = self.__base_transformer_array_to_model_array(
-                self.get_transformers()[i],
+        for i in range(len(self.transformers)):
+            self.transformers[i] = self.__base_transformer_array_to_model_array(
+                self.transformers[i],
                 dataset[i].name
             )
 
@@ -35,7 +35,7 @@ class ModelArray(BaseTransformerArray):
         return out
 
     def get_models(self) -> List[Union[Model, ModelArray]]:
-        return self.get_transformers()
+        return self.transformers
 
     def set_transform_to_probabilities(self) -> None:
         for m in self.get_models():
@@ -49,7 +49,7 @@ class ModelArray(BaseTransformerArray):
         if isinstance(base, Model):
             return base
         elif not isinstance(base, ModelArray):
-            out = ModelArray(base_model=self.get_base_transformer())
+            out = ModelArray(base_model=self.transformers)
             out.__class__ = self.__class__
             for key, val in base.__dict__.items():
                 out.__dict__[key] = val
@@ -70,6 +70,14 @@ class ModelArray(BaseTransformerArray):
                 eval_model['model'] = m.name
             out = pd.concat([out, eval_model])
         return out
+
+    @property
+    def transformers(self) -> List[Union[Model, ModelArray, List[Any]]]:
+        return super().transformers
+
+    @transformers.setter
+    def transformers(self, val: List[Union[Model, ModelArray, List[Any]]]) -> None:
+        super().transformers = val
 
     def __str__(self) -> str:
         return f"ModelArray {self.name} with {len(self.get_models())} models"

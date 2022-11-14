@@ -62,3 +62,14 @@ def test_imbalance_ratio(imblearn_sampler, expected_imbalance_ratio):
     out = transformer.transform(ds)
 
     assert out.imbalance_ratio == expected_imbalance_ratio
+
+
+@pytest.mark.parametrize('imblearn_sampler', [
+    RandomUnderSampler(sampling_strategy=1, random_state=42)
+])
+def test_was_fitted(imblearn_sampler):
+    ds = Dataset(name_1, df_1, target_1)
+    transformer = TransformerFromIMBLEARN(imblearn_sampler)
+    assert not transformer.was_fitted
+    transformer.fit(ds)
+    assert transformer.was_fitted

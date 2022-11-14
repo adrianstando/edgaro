@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import List, Dict, Optional, Any, Union
 from copy import deepcopy
 import numpy as np
@@ -11,8 +13,9 @@ class BaseTransformerArray:
                  transformer_sufix: str = '_transformed_array'):
         self.__base_transformer = base_transformer
         self.__transformers = []
-        self.__input_array = None
+        self.__input_shape = None
         self.__parameters = parameters
+        self.__was_fitted = False
         self.transformer_sufix = transformer_sufix
 
     def __create_new_transformer(self, param):
@@ -23,7 +26,7 @@ class BaseTransformerArray:
     def fit(self, dataset: Union[Dataset, DatasetArray]):
         # Single dataset case
         if isinstance(dataset, Dataset):
-            self.__input_array = False
+            self.__input_shape = 1
             if self.__parameters is None:
                 self.__transformers = [deepcopy(self.__base_transformer)]
                 self.__transformers[0].fit(dataset)
@@ -33,7 +36,7 @@ class BaseTransformerArray:
                     self.__transformers[i].fit(dataset)
         # DatasetArray case
         else:
-            self.__input_array = True
+            self.__input_shape = len(dataset)
             if self.__parameters is None:
                 self.__transformers = [
                     deepcopy(self.__base_transformer)
@@ -52,11 +55,12 @@ class BaseTransformerArray:
 
                 for i in range(len(dataset)):
                     self.__transformers[i].fit(dataset[i])
+        self.__was_fitted = True
 
     def transform(self, dataset: Union[Dataset, DatasetArray]):
         # Single dataset case
         if isinstance(dataset, Dataset):
-            if self.__input_array:
+            if not self.__input_shape == 1:
                 raise Exception('DatasetArray was fitted, but single Dataset was provided!')
             return DatasetArray(
                 [transformator.transform(dataset) for transformator in self.__transformers],
@@ -64,7 +68,7 @@ class BaseTransformerArray:
             )
         # DatasetArray case
         else:
-            if not self.__input_array:
+            if not self.__input_shape == len(dataset):
                 raise Exception('Dataset was fitted, but DatasetArray was provided!')
             return DatasetArray(
                 [self.__transformers[i].transform(dataset[i]) for i in range(len(dataset))],
@@ -99,11 +103,49 @@ class BaseTransformerArray:
     def get_params(self):
         return self.__parameters
 
-    def get_transformers(self):
+    @property
+    def was_fitted(self) -> bool:
+        if self.__was_fitted:
+            return True
+        elif len(self.__transformers) == 0:
+            return False
+        else:
+            return np.alltrue([
+                transformer.was_fitted for transformer in self.__transformers
+            ])
+
+    @property
+    def parameters(self) -> Optional[List[Dict[str, Any]]]:
+        return self.__parameters
+
+    @parameters.setter
+    def parameters(self, val: Optional[List[Dict[str, Any]]]) -> None:
+        if not self.was_fitted:
+            self.__parameters = val
+        else:
+            raise Exception('Parameters were not set since Transformer has already been fitted!')
+
+    @property
+    def transformers(self) -> List[Union[BaseTransformer, BaseTransformerArray, List[Any]]]:
         return self.__transformers
 
-    def get_base_transformer(self):
+    @transformers.setter
+    def transformers(self, val: List[Union[BaseTransformer, BaseTransformerArray, List[Any]]]) -> None:
+        if not self.was_fitted:
+            self.__transformers = val
+        else:
+            raise Exception('Transformers were not set since Transformer has already been fitted!')
+
+    @property
+    def base_transformer(self) -> Union[BaseTransformer, BaseTransformerArray, List[Any]]:
         return self.__base_transformer
+
+    @base_transformer.setter
+    def base_transformer(self, val: Union[BaseTransformer, BaseTransformerArray, List[Any]]):
+        if not self.was_fitted:
+            self.__transformers = val
+        else:
+            raise Exception('Base transformers were not set since Transformer has already been fitted!')
 
     def __len__(self):
         return len(self.__transformers)
@@ -121,7 +163,7 @@ class BaseTransformerArray:
         return None
 
     def __str__(self):
-        return f"BaseTransformerArray {self.__class__.__name__} with {len(self.get_transformers())} transformers"
+        return f"BaseTransformerArray {self.__class__.__name__ if self.__class__.__name__ != 'BaseTransformerArray' else ''} with {len(self.transformers)} transformers"
 
     def __repr__(self):
-        return f"<BaseTransformer {self.__class__.__name__} with {len(self.get_transformers())} transformers>"
+        return f"<BaseTransformerArray {self.__class__.__name__ if self.__class__.__name__ != 'BaseTransformerArray' else ''} with {len(self.transformers)} transformers>"

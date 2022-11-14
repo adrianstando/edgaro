@@ -10,6 +10,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import OrdinalEncoder
 from sklearn.metrics import accuracy_score, f1_score, balanced_accuracy_score, precision_score
 from sklearn.metrics import roc_auc_score, recall_score
+from sklearn.utils.validation import check_is_fitted
 from imblearn.metrics import geometric_mean_score, specificity_score
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.model_selection import RandomizedSearchCV as RS
@@ -30,6 +31,7 @@ class Model(BaseTransformer, ABC):
         self.__label_encoders = {}
         self.__target_encoder = None
         self.random_state = random_state
+        self.__was_fitted = False
 
     def fit(self, dataset: Dataset, print_scores: bool = False) -> None:
         if not dataset.check_binary_classification():
@@ -68,9 +70,15 @@ class Model(BaseTransformer, ABC):
         if print_scores:
             self.evaluate()
 
+        self.__was_fitted = True
+
     @abstractmethod
     def _fit(self, dataset: Dataset) -> None:
         pass
+
+    @property
+    def was_fitted(self) -> bool:
+        return self.__was_fitted
 
     def transform_data(self, dataset: Dataset) -> Dataset:
         df = Dataset(
@@ -234,6 +242,14 @@ class ModelFromSKLEARN(Model):
             self._model.set_params(**{'random_state': self.random_state})
 
         self._model.fit(dataset.data, dataset.target)
+
+    @property
+    def was_fitted(self) -> bool:
+        try:
+            check_is_fitted(self._model)
+            return True
+        except (Exception,):
+            return False
 
     def _predict(self, dataset: Dataset, output_name: str) -> Dataset:
         if isinstance(dataset.data, np.ndarray) and isinstance(self.get_train_dataset().data, pd.DataFrame):

@@ -41,6 +41,21 @@ def test_model_array(ds):
         Dataset(name_2, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)]))
     ])
 ])
+def test_was_fitted(ds):
+    ds.remove_nans()
+
+    model = ModelArray(RandomForest(max_depth=1, n_estimators=1, random_state=42))
+    assert not model.was_fitted
+    model.fit(ds)
+    assert model.was_fitted
+
+
+@pytest.mark.parametrize('ds', [
+    DatasetArray([
+        Dataset(name_1, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)])),
+        Dataset(name_2, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)]))
+    ])
+])
 def test_model_array_output(ds):
     ds.remove_nans()
 
