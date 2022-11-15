@@ -1,16 +1,17 @@
 import dalex as dx
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Literal
 from EDGAR.model.Model import Model
 from EDGAR.explain.PDPResult import PDPResult, Curve
 from EDGAR.data.Dataset import Dataset
 
 
 class PDPCalculator:
-    def __init__(self, model: Union, N: Optional[int] = None):
+    def __init__(self, model: Union, N: Optional[int] = None, curve_type: Literal['PDP', 'ALE'] = 'PDP'):
         self.model = model
         self.explainer = None
         self.name = model.name
         self.N = N
+        self.curve_type = curve_type
 
     def fit(self):
         def predict_func(model, data):
@@ -27,12 +28,19 @@ class PDPCalculator:
         if variables is None:
             variables = list(self.model.get_train_dataset().data.columns)
 
+        if self.curve_type == 'PDP':
+            curve_type = 'partial'
+        elif self.curve_type == 'ALE':
+            curve_type = 'accumulated'
+        else:
+            raise Exception('Wrong curve type!')
+
         category_colnames = list(set(variables).intersection(set(category_colnames_base)))
         if len(category_colnames) > 0:
             for col in category_colnames:
                 out_category = self.explainer.model_profile(verbose=False, variables=[col],
                                                             variable_type='categorical',
-                                                            N=self.N)
+                                                            N=self.N, type=curve_type)
                 y = out_category.result['_yhat_']
                 x = out_category.result['_x_']
                 dict_output[str(col)] = Curve(x, y)
@@ -41,7 +49,7 @@ class PDPCalculator:
         if len(other_colnames) > 0:
             out_others = self.explainer.model_profile(verbose=False, variables=other_colnames,
                                                       variable_type='numerical',
-                                                      N=self.N)
+                                                      N=self.N, type=curve_type)
             variable_names = out_others.result['_vname_'].unique()
             y = out_others.result['_yhat_']
             x = out_others.result['_x_']
@@ -64,7 +72,7 @@ class PDPCalculator:
         }
 
     def __str__(self):
-        return f"PDPCalculator for model {self.name}"
+        return f"PDPCalculator for model {self.name} with {self.curve_type} curve type"
 
     def __repr__(self):
-        return f"<PDPCalculator for model {self.name}>"
+        return f"<PDPCalculator for model {self.name} with {self.curve_type} curve type>"

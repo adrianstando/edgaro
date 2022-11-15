@@ -116,11 +116,21 @@ def test_flow_array(df):
         t_2[0].plot(variable=df[0].data.columns[0])
         t_2[0].plot(variable=df[0].data.columns[1])
 
-        try:
+        with pytest.raises(Exception):
             t_2[0].plot(variable=df[0].data.columns[2])
-            assert False
-        except (Exception,):
-            pass
+
+        ale = PDPCalculatorArray(rf, N=10, curve_type='ALE')
+        ale.fit()
+
+        str(ale)
+        repr(ale)
+
+        p = ale.transform()
+
+        str(p[0])
+        repr(p[0])
+
+        p[0].plot(variable=df[0].data.columns[0])
 
     except (Exception,):
         assert False
@@ -198,6 +208,19 @@ def test_flow_array_of_arrays(df):
 
         with pytest.raises(Exception):
             t_2[0].plot(variable=df[0].data.columns[2])
+
+        ale = PDPCalculatorArray(rf, N=10, curve_type='ALE')
+        ale.fit()
+
+        str(ale)
+        repr(ale)
+
+        p = ale.transform()
+
+        str(p[0])
+        repr(p[0])
+
+        p[0].plot(variable=df[0].data.columns[0])
 
     except (Exception,):
         assert False

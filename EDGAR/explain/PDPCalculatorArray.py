@@ -1,24 +1,26 @@
-from typing import Union, Optional
+from typing import Union, Optional, Literal
 from EDGAR.model.Model import Model
 from EDGAR.model.ModelArray import ModelArray
 from EDGAR.explain.PDPCalculator import PDPCalculator
 
 
 class PDPCalculatorArray:
-    def __init__(self, models: Union[Model, ModelArray], N: Optional[int] = None):
+    def __init__(self, models: Union[Model, ModelArray], N: Optional[int] = None,
+                 curve_type: Literal['PDP', 'ALE'] = 'PDP'):
         if isinstance(models, Model):
             models = ModelArray
         self.models = models
         self.sub_calculators = None
         self.name = models.name
         self.N = N
+        self.curve_type = curve_type
 
     def fit(self):
         def create_sub_calculator(model: Union[Model, ModelArray]):
             if isinstance(model, Model):
-                calc = PDPCalculator(model=model, N=self.N)
+                calc = PDPCalculator(model=model, N=self.N, curve_type=self.curve_type)
             else:
-                calc = PDPCalculatorArray(models=model, N=self.N)
+                calc = PDPCalculatorArray(models=model, N=self.N, curve_type=self.curve_type)
 
             calc.fit()
             return calc
@@ -51,7 +53,7 @@ class PDPCalculatorArray:
             raise StopIteration
 
     def __str__(self):
-        return f"PDPCalculatorArray with {len(self.sub_calculators) if self.sub_calculators is not None else 0} calculators"
+        return f"PDPCalculatorArray with {len(self.sub_calculators) if self.sub_calculators is not None else 0} calculators with {self.curve_type} curve type"
 
     def __repr__(self):
-        return f"<PDPCalculatorArray with {len(self.sub_calculators) if self.sub_calculators is not None else 0} calculators>"
+        return f"<PDPCalculatorArray with {len(self.sub_calculators) if self.sub_calculators is not None else 0} calculators with {self.curve_type} curve type>"

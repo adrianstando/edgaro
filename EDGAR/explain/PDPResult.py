@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Dict, Union, Tuple, List, Optional
+from typing import Dict, Union, Tuple, List, Optional, Literal
 from numpy import ndarray
 import warnings
 import numpy as np
@@ -22,10 +22,12 @@ class Curve:
 
 
 class PDPResult:
-    def __init__(self, results: Dict[str, Curve], name: str, categorical_columns: List[str]):
+    def __init__(self, results: Dict[str, Curve], name: str, categorical_columns: List[str],
+                 curve_type: Literal['PDP', 'ALE'] = 'PDP'):
         self.results = results
         self.name = name
         self.categorical_columns = categorical_columns
+        self.curve_type = curve_type
 
     def __getitem__(self, key: Union[str]):
         if key in self.results.keys():
@@ -55,7 +57,13 @@ class PDPResult:
             else:
                 plt.bar(curve.x, curve.y)
 
-            plt.title("PDP curve for variable: " + variable)
+            if self.curve_type == 'PDP':
+                plt.title("PDP curve for variable: " + variable)
+            elif self.curve_type == 'ALE':
+                plt.title("ALE curve for variable: " + variable)
+            else:
+                raise Exception('Wrong curve type!')
+
             plt.xlabel(variable)
             if show_legend:
                 plt.legend([self.name])
@@ -81,7 +89,13 @@ class PDPResult:
                 elif figsize is not None:
                     plt.subplots(figsize=figsize)
 
-                plt.title("PDP curve for variable: " + variable)
+                if self.curve_type == 'PDP':
+                    plt.title("PDP curve for variable: " + variable)
+                elif self.curve_type == 'ALE':
+                    plt.title("ALE curve for variable: " + variable)
+                else:
+                    raise Exception('Wrong curve type!')
+
                 if variable not in self.categorical_columns:
                     plt.plot(curve_base.x, curve_base.y)
                 else:
@@ -117,7 +131,13 @@ class PDPResult:
 
                     plt.xticks(rotation=0)
 
-                plt.title("PDP curves for variable: " + variable)
+                if self.curve_type == 'PDP':
+                    plt.title("PDP curve for variable: " + variable)
+                elif self.curve_type == 'ALE':
+                    plt.title("ALE curve for variable: " + variable)
+                else:
+                    raise Exception('Wrong curve type!')
+
                 if show_legend:
                     plt.legend([self.name] + add_plot_names)
                 if y_lim is not None:
