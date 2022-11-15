@@ -167,7 +167,7 @@ class PDPResult:
                 )
 
     def __str__(self):
-        return f"PDPResult {self.name} for {len(self.results.keys())} variables: {list(self.results.keys())}"
+        return f"PDPResult {self.name} for {len(self.results.keys())} variables: {list(self.results.keys())} with {self.curve_type} curve type"
 
     def __repr__(self):
-        return f"<PDPResult {self.name}>"
+        return f"<PDPResult {self.name} with {self.curve_type} curve type>"
