@@ -248,6 +248,13 @@ class DatasetFromOpenML(Dataset):
         X = pd.DataFrame(X, columns=attribute_names)
         y = pd.Series(y, name='target')
 
+        for i in range(len(X.columns)):
+            if categorical_indicator[i]:
+                col = X.columns[i]
+                col_type = X[col].dtype
+                if col_type not in ['category', 'object', 'int']:
+                    X[col] = np.array([col]).astype('category')
+
         super().__init__(name=data.name, dataframe=X, target=y)
 
     def openml_description(self) -> Optional[str]:
