@@ -8,16 +8,23 @@ from EDGAR.base.base_transformer_array import BaseTransformerArray
 from EDGAR.model.model import Model
 from EDGAR.data.dataset import Dataset
 from EDGAR.data.dataset_array import DatasetArray
+from EDGAR.base.utils import print_unbuffered
 
 
 class ModelArray(BaseTransformerArray):
-    def __init__(self, base_model: Model, parameters: Optional[List[Dict[str, Any]]] = None, name: str = '') -> None:
+    def __init__(self, base_model: Model, parameters: Optional[List[Dict[str, Any]]] = None,
+                 name: str = '', verbose: bool = False) -> None:
         super().__init__(base_transformer=base_model, parameters=parameters)
         self.name = name
+        self.verbose = verbose
 
     def fit(self, dataset: Union[Dataset, DatasetArray]) -> None:
         if self.name == '':
             self.name = dataset.name
+
+        if self.verbose:
+            print_unbuffered(f'ModelArray {self.__repr__()} is being fitted with {dataset.name}')
+
         super().fit(dataset)
         for i in range(len(self.transformers)):
             self.transformers[i] = self.__base_transformer_array_to_model_array(
@@ -25,8 +32,16 @@ class ModelArray(BaseTransformerArray):
                 dataset[i].name if isinstance(dataset, DatasetArray) else dataset.name
             )
 
+        if self.verbose:
+            print_unbuffered(f'ModelArray {self.__repr__()} was fitted with {dataset.name}')
+
     def predict(self, dataset: Union[Dataset, DatasetArray]) -> Union[Dataset, DatasetArray]:
-        return super().transform(dataset)
+        out = super().transform(dataset)
+
+        if self.verbose:
+            print_unbuffered(f'ModelArray {self.__repr__()} predicted on {dataset.name}')
+
+        return out
 
     @staticmethod
     def __set_to_probs(inp: Union[List, Model, ModelArray]):
@@ -48,6 +63,10 @@ class ModelArray(BaseTransformerArray):
         ModelArray.__set_to_probs(self.get_models())
         out = super().transform(dataset)
         ModelArray.set_to_class(self.get_models())
+
+        if self.verbose:
+            print_unbuffered(f'ModelArray {self.__repr__()} predicted probabilities on {dataset.name}')
+
         return out
 
     def get_models(self) -> List[Union[Model, ModelArray, List[Union[Model, ModelArray]]]]:
@@ -106,8 +125,15 @@ class ModelArray(BaseTransformerArray):
                         out_out = _eval_all(mod[j], ds_, out_out)
             return out_out
 
+        if self.verbose:
+            print_unbuffered(f'ModelArray {self.__repr__()} is being evaluated')
+
         out = pd.DataFrame({'model': [], 'metric': [], 'value': []})
         out = _eval_all(self.get_models(), ds, out)
+
+        if self.verbose:
+            print_unbuffered(f'ModelArray {self.__repr__()} was evaluated')
+
         return out
 
     @property

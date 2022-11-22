@@ -9,19 +9,26 @@ from typing import Optional, Union
 from pandas_profiling import ProfileReport
 from sklearn.model_selection import train_test_split
 
+from EDGAR.base.utils import print_unbuffered
+
 
 class Dataset:
-    def __init__(self, name: str, dataframe: Optional[pd.DataFrame], target: Optional[pd.Series]) -> None:
+    def __init__(self, name: str, dataframe: Optional[pd.DataFrame], target: Optional[pd.Series],
+                 verbose: bool = False) -> None:
         if dataframe is not None and target is not None:
             if dataframe.shape[0] != target.shape[0]:
                 raise Exception('Dataframe and target have different number of rows!')
 
         self.name = name
+        self.verbose = verbose
         self.__data = dataframe
         self.__target = target
 
         self.__train_dataset: Optional[Dataset] = None
         self.__test_dataset: Optional[Dataset] = None
+
+        if self.verbose:
+            print_unbuffered(f'Dataset {self.__repr__()} created')
 
     @property
     def data(self) -> Optional[pd.DataFrame]:
@@ -104,6 +111,9 @@ class Dataset:
 
         self.__data = None
         self.__target = None
+
+        if self.verbose:
+            print_unbuffered(f'Dataset {self.__repr__()} was train-test-split')
 
     def custom_train_test_split(self, train: Dataset, test: Dataset) -> None:
         self.__train_dataset = train
@@ -209,8 +219,13 @@ class Dataset:
 
 
 class DatasetFromCSV(Dataset):
-    def __init__(self, path: str, target: Optional[str] = None, name: str = 'dataset', *args, **kwargs) -> None:
+    def __init__(self, path: str, target: Optional[str] = None, name: str = 'dataset',
+                 verbose: bool = False, *args, **kwargs) -> None:
         X = pd.read_csv(path, *args, **kwargs)
+
+        if verbose:
+            print_unbuffered(f'Data from {path} file is loaded')
+
         if target is None:
             y = X.iloc[:, -1]
             target = X.columns[-1]
@@ -218,7 +233,7 @@ class DatasetFromCSV(Dataset):
             y = X[target]
         y = pd.Series(y, name='target')
         X = X.drop([target], axis=1)
-        super().__init__(name=name, dataframe=X, target=y)
+        super().__init__(name=name, dataframe=X, target=y, verbose=verbose)
 
 
 class DatasetFromOpenML(Dataset):
@@ -230,7 +245,7 @@ class DatasetFromOpenML(Dataset):
     In parameters give either task_id
     """
 
-    def __init__(self, task_id: Optional[int] = None, apikey: Optional[str] = None) -> None:
+    def __init__(self, task_id: Optional[int] = None, apikey: Optional[str] = None, verbose: bool = False) -> None:
         if openml.config.apikey == '':
             if apikey is None:
                 raise Exception('API key is not available!')
@@ -245,6 +260,9 @@ class DatasetFromOpenML(Dataset):
             dataset_format='dataframe', target=data.default_target_attribute
         )
 
+        if verbose:
+            print_unbuffered(f'Dataset from OpenML with id {str(id)} was downloaded')
+
         X = pd.DataFrame(X, columns=attribute_names)
         y = pd.Series(y, name='target')
 
@@ -255,7 +273,7 @@ class DatasetFromOpenML(Dataset):
                 if col_type not in ['category', 'object', 'int']:
                     X[col] = np.array([col]).astype('category')
 
-        super().__init__(name=data.name, dataframe=X, target=y)
+        super().__init__(name=data.name, dataframe=X, target=y, verbose=verbose)
 
     def openml_description(self) -> Optional[str]:
         return "Name: " + self.name + '\n' + 'Description: ' + '\n' + self.__openml_description

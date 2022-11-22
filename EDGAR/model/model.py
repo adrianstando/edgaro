@@ -20,10 +20,12 @@ from sklearn.model_selection import GridSearchCV as GS
 
 from EDGAR.data.dataset import Dataset
 from EDGAR.base.base_transformer import BaseTransformer
+from EDGAR.base.utils import print_unbuffered
 
 
 class Model(BaseTransformer, ABC):
-    def __init__(self, name: str = '', test_size: Optional[float] = None, random_state: Optional[int] = None) -> None:
+    def __init__(self, name: str = '', test_size: Optional[float] = None,
+                 random_state: Optional[int] = None, verbose: bool = False) -> None:
         super().__init__()
         self.__transform_to_probabilities = False
         self.__train_dataset = None
@@ -34,8 +36,12 @@ class Model(BaseTransformer, ABC):
         self.__target_encoder = None
         self.random_state = random_state
         self.__was_fitted = False
+        self.verbose = verbose
 
     def fit(self, dataset: Dataset, print_scores: bool = False) -> None:
+        if self.verbose:
+            print_unbuffered(f'Model {self.__repr__()} is being fitted with {dataset.name}')
+
         if dataset.data is None or (dataset.data is not None and len(dataset.data) == 0):
             raise Exception('The dataset has empty data!')
         elif dataset.target is None or (dataset.target is not None and len(dataset.target) == 0):
@@ -79,6 +85,9 @@ class Model(BaseTransformer, ABC):
 
             self.__was_fitted = True
 
+            if self.verbose:
+                print_unbuffered(f'Model {self.__repr__()} was fitted with {dataset.name}')
+
     @abstractmethod
     def _fit(self, dataset: Dataset) -> None:
         pass
@@ -118,6 +127,10 @@ class Model(BaseTransformer, ABC):
         df = self.transform_data(dataset)
         model_name = '_' + self.name if not self.name == dataset.name else ''
         name = dataset.name + model_name + '_predicted'
+
+        if self.verbose:
+            print_unbuffered(f'Model {self.__repr__()} predicted on {dataset.name}')
+
         return self._predict(df, output_name=name)
 
     @abstractmethod
@@ -128,6 +141,10 @@ class Model(BaseTransformer, ABC):
         df = self.transform_data(dataset)
         model_name = '_' + self.name if not self.name == dataset.name else ''
         name = dataset.name + model_name + '_predicted_probabilities'
+
+        if self.verbose:
+            print_unbuffered(f'Model {self.__repr__()} predicted probabilities on {dataset.name}')
+
         return self._predict_proba(df, output_name=name)
 
     @abstractmethod
@@ -173,6 +190,10 @@ class Model(BaseTransformer, ABC):
 
     def evaluate(self, metrics_output_class=None, metrics_output_probabilities=None,
                  ds: Optional[Dataset] = None) -> pd.DataFrame:
+
+        if self.verbose:
+            print_unbuffered(f'Model {self.__repr__()} is being evaluated')
+
         results = {}
         if ds is None:
             if self.__test_dataset is not None:
@@ -194,6 +215,10 @@ class Model(BaseTransformer, ABC):
             y_hat = self.predict_proba(ds)
             for f in metrics_output_probabilities:
                 results[f.__name__] = f(self.__target_encoder.transform(ds.target), y_hat.target)
+
+        if self.verbose:
+            print_unbuffered(f'Model {self.__repr__()} was evaluated')
+
         return pd.DataFrame(results.items(), columns=['metric', 'value'])
 
     def __str__(self) -> str:
@@ -251,15 +276,18 @@ class SKLEARNModelProtocol(Protocol):
 
 class ModelFromSKLEARN(Model):
     def __init__(self, base_model: SKLEARNModelProtocol, name: str = '', test_size: Optional[float] = None,
-                 random_state: Optional[int] = None) -> None:
+                 random_state: Optional[int] = None, verbose: bool = False) -> None:
         super().__init__(name=name, test_size=test_size, random_state=random_state)
         self._model = base_model
+        self.verbose = verbose
 
     def _fit(self, dataset: Dataset) -> None:
         if dataset.target is None:
             raise Exception('Target data is not provided!')
         if dataset.data is None:
             raise Exception('Data in dataset is not provided!')
+
+        self._model.set_params(verbose=self.verbose)
 
         if 'random_state' in self._model.get_params().keys() and \
                 self._model.get_params()['random_state'] is None and \

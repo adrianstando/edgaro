@@ -8,14 +8,20 @@ import numpy as np
 from typing import List, Union, Optional
 
 from EDGAR.data.dataset import Dataset, DatasetFromOpenML
+from EDGAR.base.utils import print_unbuffered
 
 
 class DatasetArray:
-    def __init__(self, datasets: List[Union[Dataset, DatasetArray]], name: str = 'dataset_array') -> None:
+    def __init__(self, datasets: List[Union[Dataset, DatasetArray]],
+                 name: str = 'dataset_array', verbose: bool = False) -> None:
         keys = [df.name for df in datasets]
         if len(set(keys)) == len(keys):
+            self.verbose = verbose
             self.datasets = datasets
             self.name = name
+
+            if self.verbose:
+                print_unbuffered(f'DatasetArray {self.__repr__()} created')
         else:
             raise Exception('Dataset names are not unique!')
 
@@ -68,6 +74,9 @@ class DatasetArray:
         for ds in self.datasets:
             ds.train_test_split(test_size, random_state)
 
+        if self.verbose:
+            print_unbuffered(f'DatasetArray {self.__repr__()} was train-test-split')
+
     @property
     def train(self) -> DatasetArray:
         out = [ds.train for ds in self.datasets]
@@ -103,6 +112,9 @@ class DatasetArray:
                                  isinstance(dataset, Dataset) and dataset.check_binary_classification())
                          ]
 
+        if self.verbose:
+            print_unbuffered(f'Non binary datasets were removed from DatasetArray {self.__repr__()}')
+
     def remove_empty_datasets(self) -> None:
         for dataset in self.datasets:
             if isinstance(dataset, DatasetArray):
@@ -121,6 +133,9 @@ class DatasetArray:
                                  dataset.data is not None and len(dataset.data) != 0)
                          ]
 
+        if self.verbose:
+            print_unbuffered(f'Empty datasets were removed from DatasetArray {self.__repr__()}')
+
     def append(self, other: Union[Dataset, DatasetArray, List[Union[Dataset, DatasetArray]]]) -> None:
         if isinstance(other, list):
             self.datasets += other
@@ -136,7 +151,7 @@ class DatasetArray:
 
 class DatasetArrayFromOpenMLSuite(DatasetArray):
     def __init__(self, suite_name: str = 'OpenML100', apikey: Optional[str] = None,
-                 name: str = 'dataset_array') -> None:
+                 name: str = 'dataset_array', verbose: bool = False) -> None:
         if openml.config.apikey == '':
             if apikey is None:
                 raise Exception('API key is not available!')
@@ -144,6 +159,9 @@ class DatasetArrayFromOpenMLSuite(DatasetArray):
                 openml.config.apikey = apikey
 
         benchmark_suite = openml.study.get_suite(suite_name)
+
+        if verbose:
+            print_unbuffered(f'Benchmark suite data was downloaded for {suite_name}')
 
         dataset_array = []
         if benchmark_suite.data is None:
@@ -159,7 +177,10 @@ class DatasetArrayFromOpenMLSuite(DatasetArray):
             self.__openml_name = benchmark_suite.name if 'name' in benchmark_suite.__dict__.keys() else ''
             self.__openml_description = benchmark_suite.description if 'description' in benchmark_suite.__dict__.keys() else ''
 
-            super().__init__(datasets=dataset_array, name=name)
+            super().__init__(datasets=dataset_array, name=name, verbose=verbose)
+
+            if self.verbose:
+                print_unbuffered(f'DatasetArray from OpenML benchmark suite {suite_name} was created')
 
     def openml_description(self) -> str:
         return "Name: " + self.__openml_name + '\n' + 'Description: ' + '\n' + self.__openml_description
@@ -171,11 +192,14 @@ class DatasetArrayFromDirectory(DatasetArray):
     The target class is assumed to be the last column!
     """
 
-    def __init__(self, path: str, name: str = 'dataset_array') -> None:
+    def __init__(self, path: str, name: str = 'dataset_array', verbose: bool = False) -> None:
         if not os.path.exists(path):
             raise Exception('The path does not exist!')
         if not os.path.isdir(path):
             raise Exception('The path argument is not a directory!')
+
+        if self.verbose:
+            print_unbuffered(f'The files from {path} are being loaded')
 
         dataset_array = []
         for filename in os.listdir(path):
@@ -194,4 +218,7 @@ class DatasetArrayFromDirectory(DatasetArray):
                     Dataset(dataframe=X, target=y, name=os.path.splitext(filename)[0])
                 )
 
-        super().__init__(datasets=dataset_array, name=name)
+        if self.verbose:
+            print_unbuffered(f'The files from {path} were loaded')
+
+        super().__init__(datasets=dataset_array, name=name, verbose=verbose)

@@ -12,18 +12,23 @@ from sklearn.exceptions import NotFittedError
 
 from EDGAR.data.dataset import Dataset
 from EDGAR.base.base_transformer import BaseTransformer
+from EDGAR.base.utils import print_unbuffered
 
 
 class Transformer(BaseTransformer, ABC):
-    def __init__(self, name_sufix: str = '_transformed') -> None:
+    def __init__(self, name_sufix: str = '_transformed', verbose: bool = False) -> None:
         super().__init__()
         self.name_sufix = name_sufix
         self.__was_fitted = False
+        self.verbose = verbose
 
     def fit(self, dataset: Dataset) -> None:
         d = dataset.train if dataset.was_split else dataset
         self._fit(d)
         self.__was_fitted = True
+
+        if self.verbose:
+            print_unbuffered(f'Transformer {self.__repr__()} was fitted with {dataset.name}')
 
     @abstractmethod
     def _fit(self, dataset: Dataset) -> None:
@@ -43,9 +48,13 @@ class Transformer(BaseTransformer, ABC):
                 train=new_train,
                 test=ds.test
             )
-            return out
         else:
-            return self._transform(ds)
+            out = self._transform(ds)
+
+        if self.verbose:
+            print_unbuffered(f'Transformer {self.__repr__()} transformed with {dataset.name}')
+
+        return out
 
     @abstractmethod
     def _transform(self, dataset: Dataset) -> Dataset:
@@ -94,9 +103,9 @@ class TransformerFromIMBLEARN(Transformer):
     transformator.transform(dataset)
     """
 
-    def __init__(self, transformer: ImblearnProtocol, name_sufix: str = '_transformed') -> None:
+    def __init__(self, transformer: ImblearnProtocol, name_sufix: str = '_transformed', verbose: bool = False) -> None:
         self.__transformer = transformer
-        super().__init__(name_sufix=name_sufix)
+        super().__init__(name_sufix=name_sufix, verbose=verbose)
 
     def _change_transformer(self, transformer: ImblearnProtocol) -> None:
         try:

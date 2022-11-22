@@ -5,15 +5,18 @@ from typing import List, Optional, Literal, Dict, Any
 from EDGAR.data.dataset import Dataset
 from EDGAR.model.model import Model
 from EDGAR.explain.explainer_result import ExplainerResult, Curve
+from EDGAR.base.utils import print_unbuffered
 
 
 class Explainer:
-    def __init__(self, model: Model, N: Optional[int] = None, curve_type: Literal['PDP', 'ALE'] = 'PDP') -> None:
+    def __init__(self, model: Model, N: Optional[int] = None,
+                 curve_type: Literal['PDP', 'ALE'] = 'PDP', verbose: bool = False) -> None:
         self.model = model
         self.explainer = None
         self.name = model.name
         self.N = N
         self.curve_type = curve_type
+        self.verbose = verbose
 
     def fit(self) -> None:
         def predict_func(model, data):
@@ -29,8 +32,11 @@ class Explainer:
         if dataset.data is None:
             raise Exception('Data in dataset is not provided!')
 
-        self.explainer = dx.Explainer(self.model, dataset.data, dataset.target, label=dataset.name, verbose=False,
-                                      predict_function=predict_func)
+        self.explainer = dx.Explainer(self.model, dataset.data, dataset.target, label=dataset.name,
+                                      verbose=self.verbose, predict_function=predict_func)
+
+        if self.verbose:
+            print_unbuffered(f'dalex explainer inside {self.__repr__()} was created with {dataset.name}')
 
     def transform(self, variables: Optional[List[str]] = None) -> ExplainerResult:
         if self.explainer is None:
@@ -47,6 +53,10 @@ class Explainer:
             curve_type = 'accumulated'
         else:
             raise Exception('Wrong curve type!')
+
+        if self.verbose:
+            print_unbuffered(f'{self.curve_type} is being calculated in {self.__repr__()} for '
+                             f'{self.model.get_test_dataset().name}')
 
         category_colnames = list(set(variables).intersection(set(category_colnames_base)))
         if len(category_colnames) > 0:
@@ -71,6 +81,10 @@ class Explainer:
                 lower = int(i * length)
                 higher = int((i + 1) * length)
                 dict_output[str(variable_names[i])] = Curve(x[lower:higher], y[lower:higher])
+
+        if self.verbose:
+            print_unbuffered(f'{self.curve_type} was calculated calculated in {self.__repr__()} for '
+                             f'{self.model.get_test_dataset().name}')
 
         return ExplainerResult(dict_output, self.name, self.model.get_category_colnames())
 

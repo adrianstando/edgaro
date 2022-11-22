@@ -8,17 +8,20 @@ from EDGAR.data.dataset import Dataset
 from EDGAR.data.dataset_array import DatasetArray
 from EDGAR.base.base_transformer_array import BaseTransformerArray
 from EDGAR.balancing.transformer import Transformer, RandomUnderSampler, RandomOverSampler, SMOTE
+from EDGAR.base.utils import print_unbuffered
 
 
 class TransformerArray(BaseTransformerArray):
     def __init__(self, base_transformer: Transformer, parameters: Optional[List[Dict[str, Any]]] = None,
                  keep_original_dataset: bool = False, dataset_suffixes: Union[str, List[str]] = '_transformed',
-                 result_array_sufix: str = '_transformed_array', allow_dataset_array_sufix_change: bool = True) -> None:
+                 result_array_sufix: str = '_transformed_array', allow_dataset_array_sufix_change: bool = True,
+                 verbose: bool = False) -> None:
         super().__init__(base_transformer=base_transformer, parameters=parameters, transformer_sufix=result_array_sufix)
         self.__dataset_suffixes = None
         self.set_dataset_suffixes(dataset_suffixes)
         self.keep_original_dataset = keep_original_dataset
         self.allow_dataset_array_sufix_change = allow_dataset_array_sufix_change
+        self.verbose = verbose
 
     def set_dataset_suffixes(self, name_sufix: Union[str, List[str]]) -> None:
         params = self.get_params()
@@ -118,10 +121,17 @@ class TransformerArray(BaseTransformerArray):
             if self.allow_dataset_array_sufix_change:
                 self.transformer_sufix = self.__dataset_suffixes[0]
 
+        if self.verbose:
+            print_unbuffered(f'TransformerArray {self.__repr__()} was fitted with {dataset.name}')
+
     def transform(self, dataset: Union[Dataset, DatasetArray]) -> Union[Dataset, DatasetArray]:
         out = super().transform(dataset=dataset)
         if self.keep_original_dataset:
             out.append(dataset)
+
+        if self.verbose:
+            print_unbuffered(f'TransformerArray {self.__repr__()} transformed with {dataset.name}')
+
         return out
 
     def __fix_classes(self) -> None:
@@ -168,7 +178,7 @@ class TransformerArray(BaseTransformerArray):
 class AutomaticTransformerArray(Transformer):
     def __init__(self, keep_original_dataset: bool = False, result_array_sufix: str = '_automatic_transformed_array',
                  n_per_method: int = 5, random_state: Optional[int] = None, IR_round_precision: int = 2,
-                 min_samples_to_modify: Optional[int] = None) -> None:
+                 min_samples_to_modify: Optional[int] = None, verbose: bool = False) -> None:
         self.keep_original_dataset = keep_original_dataset
         self.n_per_method = n_per_method
         self.random_state = random_state
@@ -177,6 +187,7 @@ class AutomaticTransformerArray(Transformer):
         self.__transformers = None
         self.__was_fitted = False
         self.min_samples_to_modify = min_samples_to_modify
+        self.verbose = verbose
 
         super(Transformer, self).__init__()
 
@@ -241,6 +252,9 @@ class AutomaticTransformerArray(Transformer):
         self.__transformers = [random_under_sampler_array, random_over_sampler_array, smote_array]
         self.__was_fitted = True
 
+        if self.verbose:
+            print_unbuffered(f'AutomaticTransformerArray {self.__repr__()} was fitted with {dataset.name}')
+
     def transform(self, dataset: Dataset) -> DatasetArray:
         if self.__transformers is None:
             return DatasetArray([])
@@ -251,6 +265,10 @@ class AutomaticTransformerArray(Transformer):
             )
             if self.keep_original_dataset:
                 out.append(dataset)
+
+            if self.verbose:
+                print_unbuffered(f'AutomaticTransformerArray {self.__repr__()} transformed {dataset.name}')
+
             return out
 
     def set_dataset_suffixes(self, name_sufix: Union[str, List[Union[str, List[str]]]]) -> None:
