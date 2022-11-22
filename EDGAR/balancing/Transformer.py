@@ -1,14 +1,17 @@
 import warnings
+import pandas as pd
+
 from abc import ABC, abstractmethod
-from typing import Dict, Protocol, Any
+from typing import Dict, Protocol, Any, Tuple
 from copy import deepcopy
 from imblearn.under_sampling import RandomUnderSampler as RUS
 from imblearn.over_sampling import RandomOverSampler as ROS
 from imblearn.over_sampling import SMOTE as SM_C, SMOTENC as SM_NC, SMOTEN as SM_N
 from sklearn.utils.validation import check_is_fitted
 from sklearn.exceptions import NotFittedError
-from EDGAR.base.BaseTransformer import BaseTransformer
+
 from EDGAR.data.Dataset import Dataset
+from EDGAR.base.BaseTransformer import BaseTransformer
 
 
 class Transformer(BaseTransformer, ABC):
@@ -70,7 +73,7 @@ class ImblearnProtocol(Protocol):
     def fit(self, X, y) -> Any:
         ...
 
-    def fit_resample(self, X, y) -> Any:
+    def fit_resample(self, X, y) -> Tuple[pd.DataFrame, pd.Series]:
         ...
 
     def get_params(self) -> Dict:
@@ -122,11 +125,11 @@ class TransformerFromIMBLEARN(Transformer):
 
 class RandomUnderSampler(TransformerFromIMBLEARN):
     def __init__(self, imbalance_ratio: float = 1, name_sufix: str = '_transformed',
-                 random_state: int = None, *args, **kwargs):
+                 random_state: int = None, *args, **kwargs) -> None:
         transformer = RUS(sampling_strategy=1 / imbalance_ratio, random_state=random_state, *args, **kwargs)
         super().__init__(transformer=transformer, name_sufix=name_sufix)
 
-    def set_params(self, **params):
+    def set_params(self, **params) -> None:
         if 'IR' in params.keys():
             IR = params.pop('IR')
             params['sampling_strategy'] = 1 / IR
@@ -135,11 +138,11 @@ class RandomUnderSampler(TransformerFromIMBLEARN):
 
 class RandomOverSampler(TransformerFromIMBLEARN):
     def __init__(self, imbalance_ratio: float = 1, name_sufix: str = '_transformed',
-                 random_state: int = None, *args, **kwargs):
+                 random_state: int = None, *args, **kwargs) -> None:
         transformer = ROS(sampling_strategy=1 / imbalance_ratio, random_state=random_state, *args, **kwargs)
         super().__init__(transformer=transformer, name_sufix=name_sufix)
 
-    def set_params(self, **params):
+    def set_params(self, **params) -> None:
         if 'IR' in params.keys():
             IR = params.pop('IR')
             params['sampling_strategy'] = 1 / IR
@@ -148,7 +151,7 @@ class RandomOverSampler(TransformerFromIMBLEARN):
 
 class SMOTE(TransformerFromIMBLEARN):
     def __init__(self, imbalance_ratio: float = 1, name_sufix: str = '_transformed',
-                 random_state: int = None, *args, **kwargs):
+                 random_state: int = None, *args, **kwargs) -> None:
         self.__sampling_strategy = 1 / imbalance_ratio
         self.__random_state = random_state
         self.__args = args
@@ -156,7 +159,7 @@ class SMOTE(TransformerFromIMBLEARN):
         transformer = SM_C(sampling_strategy=1 / imbalance_ratio, random_state=random_state, *args, **kwargs)
         super().__init__(transformer=transformer, name_sufix=name_sufix)
 
-    def _fit(self, dataset: Dataset):
+    def _fit(self, dataset: Dataset) -> None:
         columns_categorical = list(dataset.data.select_dtypes(include=['category', 'object', 'int']))
 
         if len(columns_categorical) > 0:
@@ -174,7 +177,7 @@ class SMOTE(TransformerFromIMBLEARN):
 
         super()._fit(dataset)
 
-    def set_params(self, **params):
+    def set_params(self, **params) -> None:
         if 'IR' in params.keys():
             IR = params.pop('IR')
             params['sampling_strategy'] = 1 / IR

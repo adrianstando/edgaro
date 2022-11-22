@@ -1,11 +1,13 @@
 from __future__ import annotations
 
-from typing import List, Dict, Optional, Any, Union
 import numpy as np
+
+from typing import List, Dict, Optional, Any, Union
+
 from EDGAR.data.Dataset import Dataset
 from EDGAR.data.DatasetArray import DatasetArray
-from EDGAR.balancing.Transformer import Transformer, RandomUnderSampler, RandomOverSampler, SMOTE
 from EDGAR.base.BaseTransformerArray import BaseTransformerArray
+from EDGAR.balancing.Transformer import Transformer, RandomUnderSampler, RandomOverSampler, SMOTE
 
 
 class TransformerArray(BaseTransformerArray):
@@ -111,7 +113,8 @@ class TransformerArray(BaseTransformerArray):
                         else:
                             raise Exception('Wrong length of dataset_suffixes!')
 
-        if isinstance(self.__dataset_suffixes, list) and len(self.__dataset_suffixes) == 1 and isinstance(self.__dataset_suffixes[0], str):
+        if isinstance(self.__dataset_suffixes, list) and len(self.__dataset_suffixes) == 1 and isinstance(
+                self.__dataset_suffixes[0], str):
             if self.allow_dataset_array_sufix_change:
                 self.transformer_sufix = self.__dataset_suffixes[0]
 
@@ -152,7 +155,7 @@ class TransformerArray(BaseTransformerArray):
         return super().base_transformer
 
     @base_transformer.setter
-    def base_transformer(self, val: Union[Transformer, TransformerArray, List[Any]]):
+    def base_transformer(self, val: Union[Transformer, TransformerArray, List[Any]]) -> None:
         super().base_transformer = val
 
     def __str__(self) -> str:
@@ -164,7 +167,8 @@ class TransformerArray(BaseTransformerArray):
 
 class AutomaticTransformerArray(Transformer, TransformerArray):
     def __init__(self, keep_original_dataset: bool = False, result_array_sufix: str = '_automatic_transformed_array',
-                 n_per_method: int = 5, random_state: Optional[int] = None, IR_round_precision: int = 2, min_samples_to_modify: Optional[int] = None):
+                 n_per_method: int = 5, random_state: Optional[int] = None, IR_round_precision: int = 2,
+                 min_samples_to_modify: Optional[int] = None) -> None:
         self.keep_original_dataset = keep_original_dataset
         self.n_per_method = n_per_method
         self.random_state = random_state
@@ -188,12 +192,14 @@ class AutomaticTransformerArray(Transformer, TransformerArray):
             n_rows_majority = max(counts)
 
             n_rows_modified_under = IR_step * n_rows_minority
-            n_rows_modified_over = (n_rows_majority * n_rows_minority) / (n_rows_majority - IR_step * n_rows_minority) - n_rows_minority
+            n_rows_modified_over = (n_rows_majority * n_rows_minority) / (
+                        n_rows_majority - IR_step * n_rows_minority) - n_rows_minority
             min_n_rows_modified = min(n_rows_modified_under, n_rows_modified_over)
 
             if min_n_rows_modified < self.min_samples_to_modify:
                 IR_step_under = self.min_samples_to_modify / n_rows_minority
-                IR_step_over = n_rows_majority * (1/n_rows_minority - 1/(n_rows_minority + self.min_samples_to_modify))
+                IR_step_over = n_rows_majority * (
+                            1 / n_rows_minority - 1 / (n_rows_minority + self.min_samples_to_modify))
 
                 IR_step = max(IR_step_under, IR_step_over)
                 n_per_method = (IR - 1) // IR_step + 1
@@ -237,33 +243,37 @@ class AutomaticTransformerArray(Transformer, TransformerArray):
 
     def transform(self, dataset: Dataset) -> DatasetArray:
         out = DatasetArray(
-                [t.transform(dataset) for t in self.__transformers],
-                name=dataset.name + self.result_array_sufix
-            )
+            [t.transform(dataset) for t in self.__transformers],
+            name=dataset.name + self.result_array_sufix
+        )
         if self.keep_original_dataset:
             out.append(dataset)
         return out
 
     def set_dataset_suffixes(self, name_sufix: Union[str, List[Union[str, List[str]]]]) -> None:
-        if isinstance(self.__transformers, list) and np.all([isinstance(t, TransformerArray) for t in self.__transformers]):
+        if isinstance(self.__transformers, list) and np.all(
+                [isinstance(t, TransformerArray) for t in self.__transformers]):
             for t in self.__transformers:
                 t.set_dataset_suffixes(name_sufix)
 
     def get_dataset_suffixes(self) -> Optional[Union[str, List[str]]]:
-        if isinstance(self.__transformers, list) and np.all([isinstance(t, TransformerArray) for t in self.__transformers]):
+        if isinstance(self.__transformers, list) and np.all(
+                [isinstance(t, TransformerArray) for t in self.__transformers]):
             return [t.get_dataset_suffixes() for t in self.__transformers]
 
     def set_params(self, **params) -> None:
-        if isinstance(self.__transformers, list) and np.all([isinstance(t, TransformerArray) for t in self.__transformers]):
+        if isinstance(self.__transformers, list) and np.all(
+                [isinstance(t, TransformerArray) for t in self.__transformers]):
             for i in range(len(self.__transformers)):
                 tmp = {}
                 for key, val in params.items():
                     tmp[key] = val[i]
                 self.__transformers[i].set_params(**tmp)
 
-    def get_params(self):
-        if isinstance(self.__transformers, list) and np.all([isinstance(t, TransformerArray) for t in self.__transformers]):
-            return [t.__parameters for t in self.__transformers]
+    def get_params(self) -> List[Union[Dict, List[Any]]]:
+        if isinstance(self.__transformers, list) and np.all(
+                [isinstance(t, TransformerArray) for t in self.__transformers]):
+            return [t.parameters for t in self.__transformers]
 
     @property
     def was_fitted(self) -> bool:
@@ -285,7 +295,7 @@ class AutomaticTransformerArray(Transformer, TransformerArray):
         return [t.base_transformer for t in self.__transformers]
 
     @base_transformer.setter
-    def base_transformer(self, val: Union[Transformer, TransformerArray, List[Any]]):
+    def base_transformer(self, val: Union[Transformer, TransformerArray, List[Any]]) -> None:
         raise Exception('Base Transformer can\'t be set for AutomaticTransformerArray')
 
     def _fit(self, dataset: Dataset) -> None:
@@ -294,10 +304,11 @@ class AutomaticTransformerArray(Transformer, TransformerArray):
     def _transform(self, dataset: Dataset) -> Dataset:
         return Dataset('', None, None)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.__transformers)
 
-    def __getitem__(self, key: Union[int, List[int]]):
+    def __getitem__(self, key: Union[int, List[int]]) -> Optional[
+                    Union[Transformer, TransformerArray, List[Union[Transformer, TransformerArray]]]]:
         if isinstance(key, list):
             out = [self.__getitem__(k) for k in key]
             if len(out) == 0:

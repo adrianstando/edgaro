@@ -1,10 +1,12 @@
 from __future__ import annotations
+
+import openml
 import pandas as pd
 import numpy as np
-import openml
-from pandas_profiling import ProfileReport
-from typing import Optional, Union
+
 from copy import deepcopy
+from typing import Optional, Union
+from pandas_profiling import ProfileReport
 from sklearn.model_selection import train_test_split
 
 
@@ -177,7 +179,7 @@ class Dataset:
         self.data.drop(nans, axis=0, inplace=True)
         self.target.drop(nans, axis=0, inplace=True)
 
-    def remove_outliers(self, n_std: Union[float, int] = 3):
+    def remove_outliers(self, n_std: Union[float, int] = 3) -> None:
         categorical_columns = list(self.data.select_dtypes(include=['category', 'object', 'int']))
         numerical_columns = list(set(self.data.columns).difference(categorical_columns))
 

@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import numpy as np
+
 from typing import List, Dict, Optional, Any, Union
 from copy import deepcopy
-import numpy as np
+
 from EDGAR.data.Dataset import Dataset
 from EDGAR.data.DatasetArray import DatasetArray
 from EDGAR.base.BaseTransformer import BaseTransformer
@@ -10,7 +12,7 @@ from EDGAR.base.BaseTransformer import BaseTransformer
 
 class BaseTransformerArray:
     def __init__(self, base_transformer: BaseTransformer, parameters: Optional[List[Dict[str, Any]]] = None,
-                 transformer_sufix: str = '_transformed_array'):
+                 transformer_sufix: str = '_transformed_array') -> None:
         self.__base_transformer = base_transformer
         self.__transformers = []
         self.__input_shape = None
@@ -18,12 +20,12 @@ class BaseTransformerArray:
         self.__was_fitted = False
         self.transformer_sufix = transformer_sufix
 
-    def __create_new_transformer(self, param):
+    def __create_new_transformer(self, param: Dict[str, Any]) -> BaseTransformer:
         t = deepcopy(self.__base_transformer)
         t.set_params(**param)
         return t
 
-    def fit(self, dataset: Union[Dataset, DatasetArray]):
+    def fit(self, dataset: Union[Dataset, DatasetArray]) -> None:
         # Single dataset case
         if isinstance(dataset, Dataset):
             self.__input_shape = 1
@@ -57,7 +59,7 @@ class BaseTransformerArray:
                     self.__transformers[i].fit(dataset[i])
         self.__was_fitted = True
 
-    def transform(self, dataset: Union[Dataset, DatasetArray]):
+    def transform(self, dataset: Union[Dataset, DatasetArray]) -> DatasetArray:
         # Single dataset case
         if isinstance(dataset, Dataset):
             if not self.__input_shape == 1:
@@ -79,7 +81,7 @@ class BaseTransformerArray:
     Each parameter has to be a list!!
     """
 
-    def set_params(self, **params):
+    def set_params(self, **params) -> None:
         lengths = [len(val) for key, val in params.items()]
         if len(lengths) == 0:
             raise Exception('Parameters were not provided!')
@@ -100,7 +102,7 @@ class BaseTransformerArray:
             for i in range(len(self.__transformers)):
                 self.__transformers[i].set_params(**tmp[i])
 
-    def get_params(self):
+    def get_params(self) -> Optional[Dict[str, Any]]:
         return self.__parameters
 
     @property
@@ -147,10 +149,11 @@ class BaseTransformerArray:
         else:
             raise Exception('Base transformers were not set since Transformer has already been fitted!')
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.__transformers)
 
-    def __getitem__(self, key: Union[int, List[int]]):
+    def __getitem__(self, key: Union[int, List[int]]) -> Optional[
+                    Union[BaseTransformer, BaseTransformerArray, List[Union[BaseTransformer, BaseTransformerArray]]]]:
         if isinstance(key, list):
             out = [self.__getitem__(k) for k in key]
             if len(out) == 0:
@@ -162,8 +165,8 @@ class BaseTransformerArray:
                 return self.__transformers[key]
         return None
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"BaseTransformerArray {self.__class__.__name__ if self.__class__.__name__ != 'BaseTransformerArray' else ''} with {len(self.transformers)} transformers"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<BaseTransformerArray {self.__class__.__name__ if self.__class__.__name__ != 'BaseTransformerArray' else ''} with {len(self.transformers)} transformers>"

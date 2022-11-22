@@ -1,7 +1,9 @@
 from __future__ import annotations
 
-from typing import Optional, List, Dict, Any, Union
 import pandas as pd
+
+from typing import Optional, List, Dict, Any, Union
+
 from EDGAR.base.BaseTransformerArray import BaseTransformerArray
 from EDGAR.model.Model import Model
 from EDGAR.data.Dataset import Dataset
@@ -9,7 +11,8 @@ from EDGAR.data.DatasetArray import DatasetArray
 
 
 class ModelArray(BaseTransformerArray):
-    def __init__(self, base_model: Union[Model, ModelArray, List[Union[Model, ModelArray]]], parameters: Optional[List[Dict[str, Any]]] = None, name: str = '') -> None:
+    def __init__(self, base_model: Union[Model, ModelArray, List[Union[Model, ModelArray]]],
+                 parameters: Optional[List[Dict[str, Any]]] = None, name: str = '') -> None:
         super().__init__(base_transformer=base_model, parameters=parameters)
         self.name = name
 
@@ -45,7 +48,8 @@ class ModelArray(BaseTransformerArray):
         for m in self.get_models():
             m.set_transform_to_classes()
 
-    def __base_transformer_array_to_model_array(self, base: Union[Model, ModelArray, BaseTransformerArray], name: str) -> Union[Model, ModelArray]:
+    def __base_transformer_array_to_model_array(self, base: Union[Model, ModelArray, BaseTransformerArray],
+                                                name: str) -> Union[Model, ModelArray]:
         if isinstance(base, Model):
             return base
         elif not isinstance(base, ModelArray):
@@ -59,7 +63,8 @@ class ModelArray(BaseTransformerArray):
         else:
             return base
 
-    def evaluate(self, metrics_output_class=None, metrics_output_probabilities=None, ds: Optional[DatasetArray] = None) -> pd.DataFrame:
+    def evaluate(self, metrics_output_class=None, metrics_output_probabilities=None,
+                 ds: Optional[DatasetArray] = None) -> pd.DataFrame:
         out = pd.DataFrame({'model': [], 'metric': [], 'value': []})
         for i in range(len(self.get_models())):
             m = self.get_models()[i]

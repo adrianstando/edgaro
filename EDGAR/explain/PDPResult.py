@@ -1,41 +1,42 @@
 from __future__ import annotations
 
-from typing import Dict, Union, Tuple, List, Optional, Literal
-from numpy import ndarray
 import warnings
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+
+from typing import Dict, Union, Tuple, List, Optional, Literal
+from numpy import ndarray
 from matplotlib.axes import Axes
 
 
 class Curve:
-    def __init__(self, x: ndarray, y: ndarray):
+    def __init__(self, x: ndarray, y: ndarray) -> None:
         self.x = x
         self.y = y
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Curve with {len(self.x)} points\nx:\n" + str(self.x) + "\ny:\n" + str(self.y)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<Curve with {len(self.x)} points>"
 
 
 class PDPResult:
     def __init__(self, results: Dict[str, Curve], name: str, categorical_columns: List[str],
-                 curve_type: Literal['PDP', 'ALE'] = 'PDP'):
+                 curve_type: Literal['PDP', 'ALE'] = 'PDP') -> None:
         self.results = results
         self.name = name
         self.categorical_columns = categorical_columns
         self.curve_type = curve_type
 
-    def __getitem__(self, key: Union[str]):
+    def __getitem__(self, key: Union[str]) -> Optional[Curve]:
         if key in self.results.keys():
             return self.results[key]
         else:
             return None
 
-    def __plot_not_add(self, variable, ax, figsize, show_legend, y_lim):
+    def __plot_not_add(self, variable, ax, figsize, show_legend, y_lim) -> None:
         curve = self.results[variable]
         if curve is None:
             raise Exception('Variable is not available!')
@@ -63,7 +64,7 @@ class PDPResult:
         if y_lim is not None:
             plt.ylim(y_lim)
 
-    def __plot_add_continuous(self, ax, figsize, curve_base, curves_add):
+    def __plot_add_continuous(self, ax, figsize, curve_base, curves_add) -> None:
         if ax is not None:
             plt.sca(ax)
         elif figsize is not None:
@@ -73,7 +74,7 @@ class PDPResult:
         for curve in curves_add:
             plt.plot(curve.x, curve.y)
 
-    def __plot_add_categorical(self, variable, ax, figsize, curve_base, curves_add, add_plot_names):
+    def __plot_add_categorical(self, variable, ax, figsize, curve_base, curves_add, add_plot_names) -> None:
         df = pd.DataFrame({
             'x': curves_add[0].x,
             self.name: curve_base.y
@@ -88,7 +89,7 @@ class PDPResult:
 
         plt.xticks(rotation=0)
 
-    def __plot_add(self, variable, ax, figsize, curve_base, curves_add, add_plot, show_legend, y_lim):
+    def __plot_add(self, variable, ax, figsize, curve_base, curves_add, add_plot, show_legend, y_lim) -> None:
         curves_add = [c for c in curves_add if c is not None]
         add_plot_names = [c.name for c in add_plot if c.results[variable] is not None]
 
@@ -120,7 +121,7 @@ class PDPResult:
     def plot(self, variable: str, figsize: Optional[Tuple[int, int]] = (8, 8),
              add_plot: Optional[List[PDPResult]] = None, ax: Optional[Axes] = None,
              show_legend: bool = True, y_lim: Optional[Tuple[float, float]] = None
-             ):
+             ) -> None:
         if figsize is None and ax is None:
             figsize = (8, 8)
 
@@ -141,7 +142,7 @@ class PDPResult:
             else:
                 self.__plot_add(variable, ax, figsize, curve_base, curves_add, add_plot, show_legend, y_lim)
 
-    def compare(self, other: PDPResult, variable: Optional[Union[str, List[str]]] = None):
+    def compare(self, other: PDPResult, variable: Optional[Union[str, List[str]]] = None) -> np.ndarray:
         if isinstance(variable, str):
             if self[variable] is None:
                 raise Exception('Variable is not available!')
@@ -163,8 +164,8 @@ class PDPResult:
                     [self.compare(variable=var, other=other) for var in variable]
                 )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"PDPResult {self.name} for {len(self.results.keys())} variables: {list(self.results.keys())} with {self.curve_type} curve type"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<PDPResult {self.name} with {self.curve_type} curve type>"

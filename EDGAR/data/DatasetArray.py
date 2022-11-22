@@ -1,10 +1,13 @@
 from __future__ import annotations
-from typing import List, Union, Optional
-import pandas as pd
-import numpy as np
-from EDGAR.data.Dataset import Dataset, DatasetFromOpenML
+
 import openml
 import os
+import pandas as pd
+import numpy as np
+
+from typing import List, Union, Optional
+
+from EDGAR.data.Dataset import Dataset, DatasetFromOpenML
 
 
 class DatasetArray:
@@ -128,7 +131,8 @@ class DatasetArray:
 
 
 class DatasetArrayFromOpenMLSuite(DatasetArray):
-    def __init__(self, suite_name: str = 'OpenML100', apikey: Optional[str] = None, name: str = 'dataset_array') -> None:
+    def __init__(self, suite_name: str = 'OpenML100', apikey: Optional[str] = None,
+                 name: str = 'dataset_array') -> None:
         if openml.config.apikey == '':
             if apikey is None:
                 raise Exception('API key is not available!')
@@ -159,6 +163,7 @@ class DatasetArrayFromDirectory(DatasetArray):
     Attention!
     The target class is assumed to be the last column!
     """
+
     def __init__(self, path: str, name: str = 'dataset_array') -> None:
         if not os.path.exists(path):
             raise Exception('The path does not exist!')

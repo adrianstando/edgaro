@@ -1,11 +1,13 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from copy import deepcopy
 import numpy as np
-from typing import Optional, Protocol, Any, Dict, List
 import warnings
 import pandas as pd
+import xgboost as xgb
+
+from abc import ABC, abstractmethod
+from copy import deepcopy
+from typing import Optional, Protocol, Any, Dict, List
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import OrdinalEncoder
 from sklearn.metrics import accuracy_score, f1_score, balanced_accuracy_score, precision_score
@@ -15,9 +17,9 @@ from imblearn.metrics import geometric_mean_score, specificity_score
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.model_selection import RandomizedSearchCV as RS
 from sklearn.model_selection import GridSearchCV as GS
-import xgboost as xgb
-from EDGAR.base.BaseTransformer import BaseTransformer
+
 from EDGAR.data.Dataset import Dataset
+from EDGAR.base.BaseTransformer import BaseTransformer
 
 
 class Model(BaseTransformer, ABC):
@@ -175,7 +177,7 @@ class Model(BaseTransformer, ABC):
         if len(metrics_output_probabilities) > 0:
             y_hat = self.predict_proba(ds)
             for f in metrics_output_probabilities:
-                results[f.__name__] = f(self.__target_encoder.transform(ds.target), y_hat.target[:, 1])
+                results[f.__name__] = f(self.__target_encoder.transform(ds.target), y_hat.target)
         return pd.DataFrame(results.items(), columns=['metric', 'value'])
 
     def __str__(self) -> str:
@@ -213,10 +215,10 @@ class SKLEARNModelProtocol(Protocol):
     def fit(self, X: pd.DataFrame, y: pd.Series) -> Any:
         ...
 
-    def predict(self, X: pd.DataFrame) -> Any:
+    def predict(self, X: pd.DataFrame) -> np.ndarray:
         ...
 
-    def predict_proba(self, X: pd.DataFrame) -> Any:
+    def predict_proba(self, X: pd.DataFrame) -> np.ndarray:
         ...
 
     def get_params(self) -> Dict:
@@ -259,7 +261,7 @@ class ModelFromSKLEARN(Model):
         return Dataset(
             name=output_name,
             dataframe=None,
-            target=self._model.predict(dataset.data)
+            target=pd.Series(self._model.predict(dataset.data))
         )
 
     def _predict_proba(self, dataset: Dataset, output_name: str) -> Dataset:
@@ -270,7 +272,7 @@ class ModelFromSKLEARN(Model):
         return Dataset(
             name=output_name,
             dataframe=None,
-            target=self._model.predict_proba(dataset.data)
+            target=pd.Series(self._model.predict_proba(dataset.data)[:, 1])
         )
 
     def _set_params(self, **params) -> None:
