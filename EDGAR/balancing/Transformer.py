@@ -160,6 +160,11 @@ class SMOTE(TransformerFromIMBLEARN):
         super().__init__(transformer=transformer, name_sufix=name_sufix)
 
     def _fit(self, dataset: Dataset) -> None:
+        if dataset.target is None:
+            raise Exception('Target data is not provided!')
+        if dataset.data is None:
+            raise Exception('Data in dataset is not provided!')
+
         columns_categorical = list(dataset.data.select_dtypes(include=['category', 'object', 'int']))
 
         if len(columns_categorical) > 0:

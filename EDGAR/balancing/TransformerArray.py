@@ -76,7 +76,7 @@ class TransformerArray(BaseTransformerArray):
 
     def set_params(self, **params) -> None:
         super().set_params(**params)
-        if len(self.__dataset_suffixes) == 1:
+        if self.__dataset_suffixes is not None and len(self.__dataset_suffixes) == 1:
             self.set_dataset_suffixes(self.__dataset_suffixes[0])
 
     def fit(self, dataset: Union[Dataset, DatasetArray]) -> None:
@@ -165,7 +165,7 @@ class TransformerArray(BaseTransformerArray):
         return f"<TransformerArray{(' ' + self.__class__.__name__) if self.__class__.__name__ != 'TransformerArray' else ''} with {len(self.transformers)} transformers>"
 
 
-class AutomaticTransformerArray(Transformer, TransformerArray):
+class AutomaticTransformerArray(Transformer):
     def __init__(self, keep_original_dataset: bool = False, result_array_sufix: str = '_automatic_transformed_array',
                  n_per_method: int = 5, random_state: Optional[int] = None, IR_round_precision: int = 2,
                  min_samples_to_modify: Optional[int] = None) -> None:
@@ -202,7 +202,7 @@ class AutomaticTransformerArray(Transformer, TransformerArray):
                             1 / n_rows_minority - 1 / (n_rows_minority + self.min_samples_to_modify))
 
                 IR_step = max(IR_step_under, IR_step_over)
-                n_per_method = (IR - 1) // IR_step + 1
+                n_per_method = int((IR - 1) // IR_step + 1)
 
                 if round(IR_step, 3) == round(IR_range, 3):
                     n_per_method = 1
@@ -242,13 +242,16 @@ class AutomaticTransformerArray(Transformer, TransformerArray):
         self.__was_fitted = True
 
     def transform(self, dataset: Dataset) -> DatasetArray:
-        out = DatasetArray(
-            [t.transform(dataset) for t in self.__transformers],
-            name=dataset.name + self.result_array_sufix
-        )
-        if self.keep_original_dataset:
-            out.append(dataset)
-        return out
+        if self.__transformers is None:
+            return DatasetArray([])
+        else:
+            out = DatasetArray(
+                [t.transform(dataset) for t in self.__transformers],
+                name=dataset.name + self.result_array_sufix
+            )
+            if self.keep_original_dataset:
+                out.append(dataset)
+            return out
 
     def set_dataset_suffixes(self, name_sufix: Union[str, List[Union[str, List[str]]]]) -> None:
         if isinstance(self.__transformers, list) and np.all(
@@ -260,6 +263,8 @@ class AutomaticTransformerArray(Transformer, TransformerArray):
         if isinstance(self.__transformers, list) and np.all(
                 [isinstance(t, TransformerArray) for t in self.__transformers]):
             return [t.get_dataset_suffixes() for t in self.__transformers]
+        else:
+            return []
 
     def set_params(self, **params) -> None:
         if isinstance(self.__transformers, list) and np.all(
@@ -274,6 +279,8 @@ class AutomaticTransformerArray(Transformer, TransformerArray):
         if isinstance(self.__transformers, list) and np.all(
                 [isinstance(t, TransformerArray) for t in self.__transformers]):
             return [t.parameters for t in self.__transformers]
+        else:
+            return []
 
     @property
     def was_fitted(self) -> bool:
@@ -281,7 +288,10 @@ class AutomaticTransformerArray(Transformer, TransformerArray):
 
     @property
     def transformers(self) -> List[Union[Transformer, TransformerArray, List[Any]]]:
-        return [t.transformers for t in self.__transformers]
+        if self.__transformers is None:
+            return []
+        else:
+            return [t.transformers for t in self.__transformers]
 
     @transformers.setter
     def transformers(self, val: List[Union[Transformer, TransformerArray, List[Any]]]) -> None:
@@ -292,7 +302,10 @@ class AutomaticTransformerArray(Transformer, TransformerArray):
 
     @property
     def base_transformer(self) -> Union[Transformer, TransformerArray, List[Any]]:
-        return [t.base_transformer for t in self.__transformers]
+        if self.__transformers is None:
+            return []
+        else:
+            return [t.base_transformer for t in self.__transformers]
 
     @base_transformer.setter
     def base_transformer(self, val: Union[Transformer, TransformerArray, List[Any]]) -> None:
@@ -305,10 +318,15 @@ class AutomaticTransformerArray(Transformer, TransformerArray):
         return Dataset('', None, None)
 
     def __len__(self) -> int:
-        return len(self.__transformers)
+        if self.__transformers is None:
+            return 0
+        else:
+            return len(self.__transformers)
 
     def __getitem__(self, key: Union[int, List[int]]) -> Optional[
-                    Union[Transformer, TransformerArray, List[Union[Transformer, TransformerArray]]]]:
+                    Union[Optional[Transformer], TransformerArray, List[Union[Optional[Transformer], TransformerArray]]]]:
+        if self.__transformers is None:
+            return None
         if isinstance(key, list):
             out = [self.__getitem__(k) for k in key]
             if len(out) == 0:
@@ -322,9 +340,10 @@ class AutomaticTransformerArray(Transformer, TransformerArray):
 
     def __str__(self) -> str:
         out = f"AutomaticTransformerArray transformers" + "\n"
-        for t in self.__transformers:
-            out += t.__str__()
-            out += '\n'
+        if self.__transformers is not None:
+            for t in self.__transformers:
+                out += t.__str__()
+                out += '\n'
         return out
 
     def __repr__(self) -> str:

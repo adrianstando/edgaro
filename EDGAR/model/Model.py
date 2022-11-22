@@ -36,43 +36,48 @@ class Model(BaseTransformer, ABC):
         self.__was_fitted = False
 
     def fit(self, dataset: Dataset, print_scores: bool = False) -> None:
-        if not dataset.check_binary_classification():
-            raise Exception('Dataset does not represent binary classification task!')
-
-        if not dataset.was_split and self.test_size is None:
-            warnings.warn(
-                'Dataset was not train-test-split! The training dataset will be the same as the test dataset.')
-            self.__train_dataset = deepcopy(dataset)
-            self.__test_dataset = deepcopy(dataset)
+        if dataset.data is None or (dataset.data is not None and len(dataset.data) == 0):
+            raise Exception('The dataset has empty data!')
+        elif dataset.target is None or (dataset.target is not None and len(dataset.target) == 0):
+            raise Exception('The dataset has empty data!')
         else:
-            if not dataset.was_split and self.test_size is not None:
-                dataset.train_test_split(test_size=self.test_size, random_state=self.random_state)
-            if dataset.was_split and self.test_size is not None:
-                warnings.warn('Dataset was train-test-split! Dataset will not be split the second time.')
-            self.__train_dataset = deepcopy(dataset.train)
-            self.__test_dataset = deepcopy(dataset.test)
+            if not dataset.check_binary_classification():
+                raise Exception('Dataset does not represent binary classification task!')
 
-        ds = deepcopy(self.__train_dataset)
+            if not dataset.was_split and self.test_size is None:
+                warnings.warn(
+                    'Dataset was not train-test-split! The training dataset will be the same as the test dataset.')
+                self.__train_dataset = deepcopy(dataset)
+                self.__test_dataset = deepcopy(dataset)
+            else:
+                if not dataset.was_split and self.test_size is not None:
+                    dataset.train_test_split(test_size=self.test_size, random_state=self.random_state)
+                if dataset.was_split and self.test_size is not None:
+                    warnings.warn('Dataset was train-test-split! Dataset will not be split the second time.')
+                self.__train_dataset = deepcopy(dataset.train)
+                self.__test_dataset = deepcopy(dataset.test)
 
-        columns_to_encode = list(dataset.data.select_dtypes(include=['category', 'object']))
-        for col in columns_to_encode:
-            le = OrdinalEncoder(handle_unknown='use_encoded_value', unknown_value=-1)
-            ds.data[col] = le.fit_transform(ds.data[[col]])
-            self.__label_encoders[col] = le
+            ds = deepcopy(self.__train_dataset)
 
-        self.__target_encoder = _TargetEncode()
-        ds.target = self.__target_encoder.fit_transform(ds.target)
-        self.__train_dataset.target = self.__target_encoder.transform(self.__train_dataset.target)
+            columns_to_encode = list(dataset.data.select_dtypes(include=['category', 'object']))
+            for col in columns_to_encode:
+                le = OrdinalEncoder(handle_unknown='use_encoded_value', unknown_value=-1)
+                ds.data[col] = le.fit_transform(ds.data[[col]])
+                self.__label_encoders[col] = le
 
-        if self.name == '':
-            self.name = dataset.name
+            self.__target_encoder = _TargetEncode()
+            ds.target = self.__target_encoder.fit_transform(ds.target)
+            self.__train_dataset.target = self.__target_encoder.transform(self.__train_dataset.target)
 
-        self._fit(ds)
+            if self.name == '':
+                self.name = dataset.name
 
-        if print_scores:
-            self.evaluate()
+            self._fit(ds)
 
-        self.__was_fitted = True
+            if print_scores:
+                self.evaluate()
+
+            self.__was_fitted = True
 
     @abstractmethod
     def _fit(self, dataset: Dataset) -> None:
@@ -83,23 +88,31 @@ class Model(BaseTransformer, ABC):
         return self.__was_fitted
 
     def transform_data(self, dataset: Dataset) -> Dataset:
-        df = Dataset(
-            name=dataset.name,
-            dataframe=deepcopy(dataset.data),
-            target=deepcopy(dataset.target)
-        )
-        for key, le in self.__label_encoders.items():
-            df.data[key] = le.transform(df.data[[key]])
-        return df
+        if dataset.data is None or (dataset.data is not None and len(dataset.data) == 0):
+            raise Exception('The dataset has empty data!')
+        else:
+            df = Dataset(
+                name=dataset.name,
+                dataframe=deepcopy(dataset.data),
+                target=deepcopy(dataset.target)
+            )
+            if len(self.__label_encoders) > 0:
+                for key, le in self.__label_encoders.items():
+                    df.data[key] = le.transform(df.data[[key]])
+            return df
 
     def transform_target(self, dataset: Dataset) -> Dataset:
-        df = Dataset(
-            name=dataset.name,
-            dataframe=deepcopy(dataset.data),
-            target=deepcopy(dataset.target)
-        )
-        df.target = self.__target_encoder.transform(df.target)
-        return df
+        if dataset.target is None or (dataset.target is not None and len(dataset.target) == 0):
+            raise Exception('The dataset has empty data!')
+        else:
+            df = Dataset(
+                name=dataset.name,
+                dataframe=deepcopy(dataset.data),
+                target=deepcopy(dataset.target)
+            )
+            if self.__target_encoder is not None:
+                df.target = self.__target_encoder.transform(df.target)
+            return df
 
     def predict(self, dataset: Dataset) -> Dataset:
         df = self.transform_data(dataset)
@@ -149,10 +162,10 @@ class Model(BaseTransformer, ABC):
     def set_transform_to_classes(self) -> None:
         self.__transform_to_probabilities = False
 
-    def get_train_dataset(self) -> Dataset:
+    def get_train_dataset(self) -> Optional[Dataset]:
         return self.__train_dataset
 
-    def get_test_dataset(self) -> Dataset:
+    def get_test_dataset(self) -> Optional[Dataset]:
         return self.__test_dataset
 
     def get_category_colnames(self) -> List[str]:
@@ -162,7 +175,10 @@ class Model(BaseTransformer, ABC):
                  ds: Optional[Dataset] = None) -> pd.DataFrame:
         results = {}
         if ds is None:
-            ds = self.__test_dataset
+            if self.__test_dataset is not None:
+                ds = self.__test_dataset
+            else:
+                raise Exception('There is not test dataset and the ds argument was not provided!')
         if metrics_output_class is None and metrics_output_probabilities is None:
             def f1_weighted(y_true, y_pred):
                 return f1_score(y_true, y_pred, average='weighted')
@@ -194,18 +210,23 @@ class _TargetEncode(BaseEstimator, TransformerMixin):
 
     def fit(self, y: pd.Series) -> _TargetEncode:
         names, counts = np.unique(y, return_counts=True)
-        if counts[0] < counts[1]:
-            index_min = 0
-            index_max = 1
+        if names is None:
+            raise Exception('The input vector is wrong!')
+        elif len(names) != 2:
+            raise Exception('The input vector do not has two classes!')
         else:
-            index_min = 1
-            index_max = 0
+            if counts[0] < counts[1]:
+                index_min = 0
+                index_max = 1
+            else:
+                index_min = 1
+                index_max = 0
 
-        self.mapping = {
-            names[index_min]: 1,
-            names[index_max]: 0
-        }
-        return self
+            self.mapping = {
+                names[index_min]: 1,
+                names[index_max]: 0
+            }
+            return self
 
     def transform(self, y: pd.Series) -> pd.Series:
         return y.map(self.mapping)
@@ -237,6 +258,8 @@ class ModelFromSKLEARN(Model):
     def _fit(self, dataset: Dataset) -> None:
         if dataset.target is None:
             raise Exception('Target data is not provided!')
+        if dataset.data is None:
+            raise Exception('Data in dataset is not provided!')
 
         if 'random_state' in self._model.get_params().keys() and \
                 self._model.get_params()['random_state'] is None and \
@@ -254,26 +277,24 @@ class ModelFromSKLEARN(Model):
             return False
 
     def _predict(self, dataset: Dataset, output_name: str) -> Dataset:
-        if isinstance(dataset.data, np.ndarray) and isinstance(self.get_train_dataset().data, pd.DataFrame):
-            dataset = deepcopy(dataset)
-            dataset.data = pd.DataFrame(dataset, columns=self.get_train_dataset().data.columns)
-
-        return Dataset(
-            name=output_name,
-            dataframe=None,
-            target=pd.Series(self._model.predict(dataset.data))
-        )
+        if dataset.data is None:
+            raise Exception('Data in dataset is not provided!')
+        else:
+            return Dataset(
+                name=output_name,
+                dataframe=None,
+                target=pd.Series(self._model.predict(dataset.data))
+            )
 
     def _predict_proba(self, dataset: Dataset, output_name: str) -> Dataset:
-        if isinstance(dataset.data, np.ndarray) and isinstance(self.get_train_dataset().data, pd.DataFrame):
-            dataset = deepcopy(dataset)
-            dataset.data = pd.DataFrame(dataset, columns=self.get_train_dataset().data.columns)
-
-        return Dataset(
-            name=output_name,
-            dataframe=None,
-            target=pd.Series(self._model.predict_proba(dataset.data)[:, 1])
-        )
+        if dataset.data is None:
+            raise Exception('Data in dataset is not provided!')
+        else:
+            return Dataset(
+                name=output_name,
+                dataframe=None,
+                target=pd.Series(self._model.predict_proba(dataset.data)[:, 1])
+            )
 
     def _set_params(self, **params) -> None:
         return self._model.set_params(**params)

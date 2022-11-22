@@ -8,7 +8,7 @@ from EDGAR.explain.PDPResult import PDPResult, Curve
 
 
 class PDPCalculator:
-    def __init__(self, model: Union, N: Optional[int] = None, curve_type: Literal['PDP', 'ALE'] = 'PDP') -> None:
+    def __init__(self, model: Model, N: Optional[int] = None, curve_type: Literal['PDP', 'ALE'] = 'PDP') -> None:
         self.model = model
         self.explainer = None
         self.name = model.name
@@ -20,10 +20,21 @@ class PDPCalculator:
             return model.predict_proba(Dataset('', data, None)).target
 
         dataset = self.model.get_test_dataset()
+
+        if dataset is None:
+            raise Exception('Error with dataset!')
+
+        if dataset.target is None:
+            raise Exception('Target data is not provided!')
+        if dataset.data is None:
+            raise Exception('Data in dataset is not provided!')
+
         self.explainer = dx.Explainer(self.model, dataset.data, dataset.target, label=dataset.name, verbose=False,
                                       predict_function=predict_func)
 
     def transform(self, variables: Optional[List[str]] = None) -> PDPResult:
+        if self.explainer is None:
+            raise Exception('Explainer was not created!')
         category_colnames_base = self.model.get_category_colnames()
         dict_output = {}
 

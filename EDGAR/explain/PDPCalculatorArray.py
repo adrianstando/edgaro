@@ -11,8 +11,6 @@ from EDGAR.explain.PDPResult import PDPResult
 class PDPCalculatorArray:
     def __init__(self, models: Union[Model, ModelArray], N: Optional[int] = None,
                  curve_type: Literal['PDP', 'ALE'] = 'PDP') -> None:
-        if isinstance(models, Model):
-            models = ModelArray
         self.models = models
         self.sub_calculators = None
         self.name = models.name
@@ -32,6 +30,8 @@ class PDPCalculatorArray:
         self.sub_calculators = [create_sub_calculator(m) for m in self.models.get_models()]
 
     def transform(self, variables=None) -> List[PDPResult]:
+        if self.sub_calculators is None:
+            raise Exception('Calculator was not fitted!')
         if variables is None:
             return [calc.transform() for calc in self.sub_calculators]
         else:
@@ -49,6 +49,8 @@ class PDPCalculatorArray:
         return self
 
     def __next__(self) -> PDPCalculator:
+        if self.sub_calculators is None:
+            raise StopIteration
         if self.current_i < len(self.sub_calculators):
             out = self.sub_calculators[self.current_i]
             self.current_i += 1
@@ -57,7 +59,13 @@ class PDPCalculatorArray:
             raise StopIteration
 
     def __str__(self) -> str:
-        return f"PDPCalculatorArray with {len(self.sub_calculators) if self.sub_calculators is not None else 0} calculators with {self.curve_type} curve type"
+        length = 0
+        if self.sub_calculators is not None:
+            length = len(self.sub_calculators)
+        return f"PDPCalculatorArray with {length} calculators with {self.curve_type} curve type"
 
     def __repr__(self) -> str:
-        return f"<PDPCalculatorArray with {len(self.sub_calculators) if self.sub_calculators is not None else 0} calculators with {self.curve_type} curve type>"
+        length = 0
+        if self.sub_calculators is not None:
+            length = len(self.sub_calculators)
+        return f"<PDPCalculatorArray with {length} calculators with {self.curve_type} curve type>"

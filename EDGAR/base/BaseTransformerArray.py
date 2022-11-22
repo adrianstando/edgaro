@@ -102,7 +102,7 @@ class BaseTransformerArray:
             for i in range(len(self.__transformers)):
                 self.__transformers[i].set_params(**tmp[i])
 
-    def get_params(self) -> Optional[Dict[str, Any]]:
+    def get_params(self) -> Optional[List[Dict[str, Any]]]:
         return self.__parameters
 
     @property
@@ -139,11 +139,11 @@ class BaseTransformerArray:
             raise Exception('Transformers were not set since Transformer has already been fitted!')
 
     @property
-    def base_transformer(self) -> Union[BaseTransformer, BaseTransformerArray, List[Any]]:
+    def base_transformer(self) -> BaseTransformer:
         return self.__base_transformer
 
     @base_transformer.setter
-    def base_transformer(self, val: Union[BaseTransformer, BaseTransformerArray, List[Any]]):
+    def base_transformer(self, val: BaseTransformer):
         if not self.was_fitted:
             self.__transformers = val
         else:
@@ -153,9 +153,10 @@ class BaseTransformerArray:
         return len(self.__transformers)
 
     def __getitem__(self, key: Union[int, List[int]]) -> Optional[
-                    Union[BaseTransformer, BaseTransformerArray, List[Union[BaseTransformer, BaseTransformerArray]]]]:
+                    Union[BaseTransformer, BaseTransformerArray, List[Any]]]:
         if isinstance(key, list):
             out = [self.__getitem__(k) for k in key]
+            out = [o for o in out if o is not None]
             if len(out) == 0:
                 return None
             else:

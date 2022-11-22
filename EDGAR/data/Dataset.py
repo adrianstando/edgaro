@@ -20,8 +20,8 @@ class Dataset:
         self.__data = dataframe
         self.__target = target
 
-        self.__train_dataset = None
-        self.__test_dataset = None
+        self.__train_dataset: Optional[Dataset] = None
+        self.__test_dataset: Optional[Dataset] = None
 
     @property
     def data(self) -> Optional[pd.DataFrame]:
@@ -158,37 +158,41 @@ class Dataset:
             return False
         if self.name != other.name:
             return False
-        if not self.data.equals(other.data):
+        if self.data is not None and not self.data.equals(other.data):
             return False
-        if not self.target.equals(other.target):
+        if self.target is not None and not self.target.equals(other.target):
             return False
         return True
 
     def remove_nans(self, col_thresh=0.9) -> None:
-        nans = self.data.isnull().sum() / self.data.shape[0]
-        nans = list(nans[nans > col_thresh].index)
-        self.data.drop(nans, axis=1, inplace=True)
+        if self.data is not None:
+            nans = self.data.isnull().sum() / self.data.shape[0]
+            nans = list(nans[nans > col_thresh].index)
+            self.data.drop(nans, axis=1, inplace=True)
 
-        nans = self.data.isna().any(axis=1)
-        nans = list(nans[nans].index)
-        self.data.drop(nans, axis=0, inplace=True)
-        self.target.drop(nans, axis=0, inplace=True)
+            nans = self.data.isna().any(axis=1)
+            nans = list(nans[nans].index)
+            self.data.drop(nans, axis=0, inplace=True)
+            if self.target is not None:
+                self.target.drop(nans, axis=0, inplace=True)
 
-        nans = self.target.isna()
-        nans = list(nans[nans].index)
-        self.data.drop(nans, axis=0, inplace=True)
-        self.target.drop(nans, axis=0, inplace=True)
+            nans = self.target.isna()
+            nans = list(nans[nans].index)
+            self.data.drop(nans, axis=0, inplace=True)
+            if self.target is not None:
+                self.target.drop(nans, axis=0, inplace=True)
 
     def remove_outliers(self, n_std: Union[float, int] = 3) -> None:
-        categorical_columns = list(self.data.select_dtypes(include=['category', 'object', 'int']))
-        numerical_columns = list(set(self.data.columns).difference(categorical_columns))
+        if self.data is not None and self.target is not None:
+            categorical_columns = list(self.data.select_dtypes(include=['category', 'object', 'int']))
+            numerical_columns = list(set(self.data.columns).difference(categorical_columns))
 
-        for col in numerical_columns:
-            mean = self.data[col].mean()
-            std = self.data[col].std()
-            index = np.logical_and(self.data[col] <= mean + (n_std * std), (self.data[col] >= mean - (n_std * std)))
-            self.data = self.data[index]
-            self.target = self.target[index]
+            for col in numerical_columns:
+                mean = self.data[col].mean()
+                std = self.data[col].std()
+                index = np.logical_and(self.data[col] <= mean + (n_std * std), (self.data[col] >= mean - (n_std * std)))
+                self.data = self.data[index]
+                self.target = self.target[index]
 
     def __str__(self) -> str:
         out = f"Name: {self.name}"

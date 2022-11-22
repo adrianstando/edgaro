@@ -21,7 +21,9 @@ class DatasetArray:
 
     def __getitem__(self, key: Union[Union[str, int], List[Union[str, int]]]) -> Optional[Union[DatasetArray, Dataset]]:
         if isinstance(key, list):
-            out = DatasetArray([self.__getitem__(k) for k in key])
+            outs = [self.__getitem__(k) for k in key]
+            outs = [o for o in outs if o is not None]
+            out = DatasetArray(outs)
             if len(out) == 0:
                 return None
             else:
@@ -114,10 +116,12 @@ class DatasetArray:
         self.datasets = [dataset
                          for dataset in self.datasets
                          if isinstance(dataset, DatasetArray) or (
-                                 isinstance(dataset, Dataset) and len(dataset.target) != 0 and len(dataset.data) != 0)
+                                 isinstance(dataset, Dataset) and
+                                 dataset.target is not None and len(dataset.target) != 0 and
+                                 dataset.data is not None and len(dataset.data) != 0)
                          ]
 
-    def append(self, other: Union[Dataset, DatasetArray, List[Dataset, DatasetArray]]) -> None:
+    def append(self, other: Union[Dataset, DatasetArray, List[Union[Dataset, DatasetArray]]]) -> None:
         if isinstance(other, list):
             self.datasets += other
         else:
@@ -142,17 +146,20 @@ class DatasetArrayFromOpenMLSuite(DatasetArray):
         benchmark_suite = openml.study.get_suite(suite_name)
 
         dataset_array = []
-        for i in benchmark_suite.data:
-            try:
-                ds = DatasetFromOpenML(task_id=i, apikey=apikey)
-                dataset_array.append(ds)
-            except openml.exceptions.OpenMLServerException:
-                print(f'The dataset numer {i} was not downloaded due to the server exception!')
+        if benchmark_suite.data is None:
+            raise Exception('No data was downloaded!')
+        else:
+            for i in benchmark_suite.data:
+                try:
+                    ds = DatasetFromOpenML(task_id=i, apikey=apikey)
+                    dataset_array.append(ds)
+                except openml.exceptions.OpenMLServerException:
+                    print(f'The dataset numer {i} was not downloaded due to the server exception!')
 
-        self.__openml_name = benchmark_suite.name if 'name' in benchmark_suite.__dict__.keys() else ''
-        self.__openml_description = benchmark_suite.description if 'description' in benchmark_suite.__dict__.keys() else ''
+            self.__openml_name = benchmark_suite.name if 'name' in benchmark_suite.__dict__.keys() else ''
+            self.__openml_description = benchmark_suite.description if 'description' in benchmark_suite.__dict__.keys() else ''
 
-        super().__init__(datasets=dataset_array, name=name)
+            super().__init__(datasets=dataset_array, name=name)
 
     def openml_description(self) -> str:
         return "Name: " + self.__openml_name + '\n' + 'Description: ' + '\n' + self.__openml_description
