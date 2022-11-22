@@ -2,7 +2,7 @@ import warnings
 import pandas as pd
 
 from abc import ABC, abstractmethod
-from typing import Dict, Protocol, Any, Tuple
+from typing import Dict, Protocol, Any, Tuple, Optional, List
 from copy import deepcopy
 from imblearn.under_sampling import RandomUnderSampler as RUS
 from imblearn.over_sampling import RandomOverSampler as ROS
@@ -151,11 +151,12 @@ class RandomOverSampler(TransformerFromIMBLEARN):
 
 class SMOTE(TransformerFromIMBLEARN):
     def __init__(self, imbalance_ratio: float = 1, name_sufix: str = '_transformed',
-                 random_state: int = None, *args, **kwargs) -> None:
+                 random_state: int = None, columns_categorical: Optional[List[str]] = None, *args, **kwargs) -> None:
         self.__sampling_strategy = 1 / imbalance_ratio
         self.__random_state = random_state
         self.__args = args
         self.__kwargs = kwargs
+        self.__given_columns_categorical = columns_categorical
         transformer = SM_C(sampling_strategy=1 / imbalance_ratio, random_state=random_state, *args, **kwargs)
         super().__init__(transformer=transformer, name_sufix=name_sufix)
 
@@ -165,7 +166,10 @@ class SMOTE(TransformerFromIMBLEARN):
         if dataset.data is None:
             raise Exception('Data in dataset is not provided!')
 
-        columns_categorical = list(dataset.data.select_dtypes(include=['category', 'object', 'int']))
+        if self.__given_columns_categorical is not None:
+            columns_categorical = self.__given_columns_categorical
+        else:
+            columns_categorical = list(dataset.data.select_dtypes(include=['category', 'object', 'int']))
 
         if len(columns_categorical) > 0:
             columns = dataset.data.columns
