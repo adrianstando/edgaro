@@ -22,7 +22,7 @@ class Curve:
         return f"<Curve with {len(self.x)} points>"
 
 
-class PDPResult:
+class ExplainerResult:
     def __init__(self, results: Dict[str, Curve], name: str, categorical_columns: List[str],
                  curve_type: Literal['PDP', 'ALE'] = 'PDP') -> None:
         self.results = results
@@ -119,7 +119,7 @@ class PDPResult:
         plt.xlabel(variable)
 
     def plot(self, variable: str, figsize: Optional[Tuple[int, int]] = (8, 8),
-             add_plot: Optional[List[PDPResult]] = None, ax: Optional[Axes] = None,
+             add_plot: Optional[List[ExplainerResult]] = None, ax: Optional[Axes] = None,
              show_legend: bool = True, y_lim: Optional[Tuple[float, float]] = None
              ) -> None:
         if figsize is None and ax is None:
@@ -142,7 +142,7 @@ class PDPResult:
             else:
                 self.__plot_add(variable, ax, figsize, curve_base, curves_add, add_plot, show_legend, y_lim)
 
-    def compare(self, other: PDPResult, variable: Optional[Union[str, List[str]]] = None) -> np.ndarray:
+    def compare(self, other: ExplainerResult, variable: Optional[Union[str, List[str]]] = None) -> np.ndarray:
         if isinstance(variable, str):
             if self[variable] is None:
                 raise Exception('Variable is not available!')
@@ -165,7 +165,7 @@ class PDPResult:
                 )
 
     def __str__(self) -> str:
-        return f"PDPResult {self.name} for {len(self.results.keys())} variables: {list(self.results.keys())} with {self.curve_type} curve type"
+        return f"ExplainerResult {self.name} for {len(self.results.keys())} variables: {list(self.results.keys())} with {self.curve_type} curve type"
 
     def __repr__(self) -> str:
-        return f"<PDPResult {self.name} with {self.curve_type} curve type>"
+        return f"<ExplainerResult {self.name} with {self.curve_type} curve type>"

@@ -1,13 +1,13 @@
 import dalex as dx
 
-from typing import List, Optional, Union, Literal, Dict, Any
+from typing import List, Optional, Literal, Dict, Any
 
-from EDGAR.data.Dataset import Dataset
-from EDGAR.model.Model import Model
-from EDGAR.explain.PDPResult import PDPResult, Curve
+from EDGAR.data.dataset import Dataset
+from EDGAR.model.model import Model
+from EDGAR.explain.explainer_result import ExplainerResult, Curve
 
 
-class PDPCalculator:
+class Explainer:
     def __init__(self, model: Model, N: Optional[int] = None, curve_type: Literal['PDP', 'ALE'] = 'PDP') -> None:
         self.model = model
         self.explainer = None
@@ -32,9 +32,9 @@ class PDPCalculator:
         self.explainer = dx.Explainer(self.model, dataset.data, dataset.target, label=dataset.name, verbose=False,
                                       predict_function=predict_func)
 
-    def transform(self, variables: Optional[List[str]] = None) -> PDPResult:
+    def transform(self, variables: Optional[List[str]] = None) -> ExplainerResult:
         if self.explainer is None:
-            raise Exception('Explainer was not created!')
+            raise Exception('Explainer was not fitted!')
         category_colnames_base = self.model.get_category_colnames()
         dict_output = {}
 
@@ -72,7 +72,7 @@ class PDPCalculator:
                 higher = int((i + 1) * length)
                 dict_output[str(variable_names[i])] = Curve(x[lower:higher], y[lower:higher])
 
-        return PDPResult(dict_output, self.name, self.model.get_category_colnames())
+        return ExplainerResult(dict_output, self.name, self.model.get_category_colnames())
 
     def set_params(self, **params) -> None:
         if 'model' in params.keys():
@@ -85,7 +85,7 @@ class PDPCalculator:
         }
 
     def __str__(self) -> str:
-        return f"PDPCalculator for model {self.name} with {self.curve_type} curve type"
+        return f"Explainer for model {self.name} with {self.curve_type} curve type"
 
     def __repr__(self) -> str:
-        return f"<PDPCalculator for model {self.name} with {self.curve_type} curve type>"
+        return f"<Explainer for model {self.name} with {self.curve_type} curve type>"

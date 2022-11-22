@@ -4,10 +4,10 @@ import pandas as pd
 
 from typing import Optional, List, Dict, Any, Union
 
-from EDGAR.base.BaseTransformerArray import BaseTransformerArray
-from EDGAR.model.Model import Model
-from EDGAR.data.Dataset import Dataset
-from EDGAR.data.DatasetArray import DatasetArray
+from EDGAR.base.base_transformer_array import BaseTransformerArray
+from EDGAR.model.model import Model
+from EDGAR.data.dataset import Dataset
+from EDGAR.data.dataset_array import DatasetArray
 
 
 class ModelArray(BaseTransformerArray):

@@ -1,6 +1,6 @@
 import pandas as pd
 import pytest
-from EDGAR.data.Dataset import Dataset, DatasetFromCSV, DatasetFromOpenML
+from EDGAR.data.dataset import Dataset, DatasetFromCSV, DatasetFromOpenML
 import re
 from copy import deepcopy
 from .resources.objects import *

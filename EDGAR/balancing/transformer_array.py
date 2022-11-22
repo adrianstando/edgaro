@@ -4,10 +4,10 @@ import numpy as np
 
 from typing import List, Dict, Optional, Any, Union
 
-from EDGAR.data.Dataset import Dataset
-from EDGAR.data.DatasetArray import DatasetArray
-from EDGAR.base.BaseTransformerArray import BaseTransformerArray
-from EDGAR.balancing.Transformer import Transformer, RandomUnderSampler, RandomOverSampler, SMOTE
+from EDGAR.data.dataset import Dataset
+from EDGAR.data.dataset_array import DatasetArray
+from EDGAR.base.base_transformer_array import BaseTransformerArray
+from EDGAR.balancing.transformer import Transformer, RandomUnderSampler, RandomOverSampler, SMOTE
 
 
 class TransformerArray(BaseTransformerArray):

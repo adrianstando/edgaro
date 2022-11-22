@@ -7,7 +7,7 @@ import numpy as np
 
 from typing import List, Union, Optional
 
-from EDGAR.data.Dataset import Dataset, DatasetFromOpenML
+from EDGAR.data.dataset import Dataset, DatasetFromOpenML
 
 
 class DatasetArray:

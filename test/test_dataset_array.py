@@ -1,6 +1,6 @@
 import pytest
-from EDGAR.data.DatasetArray import DatasetArray, DatasetArrayFromOpenMLSuite
-from EDGAR.data.Dataset import Dataset, DatasetFromOpenML
+from EDGAR.data.dataset_array import DatasetArray, DatasetArrayFromOpenMLSuite
+from EDGAR.data.dataset import Dataset, DatasetFromOpenML
 from copy import deepcopy
 import re
 from .resources.objects import *

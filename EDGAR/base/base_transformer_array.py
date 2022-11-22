@@ -5,9 +5,9 @@ import numpy as np
 from typing import List, Dict, Optional, Any, Union
 from copy import deepcopy
 
-from EDGAR.data.Dataset import Dataset
-from EDGAR.data.DatasetArray import DatasetArray
-from EDGAR.base.BaseTransformer import BaseTransformer
+from EDGAR.data.dataset import Dataset
+from EDGAR.data.dataset_array import DatasetArray
+from EDGAR.base.base_transformer import BaseTransformer
 
 
 class BaseTransformerArray:

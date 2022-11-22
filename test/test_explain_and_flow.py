@@ -1,13 +1,13 @@
 import pytest
-from EDGAR.data.Dataset import DatasetFromOpenML, Dataset
-from EDGAR.balancing.Transformer import TransformerFromIMBLEARN, RandomUnderSampler as RUS
-from EDGAR.balancing.TransformerArray import TransformerArray
+from EDGAR.data.dataset import DatasetFromOpenML, Dataset
+from EDGAR.balancing.transformer import TransformerFromIMBLEARN, RandomUnderSampler as RUS
+from EDGAR.balancing.transformer_array import TransformerArray
 from imblearn.under_sampling import RandomUnderSampler
-from EDGAR.model.Model import RandomForest
-from EDGAR.model.ModelArray import ModelArray
-from EDGAR.explain.PDPCalculator import PDPCalculator
-from EDGAR.explain.PDPCalculatorArray import PDPCalculatorArray
-from EDGAR.data.DatasetArray import DatasetArray
+from EDGAR.model.model import RandomForest
+from EDGAR.model.model_array import ModelArray
+from EDGAR.explain.explainer import Explainer
+from EDGAR.explain.explainer_array import ExplainerArray
+from EDGAR.data.dataset_array import DatasetArray
 from sklearn.metrics import accuracy_score
 from copy import deepcopy
 from .resources.objects import *
@@ -34,7 +34,7 @@ def test_flow(df):
         y = rf.predict(test)
         accuracy_score(y.target, rf.transform_target(test).target)
 
-        pdp = PDPCalculator(rf, N=10)
+        pdp = Explainer(rf, N=10)
         pdp.fit()
 
         str(pdp)
@@ -89,7 +89,7 @@ def test_flow_array(df):
             y = m.predict(test)
             accuracy_score(y.target, m.transform_target(test).target)
 
-        pdp = PDPCalculatorArray(rf, N=10)
+        pdp = ExplainerArray(rf, N=10)
         pdp.fit()
 
         str(pdp)
@@ -119,7 +119,7 @@ def test_flow_array(df):
         with pytest.raises(Exception):
             t_2[0].plot(variable=df[0].data.columns[2])
 
-        ale = PDPCalculatorArray(rf, N=10, curve_type='ALE')
+        ale = ExplainerArray(rf, N=10, curve_type='ALE')
         ale.fit()
 
         str(ale)
@@ -175,7 +175,7 @@ def test_flow_array_of_arrays(df):
 
         evaluate(rf)
 
-        pdp = PDPCalculatorArray(rf, N=10)
+        pdp = ExplainerArray(rf, N=10)
         pdp.fit()
 
         str(pdp)
@@ -209,7 +209,7 @@ def test_flow_array_of_arrays(df):
         with pytest.raises(Exception):
             t_2[0].plot(variable=df[0].data.columns[2])
 
-        ale = PDPCalculatorArray(rf, N=10, curve_type='ALE')
+        ale = ExplainerArray(rf, N=10, curve_type='ALE')
         ale.fit()
 
         str(ale)

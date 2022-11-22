@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Any
 
-from EDGAR.data.Dataset import Dataset
+from EDGAR.data.dataset import Dataset
 
 
 class BaseTransformer(ABC):

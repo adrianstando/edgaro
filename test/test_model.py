@@ -4,8 +4,8 @@ from copy import deepcopy
 import pandas as pd
 import pytest
 from sklearn.ensemble import RandomForestClassifier
-from EDGAR.data.Dataset import Dataset, DatasetFromOpenML
-from EDGAR.model.Model import RandomForest, ModelFromSKLEARN, XGBoost, RandomSearchCV, GridSearchCV
+from EDGAR.data.dataset import Dataset, DatasetFromOpenML
+from EDGAR.model.model import RandomForest, ModelFromSKLEARN, XGBoost, RandomSearchCV, GridSearchCV
 from .resources.objects import *
 
 

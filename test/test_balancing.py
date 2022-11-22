@@ -1,8 +1,8 @@
 import pytest
 from imblearn.under_sampling import RandomUnderSampler
 from imblearn.over_sampling import RandomOverSampler
-from EDGAR.balancing.Transformer import TransformerFromIMBLEARN
-from EDGAR.data.Dataset import Dataset
+from EDGAR.balancing.transformer import TransformerFromIMBLEARN
+from EDGAR.data.dataset import Dataset
 from .resources.objects import *
 
 
