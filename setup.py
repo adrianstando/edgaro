@@ -12,10 +12,11 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/adrianstando/EDGAR",
-    author="Adrian Stańdo",  # Optional
-    author_email="adrian.j.stando@gmail.com",  # Optional
+    author="Adrian Stańdo",
+    author_email="adrian.j.stando@gmail.com",
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
+        # 'Development Status :: 5 - Production/Stable',
         "Intended Audience :: Science/Research",
         "Topic :: Scientific/Engineering",
         "Topic :: Scientific/Engineering :: Artificial Intelligence"
@@ -42,7 +43,8 @@ setup(
         'pytest>=7.1.3',
         'scikit-learn>=1.1.0',
         'imblearn>=0.0',
-        'xgboost>=1.5.0'
+        'xgboost>=1.5.0',
+        'scipy>=1.7.3'
     ],
     project_urls={
         "Repository": "https://github.com/adrianstando/EDGAR"

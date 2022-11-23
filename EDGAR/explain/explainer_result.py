@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from typing import Dict, Union, Tuple, List, Optional, Literal
 from numpy import ndarray
 from matplotlib.axes import Axes
+from scipy.stats import fligner
 
 
 class Curve:
@@ -36,8 +37,35 @@ class ExplainerResult:
         else:
             return None
 
+    def plot(self, variable: str, figsize: Optional[Tuple[int, int]] = (8, 8),
+             add_plot: Optional[List[ExplainerResult]] = None, ax: Optional[Axes] = None,
+             show_legend: bool = True, y_lim: Optional[Tuple[float, float]] = None
+             ) -> None:
+        if figsize is None and ax is None:
+            figsize = (8, 8)
+
+        if add_plot is None:
+            ExplainerResult.__plot_not_add(self.results, self.categorical_columns, self.curve_type, self.name,
+                                           variable, ax, figsize, show_legend, y_lim)
+        else:
+            curve_base = self.results[variable]
+            if curve_base is None:
+                raise Exception('Variable is not available!')
+
+            curves_add = [pdp.results[variable] for pdp in add_plot]
+            if None in curves_add:
+                warnings.warn(f'There is not variable {variable} in one of the added plots!')
+
+            if len(curves_add) == 0:
+                warnings.warn(f'None of the added plots have variable called {variable}!')
+                ExplainerResult.__plot_not_add(self.results, self.categorical_columns, self.curve_type, self.name,
+                                               variable, ax, figsize, show_legend, y_lim)
+            else:
+                self.__plot_add(variable, ax, figsize, curve_base, curves_add, add_plot, show_legend, y_lim)
+
     @staticmethod
-    def __plot_not_add(results, categorical_columns, curve_type, name, variable, ax, figsize, show_legend, y_lim) -> None:
+    def __plot_not_add(results, categorical_columns, curve_type, name, variable, ax, figsize, show_legend,
+                       y_lim) -> None:
         curve = results[variable]
         if curve is None:
             raise Exception('Variable is not available!')
@@ -122,53 +150,62 @@ class ExplainerResult:
             plt.ylim(y_lim)
         plt.xlabel(variable)
 
-    def plot(self, variable: str, figsize: Optional[Tuple[int, int]] = (8, 8),
-             add_plot: Optional[List[ExplainerResult]] = None, ax: Optional[Axes] = None,
-             show_legend: bool = True, y_lim: Optional[Tuple[float, float]] = None
-             ) -> None:
-        if figsize is None and ax is None:
-            figsize = (8, 8)
+        if len(add_plot) >= 2:
+            ax = plt.gca()
+            y_min, y_max = ax.get_ylim()
+            x_min, x_max = ax.get_xlim()
+            ax.text(
+                x_min + 0.8 * (x_max - x_min),
+                y_min + 0.2 * (y_max - y_min),
+                f'p-value={self.compare(add_plot, variable=variable)}',
+                fontsize='large'
+            )
 
-        if add_plot is None:
-            ExplainerResult.__plot_not_add(self.results, self.categorical_columns, self.curve_type, self.name,
-                                           variable, ax, figsize, show_legend, y_lim)
+    @staticmethod
+    def __retrieve_explainer_results(inp, explain_results_in):
+        if isinstance(inp, ExplainerResult):
+            explain_results_in.append(inp)
         else:
-            curve_base = self.results[variable]
-            if curve_base is None:
-                raise Exception('Variable is not available!')
-
-            curves_add = [pdp.results[variable] for pdp in add_plot]
-            if None in curves_add:
-                warnings.warn(f'There is not variable {variable} in one of the added plots!')
-
-            if len(curves_add) == 0:
-                warnings.warn(f'None of the added plots have variable called {variable}!')
-                ExplainerResult.__plot_not_add(self.results, self.categorical_columns, self.curve_type, self.name,
-                                               variable, ax, figsize, show_legend, y_lim)
+            if isinstance(inp, list):
+                for inp_i in inp:
+                    ExplainerResult.__retrieve_explainer_results(inp_i, explain_results_in)
             else:
-                self.__plot_add(variable, ax, figsize, curve_base, curves_add, add_plot, show_legend, y_lim)
+                for inp_i in inp.results:
+                    ExplainerResult.__retrieve_explainer_results(inp_i, explain_results_in)
 
-    def compare(self, other: ExplainerResult, variable: Optional[Union[str, List[str]]] = None) -> np.ndarray:
+    def compare(self, other: List[ExplainerResult], variable: Optional[Union[str, List[str]]] = None) -> float:
+        if len(other) < 2:
+            raise Exception('Not enough ExplainerResult objects were provided! At least two are needed!')
         if isinstance(variable, str):
             if self[variable] is None:
                 raise Exception('Variable is not available!')
 
-            if other[variable] is None:
+            explain_results = []
+            ExplainerResult.__retrieve_explainer_results(other, explain_results)
+
+            if np.all([o[variable] is None for o in explain_results]):
                 raise Exception('Variable in \'other\' is not available!')
 
-            y_this = self.results[variable].y
-            y_other = other.results[variable].y
-            return np.sum(np.abs(y_this - y_other))
+            distances_to_original = [
+                res[variable].y - self[variable].y
+                for res in explain_results
+            ]
+
+            _, out = fligner(*distances_to_original)
         else:
             if variable is None:
                 variable_all = list(self.results.keys())
-                return np.mean(
+                out = np.mean(
                     [self.compare(variable=var, other=other) for var in variable_all]
                 )
             else:
-                return np.mean(
+                out = np.mean(
                     [self.compare(variable=var, other=other) for var in variable]
                 )
+        if np.isscalar(out):
+            return float(out)
+        else:
+            raise Exception('Wrong output!')
 
     def __str__(self) -> str:
         return f"ExplainerResult {self.name} for {len(self.results.keys())} variables: {list(self.results.keys())} with {self.curve_type} curve type"

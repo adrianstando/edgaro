@@ -108,9 +108,9 @@ def test_flow_array(df):
 
         t[0].plot(variable=df[0].data.columns[0], add_plot=[t1[0]])
 
-        t[0].compare(t1[0])
-        t[0].compare(t1[0], variable=df[0].data.columns[0])
-        t[0].compare(t1[0], variable=[df[0].data.columns[0], df[0].data.columns[1]])
+        t[0].compare([t1[0], t1[0]])
+        t[0].compare([t1[0], t1[0]], variable=df[0].data.columns[0])
+        t[0].compare([t1[0], t1[0]], variable=[df[0].data.columns[0], df[0].data.columns[1]])
 
         t_2 = pdp.transform(variables=[df[0].data.columns[0], df[0].data.columns[1]])
         t_2[0].plot(variable=df[0].data.columns[0])
@@ -194,9 +194,9 @@ def test_flow_array_of_arrays(df):
 
         t[0].plot(variable=df[0].data.columns[0], add_plot=[t1[0]])
 
-        t[0].compare(t1[0])
-        t[0].compare(t1[0], variable=df[0].data.columns[0])
-        t[0].compare(t1[0], variable=[df[0].data.columns[0], df[0].data.columns[1]])
+        t[0].compare([t1[0], t1[0]])
+        t[0].compare([t1[0], t1[0]], variable=df[0].data.columns[0])
+        t[0].compare([t1[0], t1[0]], variable=[df[0].data.columns[0], df[0].data.columns[1]])
 
         # there are also datasets, which don't contain given columns
         t_2 = pdp.transform(variables=[df[0].data.columns[0], df[0].data.columns[1]])
