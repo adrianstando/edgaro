@@ -49,7 +49,7 @@ class Explainer:
             self.explainer = dx.Explainer(self.model, dataset.data, dataset.target, label=dataset.name,
                                           verbose=self.verbose, predict_function=predict_func)
             if not self.verbose:
-                sys.stdout = sys.stdout = sys.__stdout__
+                sys.stdout = sys.__stdout__
 
         if self.verbose:
             print_unbuffered(f'dalex explainer inside {self.__repr__()} was created with {dataset.name}')
