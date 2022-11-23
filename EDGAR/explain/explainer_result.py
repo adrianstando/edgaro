@@ -105,7 +105,7 @@ class ExplainerResult:
             plt.plot(curve.x, curve.y)
 
     @staticmethod
-    def __plot_add_categorical(name, variable, ax, figsize, curve_base, curves_add, add_plot_names) -> None:
+    def __plot_add_categorical(name, variable, ax, figsize, curve_base, curves_add, add_plot_names, title) -> None:
         df = pd.DataFrame({
             'x': curves_add[0].x,
             name: curve_base.y
@@ -114,9 +114,9 @@ class ExplainerResult:
             df[add_plot_names[i]] = curves_add[i].y
 
         if ax is not None:
-            df.plot(x='x', kind='bar', ax=ax, legend=False, xlabel=variable)
+            df.plot(x='x', kind='bar', ax=ax, legend=False, xlabel=variable, title=title)
         else:
-            df.plot(x='x', kind='bar', figsize=figsize, legend=False, xlabel=variable)
+            df.plot(x='x', kind='bar', figsize=figsize, legend=False, xlabel=variable, title=title)
 
         plt.xticks(rotation=0)
 
@@ -131,18 +131,12 @@ class ExplainerResult:
                 p += 1
 
         if variable not in self.categorical_columns:
-            self.__plot_add_continuous(ax, figsize, curve_base, curves_add)
-
+            ExplainerResult.__plot_add_continuous(ax, figsize, curve_base, curves_add)
+            plt.title(f"{self.curve_type} curve for variable: " + variable)
         else:
             ExplainerResult.__plot_add_categorical(self.name, variable, ax, figsize,
-                                                   curve_base, curves_add, add_plot_names)
-
-        if self.curve_type == 'PDP':
-            plt.title("PDP curve for variable: " + variable)
-        elif self.curve_type == 'ALE':
-            plt.title("ALE curve for variable: " + variable)
-        else:
-            raise Exception('Wrong curve type!')
+                                                   curve_base, curves_add, add_plot_names,
+                                                   f"{self.curve_type} curve for variable: " + variable)
 
         if show_legend:
             plt.legend([self.name] + add_plot_names)
@@ -151,13 +145,14 @@ class ExplainerResult:
         plt.xlabel(variable)
 
         if len(add_plot) >= 2:
-            ax = plt.gca()
+            if ax is None:
+                ax = plt.gca()
             y_min, y_max = ax.get_ylim()
             x_min, x_max = ax.get_xlim()
             ax.text(
                 x_min + 0.8 * (x_max - x_min),
                 y_min + 0.2 * (y_max - y_min),
-                f'p-value={self.compare(add_plot, variable=variable)}',
+                f'p-value={self.compare(add_plot, variable=variable):.3f}',
                 fontsize='large'
             )
 
