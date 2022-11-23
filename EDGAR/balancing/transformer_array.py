@@ -111,8 +111,10 @@ class TransformerArray(BaseTransformerArray):
                     for j in range(len(self.transformers[i])):
                         if len(self.__dataset_suffixes) == 1:
                             self.transformers[i][j].set_dataset_suffixes(self.__dataset_suffixes[0] + '_' + str(j))
-                        elif len(self.__dataset_suffixes) == len(self.transformers):
-                            self.transformers[i][j].set_dataset_suffixes(self.__dataset_suffixes[j])
+                        elif len(self.__dataset_suffixes[i]) == len(self.transformers[i]):
+                            self.transformers[i].set_dataset_suffixes(self.__dataset_suffixes[i])
+                        elif len(self.__dataset_suffixes) == len(self.transformers[i]):
+                            self.transformers[i].set_dataset_suffixes(self.__dataset_suffixes[i])
                         else:
                             raise Exception('Wrong length of dataset_suffixes!')
 

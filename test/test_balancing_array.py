@@ -386,9 +386,9 @@ def test_params_in_arguments_and_sufix(imblearn_sampler, ds, param, sufix):
     assert len(sufix) == len(out)
 
     for j in range(len(out)):
-        ds_array = out[j]
-        expected_names = [ds.datasets[j].name + sufix[i] for i in range(len(ds.datasets))]
-        assert np.alltrue([d.name in expected_names for d in ds_array])
+        for k in range(len(out[j])):
+            out_tmp = out[j][k]
+            assert out_tmp.name == ds[j].name + sufix[j] + '_' + str(k)
 
 
 @pytest.mark.parametrize('imblearn_sampler', [
@@ -446,9 +446,9 @@ def test_params_in_arguments_and_sufix_2(imblearn_sampler, ds, param, sufix):
     assert len(param) == len(out)
 
     for j in range(len(out)):
-        ds_array = out[j]
-        expected_names = [ds.datasets[j].name + sufix[0] + '_' + str(i) for i in range(len(ds.datasets))]
-        assert np.alltrue([d.name in expected_names for d in ds_array])
+        for k in range(len(out[j])):
+            out_tmp = out[j][k]
+            assert out_tmp.name == ds[j].name + sufix[0] + '_' + str(j) + '_' + str(k)
 
 
 def test_over_under_sampler():
