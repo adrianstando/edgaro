@@ -139,10 +139,11 @@ class TransformerArray(BaseTransformerArray):
             self.transformers[i] = self.__base_transformer_array_to_balancing_transformer_array(
                 self.transformers[i])
 
-    def __base_transformer_array_to_balancing_transformer_array(self, base: Any) -> Any:
+    def __base_transformer_array_to_balancing_transformer_array(self, base: Union[
+            Transformer, TransformerArray, BaseTransformerArray]) -> Union[Transformer, TransformerArray]:
         if isinstance(base, Transformer):
             return base
-        elif not isinstance(base, TransformerArray):
+        elif not isinstance(base, TransformerArray) and isinstance(base, BaseTransformerArray):
             out = TransformerArray(base_transformer=self.base_transformer)
             out.__class__ = self.__class__
             for key, val in base.__dict__.items():
@@ -153,19 +154,23 @@ class TransformerArray(BaseTransformerArray):
             return base
 
     @property
-    def transformers(self) -> List[Union[Transformer, TransformerArray, List[Any]]]:
+    def transformers(self) -> List[Union[Transformer, TransformerArray, List]]:
         return super().transformers
 
     @transformers.setter
-    def transformers(self, val: List[Union[Transformer, TransformerArray, List[Any]]]) -> None:
+    def transformers(self, val: List[Union[Transformer, TransformerArray, List]]) -> None:
         super().transformers = val
 
     @property
-    def base_transformer(self) -> Union[Transformer, TransformerArray, List[Any]]:
-        return super().base_transformer
+    def base_transformer(self) -> Transformer:
+        out = super().base_transformer
+        if isinstance(out, Transformer):
+            return out
+        else:
+            raise Exception('Wrong base_transformer attribute')
 
     @base_transformer.setter
-    def base_transformer(self, val: Union[Transformer, TransformerArray, List[Any]]) -> None:
+    def base_transformer(self, val: Transformer) -> None:
         super().base_transformer = val
 
     def __str__(self) -> str:
@@ -293,7 +298,7 @@ class AutomaticTransformerArray(Transformer):
                     tmp[key] = val[i]
                 self.__transformers[i].set_params(**tmp)
 
-    def get_params(self) -> List[Union[Dict, List[Any]]]:
+    def get_params(self) -> List[Union[Dict, List]]:
         if isinstance(self.__transformers, list) and np.all(
                 [isinstance(t, TransformerArray) for t in self.__transformers]):
             return [t.parameters for t in self.__transformers]
@@ -305,28 +310,28 @@ class AutomaticTransformerArray(Transformer):
         return self.__was_fitted
 
     @property
-    def transformers(self) -> List[Union[Transformer, TransformerArray, List[Any]]]:
+    def transformers(self) -> List[Union[Transformer, TransformerArray, List]]:
         if self.__transformers is None:
             return []
         else:
             return [t.transformers for t in self.__transformers]
 
     @transformers.setter
-    def transformers(self, val: List[Union[Transformer, TransformerArray, List[Any]]]) -> None:
+    def transformers(self, val: List[Union[Transformer, TransformerArray, List]]) -> None:
         if not self.was_fitted:
             self.__transformers = val
         else:
             raise Exception('Transformers were not set since Transformer has already been fitted!')
 
     @property
-    def base_transformer(self) -> Union[Transformer, TransformerArray, List[Any]]:
+    def base_transformer(self) -> Union[Transformer, TransformerArray, List]:
         if self.__transformers is None:
             return []
         else:
             return [t.base_transformer for t in self.__transformers]
 
     @base_transformer.setter
-    def base_transformer(self, val: Union[Transformer, TransformerArray, List[Any]]) -> None:
+    def base_transformer(self, val: Union[Transformer, TransformerArray, List]) -> None:
         raise Exception('Base Transformer can\'t be set for AutomaticTransformerArray')
 
     def _fit(self, dataset: Dataset) -> None:

@@ -128,11 +128,11 @@ class BaseTransformerArray:
             raise Exception('Parameters were not set since Transformer has already been fitted!')
 
     @property
-    def transformers(self) -> List[Union[BaseTransformer, BaseTransformerArray, List[Any]]]:
+    def transformers(self) -> List[Union[BaseTransformer, BaseTransformerArray, List]]:
         return self.__transformers
 
     @transformers.setter
-    def transformers(self, val: List[Union[BaseTransformer, BaseTransformerArray, List[Any]]]) -> None:
+    def transformers(self, val: List[Union[BaseTransformer, BaseTransformerArray, List]]) -> None:
         if not self.was_fitted:
             self.__transformers = val
         else:
@@ -153,7 +153,7 @@ class BaseTransformerArray:
         return len(self.__transformers)
 
     def __getitem__(self, key: Union[int, List[int]]) -> Optional[
-                    Union[BaseTransformer, BaseTransformerArray, List[Any]]]:
+                    Union[BaseTransformer, BaseTransformerArray, List]]:
         if isinstance(key, list):
             out = [self.__getitem__(k) for k in key]
             out = [o for o in out if o is not None]

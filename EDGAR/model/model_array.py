@@ -78,11 +78,11 @@ class ModelArray(BaseTransformerArray):
     def set_transform_to_classes(self) -> None:
         ModelArray.set_to_class(self.get_models())
 
-    def __base_transformer_array_to_model_array(self, base: Union[Model, ModelArray, BaseTransformerArray, List[Any]],
+    def __base_transformer_array_to_model_array(self, base: Union[Model, ModelArray, BaseTransformerArray],
                                                 name: str) -> Union[Model, ModelArray]:
         if isinstance(base, Model):
             return base
-        elif not isinstance(base, ModelArray):
+        elif not isinstance(base, ModelArray) and isinstance(base, BaseTransformerArray):
             out = ModelArray(base_model=self.base_transformer)
             out.__class__ = self.__class__
             for key, val in base.__dict__.items():
@@ -106,6 +106,7 @@ class ModelArray(BaseTransformerArray):
             return pd.concat([out_in, eval_model])
 
         def _eval_all(mod, ds_, out_in):
+            out_out = None
             if isinstance(mod, Model):
                 out_out = _evaluate(mod, ds_, out_in)
             elif isinstance(mod, ModelArray):
@@ -137,16 +138,20 @@ class ModelArray(BaseTransformerArray):
         return out
 
     @property
-    def transformers(self) -> List[Union[Model, ModelArray, List[Any]]]:
+    def transformers(self) -> List[Union[Model, ModelArray, List]]:
         return super().transformers
 
     @transformers.setter
-    def transformers(self, val: List[Union[Model, ModelArray, List[Any]]]) -> None:
+    def transformers(self, val: List[Union[Model, ModelArray, List]]) -> None:
         super().transformers = val
 
     @property
     def base_transformer(self) -> Model:
-        return super().base_transformer
+        out = super().base_transformer
+        if isinstance(out, Model):
+            return out
+        else:
+            raise Exception('Wrong base_transformer attribute')
 
     @base_transformer.setter
     def base_transformer(self, val: Model):
