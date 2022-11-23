@@ -28,7 +28,7 @@ class Explainer:
             if isinstance(data, np.ndarray):
                 data = pd.DataFrame(data)
             data.columns = model.get_test_dataset().data.columns
-            return model.predict_proba(Dataset('', data, None)).target
+            return np.array(model.predict_proba(Dataset('', data, None)).target)
 
         dataset = self.model.get_test_dataset()
 
