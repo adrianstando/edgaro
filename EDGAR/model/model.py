@@ -207,11 +207,11 @@ class Model(BaseTransformer, ABC):
             metrics_output_class = [accuracy_score, balanced_accuracy_score, precision_score,
                                     recall_score, specificity_score, f1_score, f1_weighted, geometric_mean_score]
             metrics_output_probabilities = [roc_auc_score]
-        if len(metrics_output_class) > 0:
+        if metrics_output_class is not None and len(metrics_output_class) > 0:
             y_hat = self.predict(ds)
             for f in metrics_output_class:
                 results[f.__name__] = f(self.__target_encoder.transform(ds.target), y_hat.target)
-        if len(metrics_output_probabilities) > 0:
+        if metrics_output_probabilities is not None and len(metrics_output_probabilities) > 0:
             y_hat = self.predict_proba(ds)
             for f in metrics_output_probabilities:
                 results[f.__name__] = f(self.__target_encoder.transform(ds.target), y_hat.target)

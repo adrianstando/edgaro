@@ -12,7 +12,7 @@ from EDGAR.base.utils import print_unbuffered
 
 
 class TransformerArray(BaseTransformerArray):
-    def __init__(self, base_transformer: Transformer, parameters: Optional[List[Dict[str, Any]]] = None,
+    def __init__(self, base_transformer: Transformer, parameters: Optional[List[Union[List, Dict[str, Any]]]] = None,
                  keep_original_dataset: bool = False, dataset_suffixes: Union[str, List[str]] = '_transformed',
                  result_array_sufix: str = '_transformed_array', allow_dataset_array_sufix_change: bool = True,
                  verbose: bool = False) -> None:

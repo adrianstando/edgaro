@@ -11,7 +11,7 @@ from EDGAR.base.base_transformer import BaseTransformer
 
 
 class BaseTransformerArray:
-    def __init__(self, base_transformer: BaseTransformer, parameters: Optional[List[Dict[str, Any]]] = None,
+    def __init__(self, base_transformer: BaseTransformer, parameters: Optional[List[Union[List, Dict[str, Any]]]] = None,
                  transformer_sufix: str = '_transformed_array') -> None:
         self.__base_transformer = base_transformer
         self.__transformers = []
@@ -52,8 +52,10 @@ class BaseTransformerArray:
                 if not len(dataset) == len(self.__parameters):
                     raise Exception('Not enough parameters were provided!')
 
-                tab = BaseTransformerArray(base_transformer=self.__base_transformer, parameters=self.__parameters)
-                self.__transformers = [deepcopy(tab) for _ in range(len(dataset))]
+                self.__transformers = [deepcopy(BaseTransformerArray(
+                    base_transformer=self.__base_transformer,
+                    parameters=BaseTransformerArray.__transform_dict_to_lst(self.__parameters[i]) if not isinstance(self.__parameters[i], list) else self.__parameters[i]))
+                    for i in range(len(dataset))]
 
                 for i in range(len(dataset)):
                     self.__transformers[i].fit(dataset[i])
@@ -89,18 +91,22 @@ class BaseTransformerArray:
         if not np.alltrue(np.array(lengths) == lengths[0]):
             raise Exception('Parameters do not have the same length!')
 
-        tmp = []
-        for i in range(lengths[0]):
-            tmp_dict = {}
-            for key in params:
-                tmp_dict[key] = params[key][i]
-            tmp.append(tmp_dict)
-
-        self.__parameters = tmp
+        self.__parameters = BaseTransformerArray.__transform_dict_to_lst(params)
 
         if len(self.__transformers) != 0:
             for i in range(len(self.__transformers)):
-                self.__transformers[i].set_params(**tmp[i])
+                self.__transformers[i].set_params(**self.__parameters[i])
+
+    @staticmethod
+    def __transform_dict_to_lst(dct):
+        lengths = [len(val) for key, val in dct.items()]
+        tmp = []
+        for i in range(lengths[0]):
+            tmp_dict = {}
+            for key in dct:
+                tmp_dict[key] = dct[key][i]
+            tmp.append(tmp_dict)
+        return tmp
 
     def get_params(self) -> Optional[List[Dict[str, Any]]]:
         return self.__parameters

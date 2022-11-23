@@ -249,11 +249,11 @@ def test_set_get_params(imblearn_sampler, ds, param):
 ])
 @pytest.mark.parametrize('param', [
     {
-        'sampling_strategy': [1, 0.98]
+        'sampling_strategy': [[1, 0.98], [1, 0.98]]
     },
     {
-        'random_state': [1, 2],
-        'sampling_strategy': [1, 0.98]
+        'random_state': [[1, 2], [1, 2]],
+        'sampling_strategy': [[1, 0.98], [1, 0.98]]
     }
 ])
 def test_set_get_params_2(imblearn_sampler, ds, param):
@@ -263,23 +263,24 @@ def test_set_get_params_2(imblearn_sampler, ds, param):
     array.fit(ds)
     array.transform(ds)
 
-    tmp = []
-    for i in range(len(param[list(param.keys())[0]])):
-        tmp_dict = {}
-        for key in param:
-            tmp_dict[key] = param[key][i]
-        tmp.append(tmp_dict)
+    def transform_dict_to_lst(dct):
+        lengths = [len(val) for key_, val in dct.items()]
+        tmp_ = []
+        for i_ in range(lengths[0]):
+            tmp_dict_ = {}
+            for key_ in dct:
+                tmp_dict_[key_] = dct[key_][i_]
+            tmp_.append(tmp_dict_)
+        return tmp_
 
-    assert array.get_params() == tmp
+    out1 = transform_dict_to_lst(param)
+    assert array.get_params() == out1
 
     for i in range(len(array.transformers)):
-        tmp = {}
-        for key in param:
-            tmp[key] = param[key][i]
-
-        expected_params = tmp
+        expected_params = transform_dict_to_lst(out1[i])
         existing_params = array.transformers[i].get_params()
-        assert expected_params in existing_params
+        assert np.alltrue([expected_params[k] in existing_params for k in range(len(expected_params))])
+        assert np.alltrue([existing_params[k] in expected_params for k in range(len(existing_params))])
 
 
 @pytest.mark.parametrize('imblearn_sampler', [
@@ -292,22 +293,26 @@ def test_set_get_params_2(imblearn_sampler, ds, param):
 ])
 @pytest.mark.parametrize('param', [
     [
-        {
-            'sampling_strategy': 0.98
-        },
-        {
-            'sampling_strategy': 1
-        }
+            [
+                {
+                    'sampling_strategy': 0.98
+                },
+                {
+                    'sampling_strategy': 1
+                }
+            ] for _ in range(2)
     ],
     [
-        {
-            'sampling_strategy': 0.98,
-            'random_state': 1
-        },
-        {
-            'sampling_strategy': 1,
-            'random_state': 2
-        }
+        [
+            {
+                'sampling_strategy': 0.98,
+                'random_state': 1
+            },
+            {
+                'sampling_strategy': 1,
+                'random_state': 2
+            }
+        ] for _ in range(2)
     ]
 ])
 def test_params_in_arguments(imblearn_sampler, ds, param):
@@ -320,7 +325,7 @@ def test_params_in_arguments(imblearn_sampler, ds, param):
 
     for i in range(len(array.transformers)):
         for j in range(len(array.transformers[i])):
-            expected_params = list(param[j].items())
+            expected_params = list(param[i][j].items())
             existing_params = list(array.transformers[i][j].get_params().items())
             assert np.alltrue([p in existing_params for p in expected_params])
 
@@ -335,22 +340,26 @@ def test_params_in_arguments(imblearn_sampler, ds, param):
 ])
 @pytest.mark.parametrize('param', [
     [
-        {
-            'sampling_strategy': 0.98
-        },
-        {
-            'sampling_strategy': 1
-        }
+            [
+                {
+                    'sampling_strategy': 0.98
+                },
+                {
+                    'sampling_strategy': 1
+                }
+            ] for _ in range(2)
     ],
     [
-        {
-            'sampling_strategy': 0.98,
-            'random_state': 1
-        },
-        {
-            'sampling_strategy': 1,
-            'random_state': 2
-        }
+        [
+            {
+                'sampling_strategy': 0.98,
+                'random_state': 1
+            },
+            {
+                'sampling_strategy': 1,
+                'random_state': 2
+            }
+        ] for _ in range(2)
     ]
 ])
 @pytest.mark.parametrize('sufix', [
@@ -368,7 +377,7 @@ def test_params_in_arguments_and_sufix(imblearn_sampler, ds, param, sufix):
 
     for i in range(len(array.transformers)):
         for j in range(len(array.transformers[i])):
-            expected_params = list(param[j].items())
+            expected_params = list(param[i][j].items())
             existing_params = list(array.transformers[i][j].get_params().items())
             assert np.alltrue([p in existing_params for p in expected_params])
 
@@ -392,22 +401,26 @@ def test_params_in_arguments_and_sufix(imblearn_sampler, ds, param, sufix):
 ])
 @pytest.mark.parametrize('param', [
     [
-        {
-            'sampling_strategy': 0.98
-        },
-        {
-            'sampling_strategy': 1
-        }
+            [
+                {
+                    'sampling_strategy': 0.98
+                },
+                {
+                    'sampling_strategy': 1
+                }
+            ] for _ in range(2)
     ],
     [
-        {
-            'sampling_strategy': 0.98,
-            'random_state': 1
-        },
-        {
-            'sampling_strategy': 1,
-            'random_state': 2
-        }
+        [
+            {
+                'sampling_strategy': 0.98,
+                'random_state': 1
+            },
+            {
+                'sampling_strategy': 1,
+                'random_state': 2
+            }
+        ] for _ in range(2)
     ]
 ])
 @pytest.mark.parametrize('sufix', [
@@ -425,7 +438,7 @@ def test_params_in_arguments_and_sufix_2(imblearn_sampler, ds, param, sufix):
 
     for i in range(len(array.transformers)):
         for j in range(len(array.transformers[i])):
-            expected_params = list(param[j].items())
+            expected_params = list(param[i][j].items())
             existing_params = list(array.transformers[i][j].get_params().items())
             assert np.alltrue([p in existing_params for p in expected_params])
 

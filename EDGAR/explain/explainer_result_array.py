@@ -48,6 +48,7 @@ class ExplainerResultArray:
                 correct = ExplainerResultArray.__check_colnames(res, col_names_in)
                 if not correct:
                     return False
+            return True
 
     @staticmethod
     def __find_matching_explainer_result_array(res_array, results_in, variables):
@@ -63,6 +64,7 @@ class ExplainerResultArray:
             col_names = []
             if not ExplainerResultArray.__check_colnames(self, col_names):
                 raise Exception('The ResultArray contains curves for models with different column names!')
+            variables = col_names
 
         results = []
         ExplainerResultArray.__find_matching_explainer_result_array(self, results, variables)
@@ -86,3 +88,9 @@ class ExplainerResultArray:
         fig.tight_layout(rect=[0, 0.05, 1, 0.97])
         fig.legend([x.name for x in results], ncol=n_col, loc='lower center')
         plt.suptitle(f"PDP curves for {self.name}", fontsize=18)
+
+    def __str__(self) -> str:
+        return f"ExplainerResultArray {self.name} for {len(self.results)} variables: {list(self.results)} with {self.curve_type} curve type"
+
+    def __repr__(self) -> str:
+        return f"<ExplainerResultArray {self.name} with {self.curve_type} curve type>"
