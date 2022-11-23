@@ -205,7 +205,7 @@ class DatasetArrayFromDirectory(DatasetArray):
         if not os.path.isdir(path):
             raise Exception('The path argument is not a directory!')
 
-        if self.verbose:
+        if verbose:
             print_unbuffered(f'The files from {path} are being loaded')
 
         dataset_array = []
@@ -225,7 +225,7 @@ class DatasetArrayFromDirectory(DatasetArray):
                     Dataset(dataframe=X, target=y, name=os.path.splitext(filename)[0])
                 )
 
-        if self.verbose:
+        if verbose:
             print_unbuffered(f'The files from {path} were loaded')
 
         super().__init__(datasets=dataset_array, name=name, verbose=verbose)
