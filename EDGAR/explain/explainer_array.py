@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from typing import Union, Optional, Literal, List
+from typing import Union, Optional, Literal
 
 from EDGAR.model.model import Model
 from EDGAR.model.model_array import ModelArray
 from EDGAR.explain.explainer import Explainer
 from EDGAR.explain.explainer_result import ExplainerResult
+from EDGAR.explain.explainer_result_array import ExplainerResultArray
 from EDGAR.base.utils import print_unbuffered
 
 
@@ -34,14 +35,22 @@ class ExplainerArray:
         if self.verbose:
             print_unbuffered(f'dalex explainers inside {self.__repr__()} were created')
 
-    def transform(self, variables=None) -> List[ExplainerResult]:
+    def transform(self, variables=None) -> Union[ExplainerResult, ExplainerResultArray]:
         if self.verbose:
             print_unbuffered(f'{self.curve_type}s are being calculated in {self.__repr__()}')
 
         if self.sub_calculators is None:
             raise Exception('Explainer was not fitted!')
         if variables is None:
-            out = [calc.transform() for calc in self.sub_calculators]
+            res = [calc.transform() for calc in self.sub_calculators]
+            if len(res) == 1:
+                out = res[0]
+            else:
+                out = ExplainerResultArray(
+                    results=res,
+                    name=self.name,
+                    curve_type=self.curve_type
+                )
         else:
             def transform_given_variables(calc):
                 if isinstance(calc, Explainer):
@@ -50,7 +59,15 @@ class ExplainerArray:
                 else:
                     return calc.transform(variables=variables)
 
-            out = [transform_given_variables(calc) for calc in self.sub_calculators]
+            res = [transform_given_variables(calc) for calc in self.sub_calculators]
+            if len(res) == 1:
+                out = res[0]
+            else:
+                out = ExplainerResultArray(
+                    results=res,
+                    name=self.name,
+                    curve_type=self.curve_type
+                )
 
         if self.verbose:
             print_unbuffered(f'{self.curve_type}s were calculated in {self.__repr__()}')
