@@ -29,7 +29,7 @@ class DatasetArray:
         if isinstance(key, list):
             outs = [self.__getitem__(k) for k in key]
             outs = [o for o in outs if o is not None]
-            out = DatasetArray(outs)
+            out = DatasetArray(outs, self.name + "_subset")
             if len(out) == 0:
                 return None
             else:

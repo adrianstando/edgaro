@@ -29,7 +29,10 @@ class TestDatasetArrayBasicProperties:
         assert tab[ds2.name] == ds2
 
         assert len(tab[[ds1.name, ds2.name]]) == 2
-        assert tab[[ds1.name, ds2.name]] == tab
+
+        tmp = deepcopy(tab)
+        tmp.name += '_subset'
+        assert tab[[ds1.name, ds2.name]] == tmp
 
     def test_str_repr(self, ds1, ds2):
         tab = DatasetArray([deepcopy(ds1), deepcopy(ds2)])
