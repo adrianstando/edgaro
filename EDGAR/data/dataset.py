@@ -204,6 +204,16 @@ class Dataset:
                 self.data = self.data[index]
                 self.target = self.target[index]
 
+    def head(self, n: int = 10):
+        new_data = self.data.head(n)
+        new_target = self.target.head(n)
+        return Dataset(
+            name=self.name + '_head',
+            dataframe=new_data,
+            target=new_target,
+            verbose=self.verbose
+        )
+
     def __str__(self) -> str:
         out = f"Name: {self.name}"
         if self.data is not None:

@@ -142,6 +142,13 @@ class DatasetArray:
         else:
             self.datasets.append(other)
 
+    def head(self, n: int = 10):
+        return DatasetArray(
+            datasets=[d.head(n) for d in self.datasets],
+            name=self.name + '_head',
+            verbose=self.verbose
+        )
+
     def __str__(self) -> str:
         return ''.join([str(ds) + '\n' for ds in self.datasets])
 
