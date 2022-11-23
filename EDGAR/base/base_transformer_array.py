@@ -173,7 +173,7 @@ class BaseTransformerArray:
         return None
 
     def __str__(self) -> str:
-        return f"BaseTransformerArray {self.__class__.__name__ if self.__class__.__name__ != 'BaseTransformerArray' else ''} with {len(self.transformers)} transformers"
+        return f"BaseTransformerArray{(' ' + self.__class__.__name__) if self.__class__.__name__ != 'BaseTransformerArray' else ''} with {len(self.transformers)} transformers"
 
     def __repr__(self) -> str:
-        return f"<BaseTransformerArray {self.__class__.__name__ if self.__class__.__name__ != 'BaseTransformerArray' else ''} with {len(self.transformers)} transformers>"
+        return f"<BaseTransformerArray{(' ' + self.__class__.__name__) if self.__class__.__name__ != 'BaseTransformerArray' else ''} with {len(self.transformers)} transformers>"

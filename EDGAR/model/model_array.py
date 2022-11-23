@@ -26,11 +26,7 @@ class ModelArray(BaseTransformerArray):
             print_unbuffered(f'ModelArray {self.__repr__()} is being fitted with {dataset.name}')
 
         super().fit(dataset)
-        for i in range(len(self.transformers)):
-            self.transformers[i] = self.__base_transformer_array_to_model_array(
-                self.transformers[i],
-                dataset[i].name if isinstance(dataset, DatasetArray) else dataset.name
-            )
+        self.__fix_classes(dataset)
 
         if self.verbose:
             print_unbuffered(f'ModelArray {self.__repr__()} was fitted with {dataset.name}')
@@ -78,6 +74,15 @@ class ModelArray(BaseTransformerArray):
     def set_transform_to_classes(self) -> None:
         ModelArray.set_to_class(self.get_models())
 
+    def __fix_classes(self, dataset: Union[Dataset, DatasetArray]) -> None:
+        for i in range(len(self.transformers)):
+            self.transformers[i] = self.__base_transformer_array_to_model_array(
+                self.transformers[i],
+                dataset[i].name if isinstance(dataset, DatasetArray) else dataset.name
+            )
+            if isinstance(self.transformers[i], BaseTransformerArray):
+                self.transformers[i].__fix_classes(dataset if isinstance(dataset, Dataset) else dataset[i])
+
     def __base_transformer_array_to_model_array(self, base: Union[Model, ModelArray, BaseTransformerArray],
                                                 name: str) -> Union[Model, ModelArray]:
         if isinstance(base, Model):
@@ -101,8 +106,7 @@ class ModelArray(BaseTransformerArray):
             data = ds_ if isinstance(ds_, Dataset) else None
             eval_model = m.evaluate(metrics_output_class=metrics_output_class,
                                     metrics_output_probabilities=metrics_output_probabilities, ds=data)
-            if 'model' not in eval_model.columns:
-                eval_model['model'] = m.name
+            eval_model['model'] = m.name
             return pd.concat([out_in, eval_model])
 
         def _eval_all(mod, ds_, out_in):
@@ -110,20 +114,24 @@ class ModelArray(BaseTransformerArray):
             if isinstance(mod, Model):
                 out_out = _evaluate(mod, ds_, out_in)
             elif isinstance(mod, ModelArray):
-                out_out = out_in
+                tmp = []
                 for j in range(len(mod.get_models())):
                     m = mod.get_models()[j]
                     if isinstance(ds_, DatasetArray):
-                        out_out = _eval_all(m, ds_[j], out_out)
+                        tmp.append(_eval_all(m, ds_[j], out_out))
                     else:
-                        out_out = _eval_all(m, ds_, out_in)
+                        tmp.append(_eval_all(m, ds_, out_in))
+                tmp.append(out_out)
+                out_out = pd.concat(tmp)
             elif isinstance(mod, list):
-                out_out = out_in
+                tmp = []
                 for j in range(len(mod)):
                     if isinstance(ds_, DatasetArray):
-                        out_out = _eval_all(mod[j], ds_[j], out_out)
+                        tmp.append(_eval_all(mod[j], ds_[j], out_out))
                     else:
-                        out_out = _eval_all(mod[j], ds_, out_out)
+                        tmp.append(_eval_all(mod[j], ds_, out_out))
+                tmp.append(out_out)
+                out_out = pd.concat(tmp)
             return out_out
 
         if self.verbose:
@@ -131,6 +139,8 @@ class ModelArray(BaseTransformerArray):
 
         out = pd.DataFrame({'model': [], 'metric': [], 'value': []})
         out = _eval_all(self.get_models(), ds, out)
+        out = out[['model', 'metric', 'value']]
+        out = out.reset_index(drop=True)
 
         if self.verbose:
             print_unbuffered(f'ModelArray {self.__repr__()} was evaluated')
