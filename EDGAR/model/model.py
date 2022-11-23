@@ -107,7 +107,7 @@ class Model(BaseTransformer, ABC):
             )
             if len(self.__label_encoders) > 0:
                 for key, le in self.__label_encoders.items():
-                    df.data[key] = le.transform(df.data[[key]])
+                    df.data[key] = le.transform(pd.DataFrame(df.data[key]))
             return df
 
     def transform_target(self, dataset: Dataset) -> Dataset:

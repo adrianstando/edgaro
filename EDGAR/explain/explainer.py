@@ -1,4 +1,9 @@
 import dalex as dx
+import numpy as np
+import pandas as pd
+import warnings
+import sys
+import os
 
 from typing import List, Optional, Literal, Dict, Any
 
@@ -20,6 +25,9 @@ class Explainer:
 
     def fit(self) -> None:
         def predict_func(model, data):
+            if isinstance(data, np.ndarray):
+                data = pd.DataFrame(data)
+            data.columns = model.get_test_dataset().data.columns
             return model.predict_proba(Dataset('', data, None)).target
 
         dataset = self.model.get_test_dataset()
@@ -32,8 +40,16 @@ class Explainer:
         if dataset.data is None:
             raise Exception('Data in dataset is not provided!')
 
-        self.explainer = dx.Explainer(self.model, dataset.data, dataset.target, label=dataset.name,
-                                      verbose=self.verbose, predict_function=predict_func)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+
+            if not self.verbose:
+                sys.stdout = open(os.devnull, 'w')
+
+            self.explainer = dx.Explainer(self.model, dataset.data, dataset.target, label=dataset.name,
+                                          verbose=self.verbose, predict_function=predict_func)
+            if not self.verbose:
+                sys.stdout = sys.stdout = sys.__stdout__
 
         if self.verbose:
             print_unbuffered(f'dalex explainer inside {self.__repr__()} was created with {dataset.name}')
