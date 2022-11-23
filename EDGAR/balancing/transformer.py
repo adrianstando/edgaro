@@ -126,6 +126,9 @@ class TransformerFromIMBLEARN(Transformer):
         return self.__transformer
 
     def set_params(self, **params) -> None:
+        if 'imbalance_ratio' in params.keys():
+            x = params.pop('imbalance_ratio')
+            params['sampling_strategy'] = 1/x
         self.__transformer.set_params(**params)
 
     def get_params(self) -> Dict:
