@@ -30,14 +30,15 @@ class ExplainerResult:
         self.categorical_columns = categorical_columns
         self.curve_type = curve_type
 
-    def __getitem__(self, key: Union[str]) -> Optional[Curve]:
+    def __getitem__(self, key: str) -> Optional[Curve]:
         if key in self.results.keys():
             return self.results[key]
         else:
             return None
 
-    def __plot_not_add(self, variable, ax, figsize, show_legend, y_lim) -> None:
-        curve = self.results[variable]
+    @staticmethod
+    def __plot_not_add(results, categorical_columns, curve_type, name, variable, ax, figsize, show_legend, y_lim) -> None:
+        curve = results[variable]
         if curve is None:
             raise Exception('Variable is not available!')
 
@@ -46,25 +47,26 @@ class ExplainerResult:
         elif figsize is not None:
             plt.subplots(figsize=figsize)
 
-        if variable not in self.categorical_columns:
+        if variable not in categorical_columns:
             plt.plot(curve.x, curve.y)
         else:
             plt.bar(curve.x, curve.y)
 
-        if self.curve_type == 'PDP':
+        if curve_type == 'PDP':
             plt.title("PDP curve for variable: " + variable)
-        elif self.curve_type == 'ALE':
+        elif curve_type == 'ALE':
             plt.title("ALE curve for variable: " + variable)
         else:
             raise Exception('Wrong curve type!')
 
         plt.xlabel(variable)
         if show_legend:
-            plt.legend([self.name])
+            plt.legend([name])
         if y_lim is not None:
             plt.ylim(y_lim)
 
-    def __plot_add_continuous(self, ax, figsize, curve_base, curves_add) -> None:
+    @staticmethod
+    def __plot_add_continuous(ax, figsize, curve_base, curves_add) -> None:
         if ax is not None:
             plt.sca(ax)
         elif figsize is not None:
@@ -74,10 +76,11 @@ class ExplainerResult:
         for curve in curves_add:
             plt.plot(curve.x, curve.y)
 
-    def __plot_add_categorical(self, variable, ax, figsize, curve_base, curves_add, add_plot_names) -> None:
+    @staticmethod
+    def __plot_add_categorical(name, variable, ax, figsize, curve_base, curves_add, add_plot_names) -> None:
         df = pd.DataFrame({
             'x': curves_add[0].x,
-            self.name: curve_base.y
+            name: curve_base.y
         })
         for i in range(len(curves_add)):
             df[add_plot_names[i]] = curves_add[i].y
@@ -103,7 +106,8 @@ class ExplainerResult:
             self.__plot_add_continuous(ax, figsize, curve_base, curves_add)
 
         else:
-            self.__plot_add_categorical(variable, ax, figsize, curve_base, curves_add, add_plot_names)
+            ExplainerResult.__plot_add_categorical(self.name, variable, ax, figsize,
+                                                   curve_base, curves_add, add_plot_names)
 
         if self.curve_type == 'PDP':
             plt.title("PDP curve for variable: " + variable)
@@ -126,7 +130,8 @@ class ExplainerResult:
             figsize = (8, 8)
 
         if add_plot is None:
-            self.__plot_not_add(variable, ax, figsize, show_legend, y_lim)
+            ExplainerResult.__plot_not_add(self.results, self.categorical_columns, self.curve_type, self.name,
+                                           variable, ax, figsize, show_legend, y_lim)
         else:
             curve_base = self.results[variable]
             if curve_base is None:
@@ -138,7 +143,8 @@ class ExplainerResult:
 
             if len(curves_add) == 0:
                 warnings.warn(f'None of the added plots have variable called {variable}!')
-                self.__plot_not_add(variable, ax, figsize, show_legend, y_lim)
+                ExplainerResult.__plot_not_add(self.results, self.categorical_columns, self.curve_type, self.name,
+                                               variable, ax, figsize, show_legend, y_lim)
             else:
                 self.__plot_add(variable, ax, figsize, curve_base, curves_add, add_plot, show_legend, y_lim)
 
