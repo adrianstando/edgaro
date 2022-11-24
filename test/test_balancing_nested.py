@@ -4,7 +4,7 @@ import pytest
 from EDGAR.data.dataset import Dataset
 from EDGAR.data.dataset_array import DatasetArray
 from EDGAR.balancing.transformer_array import TransformerArray
-from EDGAR.balancing.nested_transformer import BasicAutomaticTransformer, AutomaticTransformer
+from EDGAR.balancing.nested_transformer import BasicAutomaticTransformer
 
 from .resources.objects import *
 

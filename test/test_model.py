@@ -1,11 +1,14 @@
 import random
 import string
-from copy import deepcopy
 import pandas as pd
 import pytest
+
+from copy import deepcopy
 from sklearn.ensemble import RandomForestClassifier
+
 from EDGAR.data.dataset import Dataset, DatasetFromOpenML
 from EDGAR.model.model import RandomForest, ModelFromSKLEARN, XGBoost, RandomSearchCV, GridSearchCV
+
 from .resources.objects import *
 
 

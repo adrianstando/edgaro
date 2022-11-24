@@ -1,15 +1,18 @@
 import pytest
+
+from imblearn.under_sampling import RandomUnderSampler
+from sklearn.metrics import accuracy_score
+from copy import deepcopy
+
 from EDGAR.data.dataset import DatasetFromOpenML, Dataset
 from EDGAR.balancing.transformer import TransformerFromIMBLEARN, RandomUnderSampler as RUS
 from EDGAR.balancing.transformer_array import TransformerArray
-from imblearn.under_sampling import RandomUnderSampler
 from EDGAR.model.model import RandomForest
 from EDGAR.model.model_array import ModelArray
 from EDGAR.explain.explainer import Explainer
 from EDGAR.explain.explainer_array import ExplainerArray
 from EDGAR.data.dataset_array import DatasetArray
-from sklearn.metrics import accuracy_score
-from copy import deepcopy
+
 from .resources.objects import *
 
 

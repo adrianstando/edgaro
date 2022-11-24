@@ -1,9 +1,11 @@
 import pandas as pd
 import pytest
+
 from EDGAR.data.dataset_array import DatasetArray
-from EDGAR.data.dataset import Dataset, DatasetFromOpenML
+from EDGAR.data.dataset import Dataset
 from EDGAR.model.model import RandomForest
 from EDGAR.model.model_array import ModelArray
+
 from .resources.objects import *
 
 

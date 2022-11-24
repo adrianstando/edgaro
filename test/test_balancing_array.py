@@ -1,12 +1,15 @@
 import pandas as pd
 import pytest
+
 from imblearn.under_sampling import RandomUnderSampler
 from imblearn.over_sampling import RandomOverSampler
 from copy import deepcopy
+
 from EDGAR.balancing.transformer import TransformerFromIMBLEARN, RandomUnderSampler as RandomUnderSampler_EDAGR, RandomOverSampler as RandomOverSampler_EDGAR
 from EDGAR.data.dataset import Dataset, DatasetFromOpenML
 from EDGAR.data.dataset_array import DatasetArray
 from EDGAR.balancing.transformer_array import TransformerArray
+
 from .resources.objects import *
 
 
