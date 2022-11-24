@@ -129,6 +129,9 @@ class TransformerFromIMBLEARN(Transformer):
         if 'imbalance_ratio' in params.keys():
             x = params.pop('imbalance_ratio')
             params['sampling_strategy'] = 1/x
+        elif 'IR' in params.keys():
+            IR = params.pop('IR')
+            params['sampling_strategy'] = 1 / IR
         self.__transformer.set_params(**params)
 
     def get_params(self) -> Dict:
@@ -142,9 +145,6 @@ class RandomUnderSampler(TransformerFromIMBLEARN):
         super().__init__(transformer=transformer, name_sufix=name_sufix)
 
     def set_params(self, **params) -> None:
-        if 'IR' in params.keys():
-            IR = params.pop('IR')
-            params['sampling_strategy'] = 1 / IR
         return super().set_params(**params)
 
 
@@ -155,9 +155,6 @@ class RandomOverSampler(TransformerFromIMBLEARN):
         super().__init__(transformer=transformer, name_sufix=name_sufix)
 
     def set_params(self, **params) -> None:
-        if 'IR' in params.keys():
-            IR = params.pop('IR')
-            params['sampling_strategy'] = 1 / IR
         return super().set_params(**params)
 
 
@@ -199,7 +196,4 @@ class SMOTE(TransformerFromIMBLEARN):
         super()._fit(dataset)
 
     def set_params(self, **params) -> None:
-        if 'IR' in params.keys():
-            IR = params.pop('IR')
-            params['sampling_strategy'] = 1 / IR
         return super().set_params(**params)
