@@ -6,12 +6,12 @@ here = pathlib.Path(__file__).parent.resolve()
 long_description = (here / "README.md").read_text(encoding="utf-8")
 
 setup(
-    name="EDGAR",
+    name="edgaro",
     version="0.0.1",
-    description="Explainable imbalanceD learninG benchmARk",
+    description="Explainable imbalanceD learninG compARatOr",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/adrianstando/EDGAR",
+    url="https://github.com/adrianstando/edgaro",
     author="Adrian Stańdo",
     author_email="adrian.j.stando@gmail.com",
     classifiers=[
@@ -29,7 +29,7 @@ setup(
         "Operating System :: OS Independent"
     ],
     keywords="XAI, imbalance, machine learning",
-    packages=["EDGAR"] + [f"EDGAR.{item}" for item in find_packages(where="EDGAR")],
+    packages=["edgaro"] + [f"edgaro.{item}" for item in find_packages(where="edgaro")],
     python_requires=">=3.8, <4",
     install_requires=[
         'setuptools',
@@ -47,6 +47,6 @@ setup(
         'scipy>=1.7.3'
     ],
     project_urls={
-        "Repository": "https://github.com/adrianstando/EDGAR"
+        "Repository": "https://github.com/adrianstando/edgaro"
     },
 )

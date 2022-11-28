@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from typing import Union, Optional, Literal
 
-from EDGAR.model.model import Model
-from EDGAR.model.model_array import ModelArray
-from EDGAR.explain.explainer import Explainer
-from EDGAR.explain.explainer_result import ExplainerResult
-from EDGAR.explain.explainer_result_array import ExplainerResultArray
-from EDGAR.base.utils import print_unbuffered
+from edgaro.model.model import Model
+from edgaro.model.model_array import ModelArray
+from edgaro.explain.explainer import Explainer
+from edgaro.explain.explainer_result import ExplainerResult
+from edgaro.explain.explainer_result_array import ExplainerResultArray
+from edgaro.base.utils import print_unbuffered
 
 
 class ExplainerArray:

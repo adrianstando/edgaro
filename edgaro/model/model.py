@@ -18,9 +18,9 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.model_selection import RandomizedSearchCV as RS
 from sklearn.model_selection import GridSearchCV as GS
 
-from EDGAR.data.dataset import Dataset
-from EDGAR.base.base_transformer import BaseTransformer
-from EDGAR.base.utils import print_unbuffered
+from edgaro.data.dataset import Dataset
+from edgaro.base.base_transformer import BaseTransformer
+from edgaro.base.utils import print_unbuffered
 
 
 class Model(BaseTransformer, ABC):

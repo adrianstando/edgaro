@@ -7,7 +7,7 @@ from typing import List, Literal, Optional, Union, Tuple
 
 import numpy as np
 
-from EDGAR.explain.explainer_result import ExplainerResult
+from edgaro.explain.explainer_result import ExplainerResult
 
 
 class ExplainerResultArray:

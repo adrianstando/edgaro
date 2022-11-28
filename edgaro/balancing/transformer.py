@@ -10,9 +10,9 @@ from imblearn.over_sampling import SMOTE as SM_C, SMOTENC as SM_NC, SMOTEN as SM
 from sklearn.utils.validation import check_is_fitted
 from sklearn.exceptions import NotFittedError
 
-from EDGAR.data.dataset import Dataset
-from EDGAR.base.base_transformer import BaseTransformer
-from EDGAR.base.utils import print_unbuffered
+from edgaro.data.dataset import Dataset
+from edgaro.base.base_transformer import BaseTransformer
+from edgaro.base.utils import print_unbuffered
 
 
 class Transformer(BaseTransformer, ABC):

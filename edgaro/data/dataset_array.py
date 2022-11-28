@@ -7,8 +7,8 @@ import numpy as np
 
 from typing import List, Union, Optional
 
-from EDGAR.data.dataset import Dataset, DatasetFromOpenML
-from EDGAR.base.utils import print_unbuffered
+from edgaro.data.dataset import Dataset, DatasetFromOpenML
+from edgaro.base.utils import print_unbuffered
 
 
 class DatasetArray:

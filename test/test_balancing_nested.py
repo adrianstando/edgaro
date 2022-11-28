@@ -1,10 +1,10 @@
 import pandas as pd
 import pytest
 
-from EDGAR.data.dataset import Dataset
-from EDGAR.data.dataset_array import DatasetArray
-from EDGAR.balancing.transformer_array import TransformerArray
-from EDGAR.balancing.nested_transformer import BasicAutomaticTransformer
+from edgaro.data.dataset import Dataset
+from edgaro.data.dataset_array import DatasetArray
+from edgaro.balancing.transformer_array import TransformerArray
+from edgaro.balancing.nested_transformer import BasicAutomaticTransformer
 
 from .resources.objects import *
 

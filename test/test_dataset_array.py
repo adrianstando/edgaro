@@ -3,8 +3,8 @@ import re
 
 from copy import deepcopy
 
-from EDGAR.data.dataset_array import DatasetArray, DatasetArrayFromOpenMLSuite
-from EDGAR.data.dataset import Dataset, DatasetFromOpenML
+from edgaro.data.dataset_array import DatasetArray, DatasetArrayFromOpenMLSuite
+from edgaro.data.dataset import Dataset, DatasetFromOpenML
 
 from .resources.objects import *
 

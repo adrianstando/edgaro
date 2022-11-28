@@ -1,10 +1,10 @@
 import pandas as pd
 import pytest
 
-from EDGAR.data.dataset_array import DatasetArray
-from EDGAR.data.dataset import Dataset
-from EDGAR.model.model import RandomForest
-from EDGAR.model.model_array import ModelArray
+from edgaro.data.dataset_array import DatasetArray
+from edgaro.data.dataset import Dataset
+from edgaro.model.model import RandomForest
+from edgaro.model.model_array import ModelArray
 
 from .resources.objects import *
 

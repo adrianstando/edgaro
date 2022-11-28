@@ -9,7 +9,7 @@ from typing import Optional, Union
 from pandas_profiling import ProfileReport
 from sklearn.model_selection import train_test_split
 
-from EDGAR.base.utils import print_unbuffered
+from edgaro.base.utils import print_unbuffered
 
 
 class Dataset:

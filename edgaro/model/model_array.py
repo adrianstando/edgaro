@@ -4,11 +4,11 @@ import pandas as pd
 
 from typing import Optional, List, Dict, Any, Union
 
-from EDGAR.base.base_transformer_array import BaseTransformerArray
-from EDGAR.model.model import Model
-from EDGAR.data.dataset import Dataset
-from EDGAR.data.dataset_array import DatasetArray
-from EDGAR.base.utils import print_unbuffered
+from edgaro.base.base_transformer_array import BaseTransformerArray
+from edgaro.model.model import Model
+from edgaro.data.dataset import Dataset
+from edgaro.data.dataset_array import DatasetArray
+from edgaro.base.utils import print_unbuffered
 
 
 class ModelArray(BaseTransformerArray):

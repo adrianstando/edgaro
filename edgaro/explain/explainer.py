@@ -7,10 +7,10 @@ import os
 
 from typing import List, Optional, Literal, Dict, Any
 
-from EDGAR.data.dataset import Dataset
-from EDGAR.model.model import Model
-from EDGAR.explain.explainer_result import ExplainerResult, Curve
-from EDGAR.base.utils import print_unbuffered
+from edgaro.data.dataset import Dataset
+from edgaro.model.model import Model
+from edgaro.explain.explainer_result import ExplainerResult, Curve
+from edgaro.base.utils import print_unbuffered
 
 
 class Explainer:

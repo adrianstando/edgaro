@@ -4,7 +4,7 @@ import re
 
 from copy import deepcopy
 
-from EDGAR.data.dataset import Dataset, DatasetFromCSV, DatasetFromOpenML
+from edgaro.data.dataset import Dataset, DatasetFromCSV, DatasetFromOpenML
 
 from .resources.objects import *
 

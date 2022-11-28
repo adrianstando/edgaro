@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import List, Dict, Optional, Any, Union
 
-from EDGAR.data.dataset import Dataset
-from EDGAR.data.dataset_array import DatasetArray
-from EDGAR.base.base_transformer_array import BaseTransformerArray
-from EDGAR.balancing.transformer import Transformer
-from EDGAR.base.utils import print_unbuffered
+from edgaro.data.dataset import Dataset
+from edgaro.data.dataset_array import DatasetArray
+from edgaro.base.base_transformer_array import BaseTransformerArray
+from edgaro.balancing.transformer import Transformer
+from edgaro.base.utils import print_unbuffered
 
 
 class TransformerArray(BaseTransformerArray):

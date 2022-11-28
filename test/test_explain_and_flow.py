@@ -4,14 +4,14 @@ from imblearn.under_sampling import RandomUnderSampler
 from sklearn.metrics import accuracy_score
 from copy import deepcopy
 
-from EDGAR.data.dataset import DatasetFromOpenML, Dataset
-from EDGAR.balancing.transformer import TransformerFromIMBLEARN, RandomUnderSampler as RUS
-from EDGAR.balancing.transformer_array import TransformerArray
-from EDGAR.model.model import RandomForest
-from EDGAR.model.model_array import ModelArray
-from EDGAR.explain.explainer import Explainer
-from EDGAR.explain.explainer_array import ExplainerArray
-from EDGAR.data.dataset_array import DatasetArray
+from edgaro.data.dataset import DatasetFromOpenML, Dataset
+from edgaro.balancing.transformer import TransformerFromIMBLEARN, RandomUnderSampler as RUS
+from edgaro.balancing.transformer_array import TransformerArray
+from edgaro.model.model import RandomForest
+from edgaro.model.model_array import ModelArray
+from edgaro.explain.explainer import Explainer
+from edgaro.explain.explainer_array import ExplainerArray
+from edgaro.data.dataset_array import DatasetArray
 
 from .resources.objects import *
 

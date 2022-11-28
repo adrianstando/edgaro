@@ -8,12 +8,12 @@ from imblearn.over_sampling import ADASYN, BorderlineSMOTE, KMeansSMOTE, SVMSMOT
 from imblearn.under_sampling import ClusterCentroids, NearMiss
 from imblearn.combine import SMOTEENN, SMOTETomek
 
-from EDGAR.balancing.transformer import TransformerFromIMBLEARN
-from EDGAR.balancing.transformer_array import TransformerArray
-from EDGAR.data.dataset import Dataset
-from EDGAR.data.dataset_array import DatasetArray
-from EDGAR.balancing.transformer import Transformer, RandomUnderSampler, RandomOverSampler, SMOTE
-from EDGAR.base.utils import print_unbuffered
+from edgaro.balancing.transformer import TransformerFromIMBLEARN
+from edgaro.balancing.transformer_array import TransformerArray
+from edgaro.data.dataset import Dataset
+from edgaro.data.dataset_array import DatasetArray
+from edgaro.balancing.transformer import Transformer, RandomUnderSampler, RandomOverSampler, SMOTE
+from edgaro.base.utils import print_unbuffered
 
 
 class NestedAutomaticTransformer(Transformer):
