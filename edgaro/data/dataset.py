@@ -13,6 +13,31 @@ from edgaro.base.utils import print_unbuffered
 
 
 class Dataset:
+    """ Create a Dataset object
+
+    This class creates a unified representation of a dataset, which can be further processed by other package classes.
+
+    Only one of `dataframe` and `target` parameters is required.
+
+    Parameters
+    ----------
+    name : str
+        Name of the dataset.
+    dataframe : pd.DataFrame, optional
+        The variables (predictors) in a dataset.
+    target : pd.Series, optional
+        The target in a dataset.
+    verbose : bool, default=False
+        Print messages during calculations.
+
+    Attributes
+    ----------
+    name : str
+        Name of the dataset.
+    verbose : bool
+        Print messages during calculations.
+    """
+
     def __init__(self, name: str, dataframe: Optional[pd.DataFrame], target: Optional[pd.Series],
                  verbose: bool = False) -> None:
         if dataframe is not None and target is not None:
@@ -32,6 +57,9 @@ class Dataset:
 
     @property
     def data(self) -> Optional[pd.DataFrame]:
+        """
+        pd.DataFrame, optional : The variables (predictors) in a dataset.
+        """
         if self.__data is not None:
             return self.__data
         else:
@@ -58,6 +86,9 @@ class Dataset:
 
     @property
     def target(self) -> Optional[pd.Series]:
+        """
+        pd.Series, optional : The target in a dataset.
+        """
         if self.__target is not None:
             return self.__target
         else:
@@ -84,6 +115,9 @@ class Dataset:
 
     @property
     def train(self) -> Dataset:
+        """
+        Dataset : the train dataset if the Dataset object was train-test-split
+        """
         if self.__train_dataset is not None:
             return self.__train_dataset
         else:
@@ -91,6 +125,9 @@ class Dataset:
 
     @property
     def test(self) -> Dataset:
+        """
+        Dataset : the test dataset if the Dataset object was train-test-split
+        """
         if self.__test_dataset is not None:
             return self.__test_dataset
         else:
@@ -98,9 +135,22 @@ class Dataset:
 
     @property
     def was_split(self) -> bool:
+        """
+        bool : the information whether the Dataset object was train-test-split
+        """
         return self.__train_dataset is not None and self.__test_dataset is not None
 
     def train_test_split(self, test_size: float = 0.2, random_state: Optional[int] = None) -> None:
+        """
+        Split the object into train and test datasets.
+
+        Parameters
+        ----------
+        test_size : float, default=0.2
+            The size of a train dataset.
+        random_state : int, optional, default=None
+            Random state seed.
+        """
         if self.was_split:
             raise Exception('The dataset has already been train-test-split!')
         X_train, X_test, y_train, y_test = train_test_split(deepcopy(self.__data), deepcopy(self.__target),
@@ -116,6 +166,16 @@ class Dataset:
             print_unbuffered(f'Dataset {self.__repr__()} was train-test-split')
 
     def custom_train_test_split(self, train: Dataset, test: Dataset) -> None:
+        """
+        Set custom train and set dataset.
+
+        Parameters
+        ----------
+        train : Dataset
+            The train dataset.
+        test : Dataset
+            The test dataset.
+        """
         self.__train_dataset = train
         self.__test_dataset = test
 
@@ -123,6 +183,12 @@ class Dataset:
         self.__target = None
 
     def check_binary_classification(self) -> bool:
+        """
+        The information whether the Dataset object contains binary classification data
+
+        Returns:
+            bool
+        """
         if self.target is not None:
             unique = np.unique(self.target)
             if len(unique) > 2:
@@ -133,6 +199,18 @@ class Dataset:
 
     def generate_report(self, output_path: Optional[str] = None, show_jupyter: bool = False,
                         minimal: bool = False) -> None:
+        """
+        Generate a report using `pandas_profiling` tool.
+
+        Parameters
+        ----------
+        output_path : str, optional, default=None
+            The path to save the generated report.
+        show_jupyter : bool, default=False
+            If set to `True`, the report will be displayed as a Jupyter Notebook IFrame.
+        minimal : bool, default=False
+            Turn off the most expensive computations.
+        """
         if self.data is None and self.target is None:
             raise Exception('Both data and target are None!')
 
@@ -153,6 +231,9 @@ class Dataset:
 
     @property
     def imbalance_ratio(self) -> float:
+        """
+        float : Imbalance Ratio of the Dataset; is the ratio of the majority class to the minority class
+        """
         if self.target is None:
             return float(0)
         names, counts = np.unique(self.target, return_counts=True)
@@ -174,7 +255,15 @@ class Dataset:
             return False
         return True
 
-    def remove_nans(self, col_thresh=0.9) -> None:
+    def remove_nans(self, col_thresh: float = 0.9) -> None:
+        """
+        Remove rows with NaN values and columns containing almost only NaN values
+
+        Parameters
+        ----------
+        col_thresh : float, default=0.9
+            The threshold of NaN values in columns above which a column should be dropped
+        """
         if self.data is not None:
             nans = self.data.isnull().sum() / self.data.shape[0]
             nans = list(nans[nans > col_thresh].index)
@@ -193,6 +282,17 @@ class Dataset:
                 self.target.drop(nans, axis=0, inplace=True)
 
     def remove_outliers(self, n_std: Union[float, int] = 3) -> None:
+        """
+        Remove outliers with NaN values and columns containing almost only NaN values.
+
+        It is only applicable for continuous variables (that means not `category`, 'object' and 'int' type).
+
+        Parameters
+        ----------
+        n_std : float, int, default=3
+            Number of standard deviations.
+            The observations that lies outside the range `column_mean +/- n_std*column_std` will be removed.
+        """
         if self.data is not None and self.target is not None:
             categorical_columns = list(self.data.select_dtypes(include=['category', 'object', 'int']))
             numerical_columns = list(set(self.data.columns).difference(categorical_columns))
@@ -205,6 +305,19 @@ class Dataset:
                 self.target = self.target[index]
 
     def head(self, n: int = 10):
+        """
+        Get first `n` rows of the Dataset.
+
+        Parameters
+        ----------
+        n : int, default=10
+            Number of rows.
+
+        Returns
+        -------
+        Dataset
+            A Dataset object with `n` first rows.
+        """
         new_data = self.data.head(n)
         new_target = self.target.head(n)
         return Dataset(
@@ -229,6 +342,26 @@ class Dataset:
 
 
 class DatasetFromCSV(Dataset):
+    """ Create a `Dataset` object from a `*.csv` file
+
+    If`target` parameter is `None`, the target is the last column in file.
+
+    Parameters
+    ----------
+    name : str, default='dataset'
+        Name of the dataset.
+    path : str
+        The path to `*.csv` fiole.
+    target : str, optional, default=None
+        The name of a column in the Dataset that is a target.
+    verbose : bool, default=False
+        Print messages during calculations.
+    *args : tuple, optional
+        Additional arguments to pd.read_csv function.
+    **kwargs : dict, optional
+        Additional arguments to pd.read_csv function.
+    """
+
     def __init__(self, path: str, target: Optional[str] = None, name: str = 'dataset',
                  verbose: bool = False, *args, **kwargs) -> None:
         X = pd.read_csv(path, *args, **kwargs)
@@ -247,15 +380,24 @@ class DatasetFromCSV(Dataset):
 
 
 class DatasetFromOpenML(Dataset):
-    """
-    Before using this class, run 'openml configure apikey <KEY>' and replace <KEY> with your API OpenML key
-    and create file '~/.openml/config' with content: ‘apikey=KEY’; in a new line add 'cache_dir = ‘DIR’' to cache data
-    Or give API key as an argument apikey.
+    """  Create a `Dataset` object from an `OpenML` dataset
 
-    In parameters give either task_id
+    Before using this class, you should follow the procedure of configuring Authentication on the website
+    `here <https://openml.github.io/openml-python/main/examples/20_basic/introduction_tutorial.html#sphx-glr-examples-20-basic-introduction-tutorial-py>`_.
+
+    Otherwise, you should have your own API key for OpenML and pass it as a parameter.
+
+    Parameters
+    ----------
+    task_id : int
+        A task ID for a dataset in OpenML.
+    apikey : str, optional, default=None
+        An API key to OpenML (if you configured OpenML, you do not need to pass this parameter).
+    verbose : bool, default=False
+        Print messages during calculations.
     """
 
-    def __init__(self, task_id: Optional[int] = None, apikey: Optional[str] = None, verbose: bool = False) -> None:
+    def __init__(self, task_id: int, apikey: Optional[str] = None, verbose: bool = False) -> None:
         if openml.config.apikey == '':
             if apikey is None:
                 raise Exception('API key is not available!')
@@ -286,4 +428,12 @@ class DatasetFromOpenML(Dataset):
         super().__init__(name=data.name, dataframe=X, target=y, verbose=verbose)
 
     def openml_description(self) -> Optional[str]:
+        """
+        Description of the Dataset from OpenML.
+
+        Returns
+        -------
+        str
+            The Dataset description.
+        """
         return "Name: " + self.name + '\n' + 'Description: ' + '\n' + self.__openml_description
