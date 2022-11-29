@@ -17,6 +17,55 @@ from edgaro.base.utils import print_unbuffered
 
 
 class NestedAutomaticTransformer(Transformer):
+    """
+    Create NestedAutomaticTransformer.
+
+    This object creates an object that behaves like a Transformer, but transforms a single Dataset using not only one,
+    but more methods. Moreover, you do not specify Imbalance Ratio values, but they are automatically calculated. You
+    pass only an argument `n_per_method` and the class will balance the Dataset
+    with that number of Imbalance Raio values.
+
+    Parameters
+    ----------
+    base_transformers : list(Transformer)
+        List of base transformers.
+    base_transformers_names : list(str)
+        List of names of base_transformers.
+    keep_original_dataset : bool, default=False
+        Keep the original Dataset after transformations or not.
+    result_array_sufix str, default='_automatic_transformed_array'
+        Suffix of the transformed DatasetArray.
+    n_per_method : int, default=5
+        Number of intermediate Imbalance Ratio values.
+    random_state : int, optional, default=None,
+        Random state seed.
+    IR_round_precision : int, default=2
+        Round precision of Imbalance Ratio when printing.
+    min_samples_to_modify : int, optional, default=None
+        Minimal number of samples to modify to create an intermediate Imbalance Ratio. If the number of modified
+        observations is less than this number, the `n_per_method` parameter will be modified.
+    verbose : bool, default=False
+        Print messages during calculations.
+
+    Attributes
+    ----------
+    keep_original_dataset : bool, default=False
+        Keep the original Dataset after transformations or not.
+    n_per_method : int, default=5
+        Number of intermediate Imbalance Ratio values.
+    random_state : int, optional, default=None,
+        Random state seed.
+    result_array_sufix str, default='_automatic_transformed_array'
+        Suffix of the transformed DatasetArray.
+    IR_round_precision : int, default=2
+        Round precision of Imbalance Ratio when printing.
+    min_samples_to_modify : int, optional, default=None
+        Minimal number of samples to modify to create an intermediate Imbalance Ratio. If the number of modified
+        observations is less than this number, the `n_per_method` parameter will be modified.
+    verbose : bool, default=False
+        Print messages during calculations.
+
+    """
     def __init__(self, base_transformers: List[Transformer], base_transformers_names: List[str],
                  keep_original_dataset: bool = False, result_array_sufix: str = '_automatic_transformed_array',
                  n_per_method: int = 5, random_state: Optional[int] = None, IR_round_precision: int = 2,
@@ -71,6 +120,14 @@ class NestedAutomaticTransformer(Transformer):
         return IR_values
 
     def fit(self, dataset: Dataset) -> None:
+        """
+        Fit the transformer.
+
+        Parameters
+        ----------
+        dataset : Dataset
+            The object to fit Transformer on.
+        """
         IR_values = self.__find_IR_values(dataset)
 
         for i in range(len(self.__base_transformers)):
@@ -99,6 +156,19 @@ class NestedAutomaticTransformer(Transformer):
             print_unbuffered(f'AutomaticTransformerArray {self.__repr__()} was fitted with {dataset.name}')
 
     def transform(self, dataset: Dataset) -> DatasetArray:
+        """
+        Transform the object.
+
+        Parameters
+        ----------
+        dataset : Dataset
+            The object to be transformed.
+
+        Returns
+        -------
+        DatasetArray
+            The transformed object.
+        """
         if self.__transformers is None:
             return DatasetArray([])
         else:
@@ -115,12 +185,28 @@ class NestedAutomaticTransformer(Transformer):
             return out
 
     def set_dataset_suffixes(self, name_sufix: Union[str, List[Union[str, List[str]]]]) -> None:
+        """
+        Set suffixes to be set to transformed Dataset.
+
+        Parameters
+        ----------
+        name_sufix : str, list
+            Suffixes to be set to a transformed Dataset.
+        """
         if isinstance(self.__transformers, list) and np.all(
                 [isinstance(t, TransformerArray) for t in self.__transformers]):
             for t in self.__transformers:
                 t.set_dataset_suffixes(name_sufix)
 
     def get_dataset_suffixes(self) -> Optional[Union[str, List[str]]]:
+        """
+        Get suffixes for transformed Dataset.
+
+        Returns
+        -------
+        str, list
+            Suffixes for a transformed Dataset.
+        """
         if isinstance(self.__transformers, list) and np.all(
                 [isinstance(t, TransformerArray) for t in self.__transformers]):
             return [t.get_dataset_suffixes() for t in self.__transformers]
@@ -128,6 +214,14 @@ class NestedAutomaticTransformer(Transformer):
             return []
 
     def set_params(self, **params) -> None:
+        """
+        Set params for Transformer.
+
+        Parameters
+        ----------
+        params : dict
+            The parameters to be set.
+        """
         if isinstance(self.__transformers, list) and np.all(
                 [isinstance(t, TransformerArray) for t in self.__transformers]):
             for i in range(len(self.__transformers)):
@@ -137,6 +231,14 @@ class NestedAutomaticTransformer(Transformer):
                 self.__transformers[i].set_params(**tmp)
 
     def get_params(self) -> List[Union[Dict, List]]:
+        """
+        Get parameters of Transformer.
+
+        Returns
+        -------
+        Dict, list
+            The parameters.
+        """
         if isinstance(self.__transformers, list) and np.all(
                 [isinstance(t, TransformerArray) for t in self.__transformers]):
             return [t.parameters for t in self.__transformers]
@@ -149,6 +251,13 @@ class NestedAutomaticTransformer(Transformer):
 
     @property
     def transformers(self) -> List[Union[Transformer, TransformerArray, List]]:
+        """
+        All the Transformer objects used by this object.
+
+        Returns
+        -------
+        list[Transformer, TransformerArray, list]
+        """
         if self.__transformers is None:
             return []
         else:
@@ -163,6 +272,13 @@ class NestedAutomaticTransformer(Transformer):
 
     @property
     def base_transformer(self) -> Union[Transformer, TransformerArray, List]:
+        """
+        Base transformers for creation of this object.
+
+        Returns
+        -------
+        list[Transformer, TransformerArray, list]
+        """
         if self.__base_transformers is None:
             return []
         else:
@@ -215,6 +331,32 @@ class NestedAutomaticTransformer(Transformer):
 
 
 class BasicAutomaticTransformer(NestedAutomaticTransformer):
+    """
+    Create BasicAutomaticTransformer.
+
+    This object contains three most popular methods - Random Under Sampler, Random Over Sampler and SMOTE.
+
+    This class can be used for both continuous (numerical) and categorical data.
+
+    Parameters
+    ----------
+    keep_original_dataset : bool, default=False
+        Keep the original Dataset after transformations or not.
+    result_array_sufix str, default='_automatic_transformed_array'
+        Suffix of the transformed DatasetArray.
+    n_per_method : int, default=5
+        Number of intermediate Imbalance Ratio values.
+    random_state : int, optional, default=None,
+        Random state seed.
+    IR_round_precision : int, default=2
+        Round precision of Imbalance Ratio when printing.
+    min_samples_to_modify : int, optional, default=None
+        Minimal number of samples to modify to create an intermediate Imbalance Ratio. If the number of modified
+        observations is less than this number, the `n_per_method` parameter will be modified.
+    verbose : bool, default=False
+        Print messages during calculations.
+
+    """
     def __init__(self, keep_original_dataset: bool = False, result_array_sufix: str = '_automatic_transformed_array',
                  n_per_method: int = 5, random_state: Optional[int] = None, IR_round_precision: int = 2,
                  min_samples_to_modify: Optional[int] = None, verbose: bool = False) -> None:
@@ -240,7 +382,32 @@ class BasicAutomaticTransformer(NestedAutomaticTransformer):
 
 class ExtensionAutomaticTransformer(NestedAutomaticTransformer):
     """
-    Only for numerical - categorical are not supported for any other method than in BasicTransformer
+    Create ExtensionAutomaticTransformer.
+
+    This object contains eight methods implemented in imblearn. There are methods used for oversampling
+    (BorderlineSMOTE, KMeansSMOTE, SVMSMOTE, ADASYN), undersampling (ClusterCentroids, NearMiss)
+    and there are also mixed methods (SMOTEENN, SMOTETomek).
+
+    This class can be used only for continuous (numerical) data.
+
+    Parameters
+    ----------
+    keep_original_dataset : bool, default=False
+        Keep the original Dataset after transformations or not.
+    result_array_sufix str, default='_automatic_transformed_array'
+        Suffix of the transformed DatasetArray.
+    n_per_method : int, default=5
+        Number of intermediate Imbalance Ratio values.
+    random_state : int, optional, default=None,
+        Random state seed.
+    IR_round_precision : int, default=2
+        Round precision of Imbalance Ratio when printing.
+    min_samples_to_modify : int, optional, default=None
+        Minimal number of samples to modify to create an intermediate Imbalance Ratio. If the number of modified
+        observations is less than this number, the `n_per_method` parameter will be modified.
+    verbose : bool, default=False
+        Print messages during calculations.
+
     """
     def __init__(self, keep_original_dataset: bool = False, result_array_sufix: str = '_automatic_transformed_array',
                  n_per_method: int = 5, random_state: Optional[int] = None, IR_round_precision: int = 2,
@@ -285,7 +452,32 @@ class ExtensionAutomaticTransformer(NestedAutomaticTransformer):
 
 class AutomaticTransformer(NestedAutomaticTransformer):
     """
-    Only for numerical - categorical are not supported for any other method than in BasicTransformer
+    Create AutomaticTransformer.
+
+    This object contains eleven methods implemented in imblearn. There are methods used for oversampling
+    (RandomOverSampling, BorderlineSMOTE, KMeansSMOTE, SVMSMOTE, ADASYN), undersampling (RandomUnderSampling,
+    ClusterCentroids, NearMiss) and there are also mixed methods (SMOTEENN, SMOTETomek).
+
+    This class can be used only for continuous (numerical) data.
+
+    Parameters
+    ----------
+    keep_original_dataset : bool, default=False
+        Keep the original Dataset after transformations or not.
+    result_array_sufix str, default='_automatic_transformed_array'
+        Suffix of the transformed DatasetArray.
+    n_per_method : int, default=5
+        Number of intermediate Imbalance Ratio values.
+    random_state : int, optional, default=None,
+        Random state seed.
+    IR_round_precision : int, default=2
+        Round precision of Imbalance Ratio when printing.
+    min_samples_to_modify : int, optional, default=None
+        Minimal number of samples to modify to create an intermediate Imbalance Ratio. If the number of modified
+        observations is less than this number, the `n_per_method` parameter will be modified.
+    verbose : bool, default=False
+        Print messages during calculations.
+
     """
     def __init__(self, keep_original_dataset: bool = False, result_array_sufix: str = '_automatic_transformed_array',
                  n_per_method: int = 5, random_state: Optional[int] = None, IR_round_precision: int = 2,

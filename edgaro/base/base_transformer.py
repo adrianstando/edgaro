@@ -69,7 +69,7 @@ class BaseTransformer(ABC):
     @abstractmethod
     def was_fitted(self) -> bool:
         """
-        The information whether the BaseTransformerArray was fitted.
+        The information whether the BaseTransformer was fitted.
 
         Returns
         -------

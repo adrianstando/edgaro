@@ -10,6 +10,30 @@ from edgaro.base.utils import print_unbuffered
 
 
 class TransformerArray(BaseTransformerArray):
+    """
+    Create a class to apply Transformer transformation with more than one set of parameters and/or
+    to each of the Dataset objects in DatasetArray.
+
+    Parameters
+    ----------
+    base_transformer : Transformer
+        The object defining the transformation procedure.
+    parameters : list[list, Dict[str, Any]]], optional
+        The list of parameters for base_transformer. If the object is used for a DatasetArray object,
+        the parameter list should be nested. For details, see Examples section.
+    keep_original_dataset : bool, default=False
+        Keep the original Dataset after transformations or not.
+    dataset_suffixes : list, str, default='_transformed'
+        Suffixes to be set to a transformed objects.
+    result_array_sufix : str, default='_transformed_array'
+        Suffix of the main transformed DatasetArray object.
+    allow_dataset_array_sufix_change : bool, default=True
+        Allow changing passed value of `result_array_sufix` according to `dataset_suffixes`.
+    verbose : bool, default=False
+        Print messages during calculations.
+    set_suffixes : str, default=True
+        Information whether suffixes for sub-Transformers should be set.
+    """
     def __init__(self, base_transformer: Transformer, parameters: Optional[List[Union[List, Dict[str, Any]]]] = None,
                  keep_original_dataset: bool = False, dataset_suffixes: Union[str, List[str]] = '_transformed',
                  result_array_sufix: str = '_transformed_array', allow_dataset_array_sufix_change: bool = True,
@@ -25,6 +49,14 @@ class TransformerArray(BaseTransformerArray):
         self.verbose = verbose
 
     def set_dataset_suffixes(self, name_sufix: Union[str, List[str]]) -> None:
+        """
+        Set suffixes to be set to transformed Dataset.
+
+        Parameters
+        ----------
+        name_sufix : str, list
+            Suffixes to be set to a transformed Dataset.
+        """
         if self.set_suffixes:
             params = self.get_params()
             length_params = len(params) if params is not None else 0
@@ -77,14 +109,38 @@ class TransformerArray(BaseTransformerArray):
                     raise Exception('Parameter dataset_suffixes has invalid length!')
 
     def get_dataset_suffixes(self) -> Optional[Union[str, List[str]]]:
+        """
+        Get suffixes for transformed Dataset.
+
+        Returns
+        -------
+        str, list
+            Suffixes for a transformed Dataset.
+        """
         return self.__dataset_suffixes
 
     def set_params(self, **params) -> None:
+        """
+        Set params for Transformer.
+
+        Parameters
+        ----------
+        params : dict
+            The parameters to be set.
+        """
         super().set_params(**params)
         if self.__dataset_suffixes is not None and len(self.__dataset_suffixes) == 1:
             self.set_dataset_suffixes(self.__dataset_suffixes[0])
 
     def fit(self, dataset: Union[Dataset, DatasetArray]) -> None:
+        """
+        Fit the transformer.
+
+        Parameters
+        ----------
+        dataset : Dataset, DatasetArray
+            The object to fit Transformer on.
+        """
         super().fit(dataset)
         self.__fix_classes()
 
@@ -130,6 +186,19 @@ class TransformerArray(BaseTransformerArray):
             print_unbuffered(f'TransformerArray {self.__repr__()} was fitted with {dataset.name}')
 
     def transform(self, dataset: Union[Dataset, DatasetArray]) -> Union[Dataset, DatasetArray]:
+        """
+        Transform the object.
+
+        Parameters
+        ----------
+        dataset : Dataset, DatasetArray
+            The object to be transformed.
+
+        Returns
+        -------
+        Dataset, DatasetArray
+            The transformed object.
+        """
         out = super().transform(dataset=dataset)
         if self.keep_original_dataset:
             out.append(dataset)
@@ -160,6 +229,13 @@ class TransformerArray(BaseTransformerArray):
 
     @property
     def transformers(self) -> List[Union[Transformer, TransformerArray, List]]:
+        """
+        All the Transformer objects used by this object.
+
+        Returns
+        -------
+        list[Transformer, TransformerArray, list]
+        """
         return super().transformers
 
     @transformers.setter
@@ -168,6 +244,13 @@ class TransformerArray(BaseTransformerArray):
 
     @property
     def base_transformer(self) -> Transformer:
+        """
+        Base transformers for creation of this object.
+
+        Returns
+        -------
+        Transformer
+        """
         out = super().base_transformer
         if isinstance(out, Transformer):
             return out
