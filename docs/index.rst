@@ -8,7 +8,17 @@ Welcome to edgaro's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+
+   self
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Class documentation:
+
+   source/edgaro.data
+   source/edgaro.balancing
+   source/edgaro.model
+   source/edgaro.explain
 
 
 
