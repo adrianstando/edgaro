@@ -257,7 +257,7 @@ class Dataset:
 
     def remove_nans(self, col_thresh: float = 0.9) -> None:
         """
-        Remove rows with NaN values and columns containing almost only NaN values
+        Remove rows with NaN values and columns containing almost only NaN values.
 
         Parameters
         ----------
@@ -342,7 +342,7 @@ class Dataset:
 
 
 class DatasetFromCSV(Dataset):
-    """ Create a `Dataset` object from a `*.csv` file
+    """ Create a Dataset object from a `*.csv` file
 
     If`target` parameter is `None`, the target is the last column in file.
 
@@ -380,7 +380,7 @@ class DatasetFromCSV(Dataset):
 
 
 class DatasetFromOpenML(Dataset):
-    """  Create a `Dataset` object from an `OpenML` dataset
+    """  Create a Dataset object from an `OpenML` dataset.
 
     Before using this class, you should follow the procedure of configuring Authentication on the website
     `here <https://openml.github.io/openml-python/main/examples/20_basic/introduction_tutorial.html#sphx-glr-examples-20-basic-introduction-tutorial-py>`_.

@@ -11,6 +11,50 @@ from edgaro.base.base_transformer import BaseTransformer
 
 
 class BaseTransformerArray:
+    """
+    Create a class to apply BaseTransformer transformation with more than one set of parameters and/or
+    to each of the Dataset objects in DatasetArray.
+
+    Parameters
+    ----------
+    base_transformer : BaseTransformer
+        The object defining the transformation procedure.
+    parameters : list[list, Dict[str, Any]]], optional
+        The list of parameters for base_transformer. If the object is used for a DatasetArray object,
+        the parameter list should be nested. For details, see Examples section.
+    transformer_sufix : str
+        A suffix to be added to name in a transformed object.
+
+    Attributes
+    ----------
+    transformer_sufix : str
+        A suffix to be added to name in a transformed object.
+
+    Examples
+    ----------
+    Example 1
+
+    >>> from test.resources.objects import *
+    >>> from edgaro.balancing.transformer import RandomUnderSampler
+    >>> df = Dataset(name_1, df_1, target_1)
+    >>> params = [{'sampling_strategy': 0.98},{'sampling_strategy': 1}]
+    >>> transformer = RandomUnderSampler()
+    >>> array = BaseTransformerArray(transformer, parameters=params)
+    >>> array.fit(df)
+    >>> array.transform(df)
+
+    Example 2
+
+    >>> from test.resources.objects import *
+    >>> from edgaro.balancing.transformer import RandomUnderSampler
+    >>> df = DatasetArray([Dataset(name_2, df_1, target_1), Dataset(name_1, df_1, target_1)])
+    >>> params = [ [{'sampling_strategy': 0.98},{'sampling_strategy': 1}] for _ in range(len(df)) ]
+    >>> transformer = RandomUnderSampler()
+    >>> array = BaseTransformerArray(transformer, parameters=params)
+    >>> array.fit(df)
+    >>> array.transform(df)
+    """
+
     def __init__(self, base_transformer: BaseTransformer, parameters: Optional[List[Union[List, Dict[str, Any]]]] = None,
                  transformer_sufix: str = '_transformed_array') -> None:
         self.__base_transformer = base_transformer
@@ -26,6 +70,14 @@ class BaseTransformerArray:
         return t
 
     def fit(self, dataset: Union[Dataset, DatasetArray]) -> None:
+        """
+        Fit the transformer.
+
+        Parameters
+        ----------
+        dataset : Dataset, DatasetArray
+            The object to fit BaseTransformerArray on.
+        """
         # Single dataset case
         if isinstance(dataset, Dataset):
             self.__input_shape = 1
@@ -62,14 +114,36 @@ class BaseTransformerArray:
         self.__was_fitted = True
 
     def transform(self, dataset: Union[Dataset, DatasetArray]) -> DatasetArray:
+        """
+        Transform the object.
+
+        Parameters
+        ----------
+        dataset : Dataset, DatasetArray
+            The object to be transformed.
+
+        Returns
+        -------
+        DatasetArray
+            The transformed object.
+        """
         # Single dataset case
         if isinstance(dataset, Dataset):
             if not self.__input_shape == 1:
                 raise Exception('DatasetArray was fitted, but single Dataset was provided!')
-            return DatasetArray(
-                [transformator.transform(dataset) for transformator in self.__transformers],
-                name=dataset.name + self.transformer_sufix
-            )
+            tab = [transformator.transform(dataset) for transformator in self.__transformers]
+            try:
+                return DatasetArray(
+                    tab,
+                    name=dataset.name + self.transformer_sufix
+                )
+            except (Exception,):
+                for i in range(len(tab)):
+                    tab[i].name += ('_' + str(i))
+                return DatasetArray(
+                    tab,
+                    name=dataset.name + self.transformer_sufix
+                )
         # DatasetArray case
         else:
             if not self.__input_shape == len(dataset):
@@ -84,6 +158,43 @@ class BaseTransformerArray:
     """
 
     def set_params(self, **params) -> None:
+        """
+        Set params for BaseTransformerArray.
+
+        The parameters should be in a form of a list or a nested list - it depends on whether the object is used
+        on a Dataset or a DatasetArray object. For details see Examples section.
+
+        Parameters
+        ----------
+        params : dict
+            The parameters to be set.
+
+        Examples
+        ----------
+        Example 1
+
+        >>> from test.resources.objects import *
+        >>> from edgaro.balancing.transformer import RandomUnderSampler
+        >>> df = Dataset(name_1, df_1, target_1)
+        >>> transformer = RandomUnderSampler()
+        >>> array = BaseTransformerArray(transformer)
+        >>> params = {'sampling_strategy': [1, 0.98]}
+        >>> array.set_params(**params)
+        >>> array.fit(df)
+        >>> array.transform(df)
+
+        Example 2
+
+        >>> from test.resources.objects import *
+        >>> from edgaro.balancing.transformer import RandomUnderSampler
+        >>> df = DatasetArray([Dataset(name_2, df_1, target_1), Dataset(name_1, df_1, target_1)])
+        >>> transformer = RandomUnderSampler()
+        >>> array = BaseTransformerArray(transformer)
+        >>> params = {'sampling_strategy': [[1, 0.98] for _ in range(len(df))]}
+        >>> array.set_params(**params)
+        >>> array.fit(df)
+        >>> array.transform(df)
+        """
         lengths = [len(val) for key, val in params.items()]
         if len(lengths) == 0:
             raise Exception('Parameters were not provided!')
@@ -109,10 +220,25 @@ class BaseTransformerArray:
         return tmp
 
     def get_params(self) -> Optional[List[Dict[str, Any]]]:
+        """
+        Get parameters of BaseTransformerArray.
+
+        Returns
+        -------
+        list[list, Dict[str, Any]]], optional
+            The parameters.
+        """
         return self.__parameters
 
     @property
     def was_fitted(self) -> bool:
+        """
+        The information whether the BaseTransformerArray was fitted.
+
+        Returns
+        -------
+        bool
+        """
         if self.__was_fitted:
             return True
         elif len(self.__transformers) == 0:
@@ -124,6 +250,14 @@ class BaseTransformerArray:
 
     @property
     def parameters(self) -> Optional[List[Dict[str, Any]]]:
+        """
+        Get parameters of BaseTransformerArray.
+
+        Returns
+        -------
+        list[list, Dict[str, Any]]], optional
+            The parameters.
+        """
         return self.__parameters
 
     @parameters.setter
@@ -135,6 +269,13 @@ class BaseTransformerArray:
 
     @property
     def transformers(self) -> List[Union[BaseTransformer, BaseTransformerArray, List]]:
+        """
+        BaseTransformer and BaseTransformerArray objects inside this object.
+
+        Returns
+        -------
+        list[BaseTransformer, BaseTransformerArray, list]
+        """
         return self.__transformers
 
     @transformers.setter
@@ -146,6 +287,13 @@ class BaseTransformerArray:
 
     @property
     def base_transformer(self) -> BaseTransformer:
+        """
+        BaseTransformer of this object.
+
+        Returns
+        -------
+        BaseTransformer
+        """
         return self.__base_transformer
 
     @base_transformer.setter

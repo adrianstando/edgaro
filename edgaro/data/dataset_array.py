@@ -12,6 +12,30 @@ from edgaro.base.utils import print_unbuffered
 
 
 class DatasetArray:
+    """ Create a DatasetArray object
+
+    This class creates a unified representation of an array of the Dataset objects, which can be further processed by
+    other package classes.
+
+    Parameters
+    ----------
+    datasets : list[Dataset, DatasetArray]
+        The list of Dataset and DatasetArray objects.
+    name : str, default='dataset_array'
+        Name of the dataset array.
+    verbose : bool, default=False
+        Print messages during calculations.
+
+    Attributes
+    ----------
+    name : str
+        Name of the dataset array.
+    datasets : list[Dataset, DatasetArray]
+        The list of Dataset and DatasetArray objects.
+    verbose : bool
+        Print messages during calculations.
+    """
+
     def __init__(self, datasets: List[Union[Dataset, DatasetArray]],
                  name: str = 'dataset_array', verbose: bool = False) -> None:
         keys = [df.name for df in datasets]
@@ -71,6 +95,16 @@ class DatasetArray:
             raise StopIteration
 
     def train_test_split(self, test_size: float = 0.2, random_state: Optional[int] = None) -> None:
+        """
+        Split each of the Dataset objects into train and test datasets.
+
+        Parameters
+        ----------
+        test_size : float, default=0.2
+            The size of a train dataset.
+        random_state : int, optional, default=None
+            Random state seed.
+        """
         for ds in self.datasets:
             ds.train_test_split(test_size, random_state)
 
@@ -79,24 +113,52 @@ class DatasetArray:
 
     @property
     def train(self) -> DatasetArray:
+        """
+        DatasetArray : the DatasetArray of train part of Dataset objects if the Dataset objects were train-test-split
+        """
         out = [ds.train for ds in self.datasets]
         return DatasetArray(out, self.name + '_train')
 
     @property
     def test(self) -> DatasetArray:
+        """
+        DatasetArray : the DatasetArray of train part of Dataset objects if the Dataset objects were train-test-split
+        """
         out = [ds.test for ds in self.datasets]
         return DatasetArray(out, self.name + '_test')
 
-    def remove_nans(self) -> None:
+    def remove_nans(self, col_thresh: float = 0.9) -> None:
+        """
+        Remove rows with NaN values and columns containing almost only NaN values.
+
+        Parameters
+        ----------
+        col_thresh : float, default=0.9
+            The threshold of NaN values in columns above which a column should be dropped
+        """
         for dataset in self.datasets:
-            dataset.remove_nans()
+            dataset.remove_nans(col_thresh=col_thresh)
         self.remove_empty_datasets()
 
     def remove_outliers(self, n_std: Union[float, int] = 3) -> None:
+        """
+        Remove outliers with NaN values and columns containing almost only NaN values.
+
+        It is only applicable for continuous variables (that means not `category`, 'object' and 'int' type).
+
+        Parameters
+        ----------
+        n_std : float, int, default=3
+            Number of standard deviations.
+            The observations that lies outside the range `column_mean +/- n_std*column_std` will be removed.
+        """
         for dataset in self.datasets:
             dataset.remove_outliers(n_std=n_std)
 
     def remove_non_binary_target_datasets(self) -> None:
+        """
+        Remove Dataset objects which do not represent binary classification task.
+        """
         for dataset in self.datasets:
             if isinstance(dataset, DatasetArray):
                 dataset.remove_non_binary_target_datasets()
@@ -116,6 +178,9 @@ class DatasetArray:
             print_unbuffered(f'Non binary datasets were removed from DatasetArray {self.__repr__()}')
 
     def remove_empty_datasets(self) -> None:
+        """
+        Remove empty Dataset objects.
+        """
         for dataset in self.datasets:
             if isinstance(dataset, DatasetArray):
                 dataset.remove_empty_datasets()
@@ -137,12 +202,33 @@ class DatasetArray:
             print_unbuffered(f'Empty datasets were removed from DatasetArray {self.__repr__()}')
 
     def append(self, other: Union[Dataset, DatasetArray, List[Union[Dataset, DatasetArray]]]) -> None:
+        """
+        Append new object to an DatasetArray.
+
+        Parameters
+        ----------
+        other : Dataset, DatasetArray, list[Dataset, DatasetArray]
+            The object to be appended to the array.
+        """
         if isinstance(other, list):
             self.datasets += other
         else:
             self.datasets.append(other)
 
     def head(self, n: int = 10):
+        """
+        Get first `n` rows of each of the Dataset objects.
+
+        Parameters
+        ----------
+        n : int, default=10
+            Number of rows.
+
+        Returns
+        -------
+        DatasetArray
+            A DatasetArray object with Dataset objects with `n` first rows.
+        """
         return DatasetArray(
             datasets=[d.head(n) for d in self.datasets],
             name=self.name + '_head',
@@ -157,6 +243,26 @@ class DatasetArray:
 
 
 class DatasetArrayFromOpenMLSuite(DatasetArray):
+    """
+    Create a DatasetArray object from an `OpenML` suite.
+
+    Before using this class, you should follow the procedure of configuring Authentication on the website
+    `here <https://openml.github.io/openml-python/main/examples/20_basic/introduction_tutorial.html#sphx-glr-examples-20-basic-introduction-tutorial-py>`_.
+
+    Otherwise, you should have your own API key for OpenML and pass it as a parameter.
+
+    Parameters
+    ----------
+    suite_name : str, default = 'OpenML100'
+        A task ID for a dataset in OpenML.
+    apikey : str, optional, default=None
+        An API key to OpenML (if you configured OpenML, you do not need to pass this parameter).
+    name : str
+        Name of the dataset array.
+    verbose : bool, default=False
+        Print messages during calculations.
+    """
+
     def __init__(self, suite_name: str = 'OpenML100', apikey: Optional[str] = None,
                  name: str = 'dataset_array', verbose: bool = False) -> None:
         if openml.config.apikey == '':
@@ -190,13 +296,33 @@ class DatasetArrayFromOpenMLSuite(DatasetArray):
                 print_unbuffered(f'DatasetArray from OpenML benchmark suite {suite_name} was created')
 
     def openml_description(self) -> str:
+        """
+        Description of the suite from OpenML.
+
+        Returns
+        -------
+        str
+            The suite description.
+        """
         return "Name: " + self.__openml_name + '\n' + 'Description: ' + '\n' + self.__openml_description
 
 
 class DatasetArrayFromDirectory(DatasetArray):
-    """
-    Attention!
-    The target class is assumed to be the last column!
+    """ Create a DatasetArray object by loading `*.csv` and `*.npy` files.
+
+    The `*.npy` files are the files, which contain numpy arrays or pickled objects. They are loaded using this
+    `function <https://numpy.org/doc/stable/reference/generated/numpy.load.html>`_.
+
+    The class assumes that the last column in each file is a target column.
+
+    Parameters
+    ----------
+    path : str
+        A path of a directory to load files from.
+    name : str, default='dataset_array'
+        Name of the dataset array.
+    verbose : bool, default=False
+        Print messages during calculations.
     """
 
     def __init__(self, path: str, name: str = 'dataset_array', verbose: bool = False) -> None:
