@@ -2,17 +2,6 @@
 edgaro.balancing package
 ========================
 
-Submodules
-----------
-
-edgaro.balancing.nested\_transformer module
--------------------------------------------
-
-.. automodule:: edgaro.balancing.nested_transformer
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 edgaro.balancing.transformer module
 -----------------------------------
 
@@ -29,10 +18,10 @@ edgaro.balancing.transformer\_array module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+edgaro.balancing.nested\_transformer module
+-------------------------------------------
 
-.. automodule:: edgaro.balancing
+.. automodule:: edgaro.balancing.nested_transformer
    :members:
    :undoc-members:
    :show-inheritance:

@@ -2,9 +2,6 @@
 edgaro.explain package
 ======================
 
-Submodules
-----------
-
 edgaro.explain.explainer module
 -------------------------------
 
@@ -37,10 +34,3 @@ edgaro.explain.explainer\_result\_array module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: edgaro.explain
-   :members:
-   :undoc-members:
-   :show-inheritance:

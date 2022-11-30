@@ -2,9 +2,6 @@
 edgaro.data package
 ===================
 
-Submodules
-----------
-
 edgaro.data.dataset module
 --------------------------
 
@@ -21,10 +18,3 @@ edgaro.data.dataset\_array module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: edgaro.data
-   :members:
-   :undoc-members:
-   :show-inheritance:

@@ -2,9 +2,6 @@
 edgaro.base package
 ===================
 
-Submodules
-----------
-
 edgaro.base.base\_transformer module
 ------------------------------------
 
@@ -29,10 +26,3 @@ edgaro.base.utils module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: edgaro.base
-   :members:
-   :undoc-members:
-   :show-inheritance:
