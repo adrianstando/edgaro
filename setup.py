@@ -7,7 +7,8 @@ long_description = (here / "README.md").read_text(encoding="utf-8")
 
 setup(
     name="edgaro",
-    version="0.1",
+    version="0.1.0",
+    # version="1.0.0",
     description="Explainable imbalanceD learninG compARatOr",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -28,7 +29,7 @@ setup(
         "Programming Language :: Python :: 3 :: Only",
         "Operating System :: OS Independent"
     ],
-    keywords="XAI, imbalance, machine learning",
+    keywords="XAI, imbalance, machine learning, AI",
     packages=["edgaro"] + [f"edgaro.{item}" for item in find_packages(where="edgaro")],
     python_requires=">=3.8, <4",
     install_requires=[
@@ -47,6 +48,7 @@ setup(
         'scipy>=1.7.3'
     ],
     project_urls={
-        "Repository": "https://github.com/adrianstando/edgaro"
+        # "Documentation": "https://adrianstando.github.io/edgaro",
+        "Code repository": "https://github.com/adrianstando/edgaro"
     },
 )

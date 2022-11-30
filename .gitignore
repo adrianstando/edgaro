@@ -7,3 +7,4 @@ test/resources/out.html
 /.mypy_cache/
 /_build/
 /docs/_build/
+/dist
