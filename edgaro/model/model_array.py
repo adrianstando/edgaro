@@ -19,6 +19,7 @@ class ModelArray(BaseTransformerArray):
     ----------
     base_model : Model
         The object defining the basic Model training procedure.
+        The base_model object has to be clean - it cannot be fitted earlier.
     parameters : list[list, Dict[str, Any]]], optional
         The list of parameters for base_model. If the object is used for a DatasetArray object,
         the parameter list should be nested. For details, see Examples section.
