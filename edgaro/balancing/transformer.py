@@ -19,6 +19,20 @@ from edgaro.base.utils import print_unbuffered
 class Transformer(BaseTransformer, ABC):
     """
     The abstract class to define balancing transformations for a single Dataset.
+
+    Parameters
+    ----------
+    name_sufix : str, default='_transformed'
+        Sufix to be set to a transformed Dataset.
+    verbose : bool, default=False
+        Print messages during calculations.
+
+    Attributes
+    ----------
+    name_sufix : str
+        Sufix to be set to a transformed Dataset.
+    verbose : bool
+        Print messages during calculations.
     """
 
     def __init__(self, name_sufix: str = '_transformed', verbose: bool = False) -> None:

@@ -33,6 +33,36 @@ class TransformerArray(BaseTransformerArray):
         Print messages during calculations.
     set_suffixes : str, default=True
         Information whether suffixes for sub-Transformers should be set.
+
+    Examples
+    ----------
+    Example 1
+
+    >>> from test.resources.objects import *
+    >>> from edgaro.data.dataset import Dataset
+    >>> from edgaro.data.dataset_array import DatasetArray
+    >>> from edgaro.balancing.transformer import RandomUnderSampler
+    >>> from edgaro.balancing.transformer_array import TransformerArray
+    >>> df = Dataset(name_1, df_1, target_1)
+    >>> params = [{'sampling_strategy': 0.98}, {'sampling_strategy': 1}]
+    >>> transformer = RandomUnderSampler()
+    >>> array = TransformerArray(transformer, parameters=params)
+    >>> array.fit(df)
+    >>> array.transform(df)
+
+    Example 2
+
+    >>> from test.resources.objects import *
+    >>> from edgaro.data.dataset import Dataset
+    >>> from edgaro.data.dataset_array import DatasetArray
+    >>> from edgaro.balancing.transformer import RandomUnderSampler
+    >>> from edgaro.balancing.transformer_array import TransformerArray
+    >>> df = DatasetArray([Dataset(name_2, df_1, target_1), Dataset(name_1, df_1, target_1)])
+    >>> params = [ [{'sampling_strategy': 0.98}, {'sampling_strategy': 1}] for _ in range(len(df)) ]
+    >>> transformer = RandomUnderSampler()
+    >>> array = TransformerArray(transformer, parameters=params)
+    >>> array.fit(df)
+    >>> array.transform(df)
     """
     def __init__(self, base_transformer: Transformer, parameters: Optional[List[Union[List, Dict[str, Any]]]] = None,
                  keep_original_dataset: bool = False, dataset_suffixes: Union[str, List[str]] = '_transformed',
