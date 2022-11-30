@@ -209,17 +209,32 @@ class ExplainerResult:
             plt.ylim(y_lim)
         plt.xlabel(variable)
 
-        if len(add_plot) >= 2:
+        compare_results = self.compare(add_plot, variable=variable)
+        if not np.alltrue([r is None for r in compare_results]):
             if ax is None:
                 ax = plt.gca()
             y_min, y_max = ax.get_ylim()
             x_min, x_max = ax.get_xlim()
-            ax.text(
-                x_min + 0.8 * (x_max - x_min),
-                y_min + 0.2 * (y_max - y_min),
-                f'p-value={self.compare(add_plot, variable=variable):.3f}',
-                fontsize='large'
-            )
+
+            text = ""
+            if compare_results[0] is not None:
+                text += f'p-value={compare_results[0]:.3f}'
+            if compare_results[1] is not None:
+                if text != "":
+                    text += '\n'
+                text += f'mean_variance={compare_results[1]:.3f}'
+            if compare_results[2] is not None:
+                if text != "":
+                    text += '\n'
+                text += f'mean_abs={compare_results[2]:.3f}'
+
+            if text != "":
+                ax.text(
+                    x_min + 0.7 * (x_max - x_min),
+                    y_min + 0.2 * (y_max - y_min),
+                    text,
+                    fontsize='medium'
+                )
 
     @staticmethod
     def __retrieve_explainer_results(inp, explain_results_in):
@@ -238,11 +253,14 @@ class ExplainerResult:
         """
         The function calculates the metrics to compare the curves for a given variable.
 
-        There are two metrics:
+        There are three metrics:
             1. The p-value of the Fligner-Killeen [3]_ test for the distances between the curve in this object and
                curves in `other`. To calculate this metric, the list `other` must have at least two elements.
             2. The variance of the distances between curve in this object and curves in `other` in intermediate points.
-               If there is more than one `other` object, the mean variance is returned
+               If there is more than one `other` object, the mean variance is returned.
+            3. The mean of absolute values of distances between curve in this object and curves in `other` in
+               intermediate points. If there is more than one `other` object, the mean value of all calculated values
+               is returned.
 
         Parameters
         ----------
@@ -261,8 +279,8 @@ class ExplainerResult:
         .. [3] https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.fligner.html
 
         """
-        if len(other) < 2:
-            return [None]
+
+        result_tab = []
         if isinstance(variable, str):
             if self[variable] is None:
                 raise Exception('Variable is not available!')
@@ -273,26 +291,47 @@ class ExplainerResult:
             if np.all([o[variable] is None for o in explain_results]):
                 raise Exception('Variable in \'other\' is not available!')
 
-            distances_to_original = [
-                res[variable].y - self[variable].y
-                for res in explain_results
-            ]
-
-            _, out = fligner(*distances_to_original)
+            result_tab = self.__calculate_metrics_one_variable(variable, explain_results)
         else:
-            if variable is None:
-                variable_all = list(self.results.keys())
-                out = np.mean(
-                    [self.compare(variable=var, other=other) for var in variable_all]
-                )
+            var = list(self.results.keys()) if variable is None else variable
+
+            outs = [self.compare(variable=var, other=other) for var in var]
+            if len(outs) > 0 and isinstance(outs[0], list):
+                for i in range(len(outs[0])):
+                    result_tab.append(np.mean([
+                        o[i] for o in outs
+                    ]))
             else:
-                out = np.mean(
-                    [self.compare(variable=var, other=other) for var in variable]
-                )
-        if np.isscalar(out):
-            return [float(out)]
+                raise Exception('Wrong output!')
+
+        if np.alltrue([np.isscalar(val) or val is None for val in result_tab]):
+            return [float(val) if val is not None else val for val in result_tab]
         else:
             raise Exception('Wrong output!')
+
+    def __calculate_metrics_one_variable(self, variable: str, explain_results: List[ExplainerResult]):
+        result_tab = []
+        distances_to_original = [
+            res[variable].y - self[variable].y
+            for res in explain_results
+        ]
+
+        # fligner test
+        if len(explain_results) < 2:
+            result_tab.append(None)
+        else:
+            _, out = fligner(*distances_to_original)
+            result_tab.append(out)
+
+        # variance
+        variances = [np.var(deltas) for deltas in distances_to_original]
+        result_tab.append(np.mean(variances))
+
+        # mean of abs differences
+        abs_deltas = [np.mean(np.abs(deltas)) for deltas in distances_to_original]
+        result_tab.append(np.mean(abs_deltas))
+
+        return result_tab
 
     def __str__(self) -> str:
         return f"ExplainerResult {self.name} for {len(self.results.keys())} variables: {list(self.results.keys())} with {self.curve_type} curve type"
