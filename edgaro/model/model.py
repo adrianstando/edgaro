@@ -102,10 +102,10 @@ class Model(BaseTransformer, ABC):
                 self.__train_dataset = deepcopy(dataset)
                 self.__test_dataset = deepcopy(dataset)
             else:
-                if not dataset.was_split and self.test_size is not None:
-                    dataset.train_test_split(test_size=self.test_size, random_state=self.random_state)
                 if dataset.was_split and self.test_size is not None:
                     warnings.warn('Dataset was train-test-split! Dataset will not be split the second time.')
+                elif not dataset.was_split and self.test_size is not None:
+                    dataset.train_test_split(test_size=self.test_size, random_state=self.random_state)
                 self.__train_dataset = deepcopy(dataset.train)
                 self.__test_dataset = deepcopy(dataset.test)
 
