@@ -35,9 +35,12 @@ class BaseTransformerArray:
     Example 1
 
     >>> from test.resources.objects import *
+    >>> from edgaro.data.dataset import Dataset
+    >>> from edgaro.data.dataset_array import DatasetArray
     >>> from edgaro.balancing.transformer import RandomUnderSampler
+    >>> from edgaro.base.base_transformer_array import BaseTransformerArray
     >>> df = Dataset(name_1, df_1, target_1)
-    >>> params = [{'sampling_strategy': 0.98},{'sampling_strategy': 1}]
+    >>> params = [{'sampling_strategy': 0.98}, {'sampling_strategy': 1}]
     >>> transformer = RandomUnderSampler()
     >>> array = BaseTransformerArray(transformer, parameters=params)
     >>> array.fit(df)
@@ -46,9 +49,12 @@ class BaseTransformerArray:
     Example 2
 
     >>> from test.resources.objects import *
+    >>> from edgaro.data.dataset import Dataset
+    >>> from edgaro.data.dataset_array import DatasetArray
     >>> from edgaro.balancing.transformer import RandomUnderSampler
+    >>> from edgaro.base.base_transformer_array import BaseTransformerArray
     >>> df = DatasetArray([Dataset(name_2, df_1, target_1), Dataset(name_1, df_1, target_1)])
-    >>> params = [ [{'sampling_strategy': 0.98},{'sampling_strategy': 1}] for _ in range(len(df)) ]
+    >>> params = [ [{'sampling_strategy': 0.98}, {'sampling_strategy': 1}] for _ in range(len(df)) ]
     >>> transformer = RandomUnderSampler()
     >>> array = BaseTransformerArray(transformer, parameters=params)
     >>> array.fit(df)
@@ -210,6 +216,8 @@ class BaseTransformerArray:
 
     @staticmethod
     def __transform_dict_to_lst(dct):
+        if np.alltrue([not isinstance(val, list) for key, val in dct.items()]):
+            return [dct]
         lengths = [len(val) for key, val in dct.items()]
         tmp = []
         for i in range(lengths[0]):
