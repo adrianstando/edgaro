@@ -225,6 +225,13 @@ class TransformerFromIMBLEARN(Transformer):
         return Dataset(name=name, dataframe=X, target=y)
 
     def get_imblearn_transformer(self) -> ImblearnProtocol:
+        """
+        Get the base transformer object from `imblearn` library.
+
+        Returns
+        -------
+        ImblearnProtocol
+        """
         return self.__transformer
 
     def set_params(self, **params) -> None:
