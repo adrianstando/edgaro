@@ -11,6 +11,39 @@ from edgaro.base.utils import print_unbuffered
 
 
 class ExplainerArray:
+    """
+    Create a class to calculate PDP [1]_ or ALE [2]_ curves for Model and ModelArray objects.
+
+    Parameters
+    ----------
+    models : Model, ModelArray
+        A Model/ModelArray object to calculate the curves on.
+    N : int, optional, default=None
+        Number of observations that will be sampled from the test Dataset before the calculation of profiles
+        (PDP/ALE curves). None means all data.
+    curve_type : {'PDP', 'ALE'}, default='PDP'
+        A curve type to be calculated.
+    verbose : bool, default=False
+        Print messages during calculations.
+
+    Attributes
+    ----------
+    models : Model, ModelArray
+        A Model/ModelArray object to calculate the curves for.
+    name: str
+        A name of the ExplainerArray, by default it is a Model/ModelArray name.
+    sub_calculators : list[Explainer, ExplainerArray], optional
+        A list of calculators for nested Datasets/DatasetArrays.
+    N : int, optional
+        Number of observations that will be sampled from the test Dataset before the calculation of profiles
+        (PDP/ALE curves). None means all data.
+    curve_type : {'PDP', 'ALE'}
+        A curve type to be calculated.
+    verbose : bool
+        Print messages during calculations.
+
+    """
+
     def __init__(self, models: Union[Model, ModelArray], N: Optional[int] = None,
                  curve_type: Literal['PDP', 'ALE'] = 'PDP', verbose: bool = False) -> None:
         self.models = models
@@ -21,6 +54,9 @@ class ExplainerArray:
         self.verbose = verbose
 
     def fit(self) -> None:
+        """
+        Fit the ExplainerArray object and create an explainer attribute.
+        """
         def create_sub_calculator(model: Union[Model, ModelArray]):
             if isinstance(model, Model):
                 calc = Explainer(model=model, N=self.N, curve_type=self.curve_type, verbose=self.verbose)
@@ -36,6 +72,18 @@ class ExplainerArray:
             print_unbuffered(f'dalex explainers inside {self.__repr__()} were created')
 
     def transform(self, variables=None) -> Union[ExplainerResult, ExplainerResultArray]:
+        """
+        Calculate the curve.
+
+        Parameters
+        ----------
+        variables : list[str], optional
+            List of variables for which the curves should be calculated.
+
+        Returns
+        -------
+        ExplainerResult, ExplainerResultArray
+        """
         if self.verbose:
             print_unbuffered(f'{self.curve_type}s are being calculated in {self.__repr__()}')
 

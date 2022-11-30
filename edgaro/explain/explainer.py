@@ -5,7 +5,7 @@ import warnings
 import sys
 import os
 
-from typing import List, Optional, Literal, Dict, Any
+from typing import List, Optional, Literal
 
 from edgaro.data.dataset import Dataset
 from edgaro.model.model import Model
@@ -14,6 +14,44 @@ from edgaro.base.utils import print_unbuffered
 
 
 class Explainer:
+    """
+    The class defines Explainer for a Model object - it allows to calculate PDP [1]_ or ALE [2]_ curves.
+
+    Parameters
+    ----------
+    model : Model
+        A Model object to calculate explanations on.
+    N : int, optional, default=None
+        Number of observations that will be sampled from the test Dataset before the calculation of profiles
+        (PDP/ALE curves). None means all data.
+    curve_type : {'PDP', 'ALE'}, default='PDP'
+        A curve type to be calculated.
+    verbose : bool, default=False
+        Print messages during calculations.
+
+    Attributes
+    ----------
+    model : Model
+        A Model object to calculate explanations on.
+    name: str
+        A name of the Explainer, by default it is a Model name.
+    N : int, optional, default=None
+        Number of observations that will be sampled from the test Dataset before the calculation of profiles
+        (PDP/ALE curves). None means all data.
+    curve_type : {'PDP', 'ALE'}
+        A curve type to be calculated.
+    verbose : bool
+        Print messages during calculations.
+    explainer : dx.Explainer, optional
+        An explainer object from `dalex` package.
+
+    References
+    ----------
+    .. [1] https://ema.drwhy.ai/partialDependenceProfiles.html
+    .. [2] https://ema.drwhy.ai/accumulatedLocalProfiles.html
+
+    """
+
     def __init__(self, model: Model, N: Optional[int] = None,
                  curve_type: Literal['PDP', 'ALE'] = 'PDP', verbose: bool = False) -> None:
         self.model = model
@@ -24,6 +62,9 @@ class Explainer:
         self.verbose = verbose
 
     def fit(self) -> None:
+        """
+        Fit the Explainer object and create an explainer attribute.
+        """
         def predict_func(model, data):
             if isinstance(data, np.ndarray):
                 data = pd.DataFrame(data)
@@ -55,6 +96,18 @@ class Explainer:
             print_unbuffered(f'dalex explainer inside {self.__repr__()} was created with {dataset.name}')
 
     def transform(self, variables: Optional[List[str]] = None) -> ExplainerResult:
+        """
+        Calculate the curve.
+
+        Parameters
+        ----------
+        variables : list[str], optional
+            List of variables for which the curves should be calculated.
+
+        Returns
+        -------
+        ExplainerResult
+        """
         if self.explainer is None:
             raise Exception('Explainer was not fitted!')
         category_colnames_base = self.model.get_category_colnames()
@@ -103,16 +156,6 @@ class Explainer:
                              f'{self.model.get_test_dataset().name}')
 
         return ExplainerResult(dict_output, self.name, self.model.get_category_colnames())
-
-    def set_params(self, **params) -> None:
-        if 'model' in params.keys():
-            if isinstance(params['model'], Model):
-                self.model = params['model']
-
-    def get_params(self) -> Dict[str, Any]:
-        return {
-            'model': self.model
-        }
 
     def __str__(self) -> str:
         return f"Explainer for model {self.name} with {self.curve_type} curve type"

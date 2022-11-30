@@ -11,6 +11,29 @@ from edgaro.explain.explainer_result import ExplainerResult
 
 
 class ExplainerResultArray:
+    """
+    The class which represent the PDP/ALE curves for all variables in Model/ModelArray object.
+
+    Parameters
+    ----------
+    results : list[ExplainerResult, ExplainerResultArray]
+        A list of ExplainerResult/ExplainerResultArray with results.
+    name : str
+        The name of ExplainerResultArray. It is best if it is a Model/ModelArray name.
+    curve_type : {'PDP', 'ALE'}, default='PDP'
+        A curve type.
+
+    Attributes
+    ----------
+    results : list[ExplainerResult, ExplainerResultArray]
+        A list of ExplainerResult/ExplainerResultArray with results.
+    name : str
+        The name of ExplainerResultArray. It is best if it is a Model/ModelArray name.
+    curve_type : {'PDP', 'ALE'}
+        A curve type.
+
+    """
+
     def __init__(self, results: List[Union[ExplainerResult, ExplainerResultArray]], name: str,
                  curve_type: Literal['PDP', 'ALE'] = 'PDP') -> None:
         self.results = results
@@ -60,6 +83,19 @@ class ExplainerResultArray:
                 ExplainerResultArray.__find_matching_explainer_result_array(res, results_in, variables)
 
     def plot(self, variables: Optional[List[str]] = None, n_col: int = 3, figsize: Optional[Tuple[int, int]] = None):
+        """
+        The function plots the PDP/ALE curves for given variables using all available Curves in the object.
+
+        Parameters
+        ----------
+        variables : list[str], optional, default=None
+            Variables for which the plot should be generated. If None, plots for all variables are generated if all the
+            available ExplainerResult objects have exactly the same set of column names.
+        n_col : int, default=3
+            Number of columns in the final plot.
+        figsize : tuple(int, int), optional, default=None
+            The size of a figure. If None, the figure size is calculates as (8 * n_col, 8 * n_rows).
+        """
         if variables is None:
             col_names = []
             if not ExplainerResultArray.__check_colnames(self, col_names):

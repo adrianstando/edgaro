@@ -12,6 +12,24 @@ from scipy.stats import fligner
 
 
 class Curve:
+    """
+    The class which represents the PDP/ALE curve for one variable.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Points on 0X axis.
+    y : np.ndarray
+        Points on 0Y axis.
+
+    Attributes
+    ----------
+    x : np.ndarray
+        Points on 0X axis.
+    y : np.ndarray
+        Points on 0Y axis.
+    """
+
     def __init__(self, x: ndarray, y: ndarray) -> None:
         self.x = x
         self.y = y
@@ -24,6 +42,33 @@ class Curve:
 
 
 class ExplainerResult:
+    """
+    The class which represent the PDP/ALE curves for all variables in one Model.
+
+    Parameters
+    ----------
+    results : Dict[str, Curve]
+        A dictionary of pairs (column name, Curve object), which represents curves for all variables in one Model.
+    name : str
+        The name of ExplainerResult. It is best if it is a Model name.
+    categorical_columns : list[str]
+        List of categorical variables.
+    curve_type : {'PDP', 'ALE'}, default='PDP'
+        A curve type.
+
+    Attributes
+    ----------
+    results : Dict[str, Curve]
+        A dictionary of pairs (column name, Curve object), which represents curves for all variables in one Model.
+    name : str
+        The name of ExplainerResult. It is best if it is a Model name.
+    categorical_columns : list[str]
+        List of categorical variables.
+    curve_type : {'PDP', 'ALE'}
+        A curve type.
+
+    """
+
     def __init__(self, results: Dict[str, Curve], name: str, categorical_columns: List[str],
                  curve_type: Literal['PDP', 'ALE'] = 'PDP') -> None:
         self.results = results
@@ -41,6 +86,26 @@ class ExplainerResult:
              add_plot: Optional[List[ExplainerResult]] = None, ax: Optional[Axes] = None,
              show_legend: bool = True, y_lim: Optional[Tuple[float, float]] = None
              ) -> None:
+        """
+        The function plots the PDP/ALE curve.
+
+        Parameters
+        ----------
+        variable : str
+            Variable for which the plot should be generated.
+        figsize : tuple(int, int), optional, default=(8, 8)
+            Size of a figure.
+        add_plot : list[ExplainerResult], optional, default=None
+            List of other ExplainerResult objects that also contain the `variable` and should be plotted.
+        ax : matplotlib.axes.Axes, optional, default=None
+            The parameter should be passed if the plot is to be created in a certain Axis. In that situation, `figsize`
+            parameter is ignored.
+        show_legend : bool, default=True
+            The parameter indicates whether the legend should be plotted.
+        y_lim : tuple(float, float), optional, default=None
+            The limits of 0Y axis.
+
+        """
         if figsize is None and ax is None:
             figsize = (8, 8)
 
@@ -168,9 +233,36 @@ class ExplainerResult:
                 for inp_i in inp.results:
                     ExplainerResult.__retrieve_explainer_results(inp_i, explain_results_in)
 
-    def compare(self, other: List[ExplainerResult], variable: Optional[Union[str, List[str]]] = None) -> float:
+    def compare(self, other: List[ExplainerResult], variable: Optional[Union[str, List[str]]] = None) \
+            -> List[Optional[float]]:
+        """
+        The function calculates the metrics to compare the curves for a given variable.
+
+        There are two metrics:
+            1. The p-value of the Fligner-Killeen [3]_ test for the distances between the curve in this object and
+               curves in `other`. To calculate this metric, the list `other` must have at least two elements.
+            2. The variance of the distances between curve in this object and curves in `other` in intermediate points.
+               If there is more than one `other` object, the mean variance is returned
+
+        Parameters
+        ----------
+        other : list[ExplainerResult]
+            List of ExplainerResult objects to compare the curve against.
+        variable : str, list[str], optional, default=None
+            List of variable names to calculate the metric distances. If None, the metrics are calculated for
+            all the columns in this object.
+
+        Returns
+        ----------
+        list[float, None]
+
+        References
+        ----------
+        .. [3] https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.fligner.html
+
+        """
         if len(other) < 2:
-            raise Exception('Not enough ExplainerResult objects were provided! At least two are needed!')
+            return [None]
         if isinstance(variable, str):
             if self[variable] is None:
                 raise Exception('Variable is not available!')
@@ -198,7 +290,7 @@ class ExplainerResult:
                     [self.compare(variable=var, other=other) for var in variable]
                 )
         if np.isscalar(out):
-            return float(out)
+            return [float(out)]
         else:
             raise Exception('Wrong output!')
 
