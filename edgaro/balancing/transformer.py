@@ -260,19 +260,19 @@ class RandomUnderSampler(TransformerFromIMBLEARN):
     """ Create Random Under Sampling transformer.
 
     Parameters
-        ----------
-        imbalance_ratio : float, default=1
-            Imbalance Ratio after transformations.
-        name_sufix : str, default='_transformed'
-            Sufix to be set to a transformed Dataset.
-        verbose : bool, default=False
-            Print messages during calculations.
-        random_state : int, optional
-            Random state seed.
-        *args : tuple, optional
-            Additional parameter for Random Under Sampling transformer from `imblearn`.
-        **kwargs : dict, optional
-            Additional parameter for Random Under Sampling transformer from `imblearn`.
+    ----------
+    imbalance_ratio : float, default=1
+        Imbalance Ratio after transformations.
+    name_sufix : str, default='_transformed'
+        Sufix to be set to a transformed Dataset.
+    verbose : bool, default=False
+        Print messages during calculations.
+    random_state : int, optional
+        Random state seed.
+    *args : tuple, optional
+        Additional parameter for Random Under Sampling transformer from `imblearn`.
+    **kwargs : dict, optional
+        Additional parameter for Random Under Sampling transformer from `imblearn`.
     """
 
     def __init__(self, imbalance_ratio: float = 1, name_sufix: str = '_transformed',
@@ -288,19 +288,19 @@ class RandomOverSampler(TransformerFromIMBLEARN):
     """ Create Random Over Sampling transformer.
 
     Parameters
-        ----------
-        imbalance_ratio : float, default=1
-            Imbalance Ratio after transformations.
-        name_sufix : str, default='_transformed'
-            Sufix to be set to a transformed Dataset.
-        verbose : bool, default=False
-            Print messages during calculations.
-        random_state : int, optional
-            Random state seed.
-        *args : tuple, optional
-            Additional parameter for Random Over Sampling transformer from `imblearn`.
-        **kwargs : dict, optional
-            Additional parameter for Random Over Sampling transformer from `imblearn`.
+    ----------
+    imbalance_ratio : float, default=1
+        Imbalance Ratio after transformations.
+    name_sufix : str, default='_transformed'
+        Sufix to be set to a transformed Dataset.
+    verbose : bool, default=False
+        Print messages during calculations.
+    random_state : int, optional
+        Random state seed.
+    *args : tuple, optional
+        Additional parameter for Random Over Sampling transformer from `imblearn`.
+    **kwargs : dict, optional
+        Additional parameter for Random Over Sampling transformer from `imblearn`.
     """
 
     def __init__(self, imbalance_ratio: float = 1, name_sufix: str = '_transformed',
@@ -319,19 +319,19 @@ class SMOTE(TransformerFromIMBLEARN):
     'int' are always categorical. Keep that in mind before using this Transformer!
 
     Parameters
-        ----------
-        imbalance_ratio : float, default=1
-            Imbalance Ratio after transformations.
-        name_sufix : str, default='_transformed'
-            Sufix to be set to a transformed Dataset.
-        verbose : bool, default=False
-            Print messages during calculations.
-        random_state : int, optional
-            Random state seed.
-        *args : tuple, optional
-            Additional parameter for SMOTE/SMOTENC/SMOTEN transformer from `imblearn`.
-        **kwargs : dict, optional
-            Additional parameter for SMOTE/SMOTENC/SMOTEN transformer from `imblearn`.
+    ----------
+    imbalance_ratio : float, default=1
+        Imbalance Ratio after transformations.
+    name_sufix : str, default='_transformed'
+        Sufix to be set to a transformed Dataset.
+    verbose : bool, default=False
+        Print messages during calculations.
+    random_state : int, optional
+        Random state seed.
+    *args : tuple, optional
+        Additional parameter for SMOTE/SMOTENC/SMOTEN transformer from `imblearn`.
+    **kwargs : dict, optional
+        Additional parameter for SMOTE/SMOTENC/SMOTEN transformer from `imblearn`.
     """
 
     def __init__(self, imbalance_ratio: float = 1, name_sufix: str = '_transformed', random_state: int = None,
