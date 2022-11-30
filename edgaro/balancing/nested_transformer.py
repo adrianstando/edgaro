@@ -140,8 +140,17 @@ class NestedAutomaticTransformer(Transformer):
         self.__transformers = [
             TransformerArray(
                 self.__base_transformers[i],
-                parameters=[{'IR': ir} for ir in IR_values],
-                dataset_suffixes=[f'_transformed_{self.__base_transformers_names[i]}_IR={round(ir, self.IR_round_precision)}' for ir in IR_values],
+                parameters=[
+                    {'IR': ir}
+                    for ir in IR_values
+                ],
+                dataset_suffixes=[
+                    f'_transformed_{self.__base_transformers_names[i]}_IR='
+                    f'{round(ir, self.IR_round_precision)}='
+                    f'{round(ir/dataset.imbalance_ratio, self.IR_round_precision)}BASE_IR='
+                    f'{round((ir-1)/(dataset.imbalance_ratio-1), self.IR_round_precision)}IR_RANGE'
+                    for ir in IR_values
+                ],
                 result_array_sufix=f'_{self.__base_transformers_names[i]}'
             )
             for i in range(len(self.__base_transformers))
