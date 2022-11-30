@@ -7,7 +7,7 @@ import xgboost as xgb
 
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import Optional, Protocol, Any, Dict, List
+from typing import Optional, Protocol, Any, Dict, List, Callable
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import OrdinalEncoder
 from sklearn.metrics import accuracy_score, f1_score, balanced_accuracy_score, precision_score
@@ -24,6 +24,35 @@ from edgaro.base.utils import print_unbuffered
 
 
 class Model(BaseTransformer, ABC):
+    """
+    The abstract class to define a Machine Learning model for a single Dataset.
+
+    Parameters
+    ----------
+    name : str
+        A name of the Model.
+    test_size : float, optional, default=None
+        Test size for a Dataset object in case it was not train-test-split. If a Dataset object was not train-test-split
+        and the parameter has value None, the training will be done on the all data.
+    random_state : int, optional, default=None
+        Random state seed.
+    verbose : bool, default=False
+        Print messages during calculations.
+
+    Attributes
+    ----------
+    name : str
+        A name of the Model.
+    test_size : float, optional
+        Test size for a Dataset object in case it was not train-test-split. If a Dataset object was not train-test-split
+        and the parameter has value None, the training will be done on the all data.
+    random_state : int, optional
+        Random state seed.
+    verbose : bool
+        Print messages during calculations.
+
+    """
+
     def __init__(self, name: str = '', test_size: Optional[float] = None,
                  random_state: Optional[int] = None, verbose: bool = False) -> None:
         super().__init__()
@@ -39,6 +68,23 @@ class Model(BaseTransformer, ABC):
         self.verbose = verbose
 
     def fit(self, dataset: Dataset, print_scores: bool = False) -> None:
+        """
+        Fit the Model.
+
+        The fitting process includes encoding the categorical variables with OrdinalEncoder (from scikit-learn library)
+        and target encoding (custom encoding, the minority class is encoded as 1, the majority class as 0).
+
+        The method assumes that categorical variables, which has to be encoded,
+        are one of the types: 'category', 'object'.
+
+        Parameters
+        ----------
+        dataset : Dataset
+            The object to fit Model on.
+        print_scores : bool, default=False
+            Indicates whether model evaluation on a test dataset should be printed at the end of fitting.
+
+        """
         if self.verbose:
             print_unbuffered(f'Model {self.__repr__()} is being fitted with {dataset.name}')
 
@@ -94,9 +140,29 @@ class Model(BaseTransformer, ABC):
 
     @property
     def was_fitted(self) -> bool:
+        """
+        The information whether the Model was fitted.
+
+        Returns
+        -------
+        bool
+        """
         return self.__was_fitted
 
     def transform_data(self, dataset: Dataset) -> Dataset:
+        """
+        Encode dataset.data with the rules generated after fitting this object.
+
+        Parameters
+        ----------
+        dataset : Dataset
+            A Dataset object, where `.data` attribute will be encoded. The method returns a new object.
+
+        Returns
+        -------
+        Dataset
+
+        """
         if dataset.data is None or (dataset.data is not None and len(dataset.data) == 0):
             raise Exception('The dataset has empty data!')
         else:
@@ -111,6 +177,19 @@ class Model(BaseTransformer, ABC):
             return df
 
     def transform_target(self, dataset: Dataset) -> Dataset:
+        """
+        Encode dataset.target with the rules generated after fitting this object.
+
+        Parameters
+        ----------
+        dataset : Dataset
+            A Dataset object, where `.target` attribute will be encoded. The method returns a new object.
+
+        Returns
+        -------
+        Dataset
+
+        """
         if dataset.target is None or (dataset.target is not None and len(dataset.target) == 0):
             raise Exception('The dataset has empty data!')
         else:
@@ -124,6 +203,19 @@ class Model(BaseTransformer, ABC):
             return df
 
     def predict(self, dataset: Dataset) -> Dataset:
+        """
+        Predict the class for a Dataset object.
+
+        Parameters
+        ----------
+        dataset : Dataset
+            A Dataset object to make predictions on.
+
+        Returns
+        -------
+        Dataset
+
+        """
         df = self.transform_data(dataset)
         model_name = '_' + self.name if not self.name == dataset.name else ''
         name = dataset.name + model_name + '_predicted'
@@ -138,6 +230,19 @@ class Model(BaseTransformer, ABC):
         pass
 
     def predict_proba(self, dataset: Dataset) -> Dataset:
+        """
+        Predict the probability of class `1` for a Dataset object.
+
+        Parameters
+        ----------
+        dataset : Dataset
+            A Dataset object to make predictions on.
+
+        Returns
+        -------
+        Dataset
+
+        """
         df = self.transform_data(dataset)
         model_name = '_' + self.name if not self.name == dataset.name else ''
         name = dataset.name + model_name + '_predicted_probabilities'
@@ -152,6 +257,15 @@ class Model(BaseTransformer, ABC):
         pass
 
     def set_params(self, **params) -> None:
+        """
+        Set params for Model.
+
+        Parameters
+        ----------
+        params : dict
+            The parameters to be set.
+
+        """
         if 'test_size_model' in params.keys():
             self.test_size = params.pop('test_size_model')
         self._set_params(**params)
@@ -162,9 +276,32 @@ class Model(BaseTransformer, ABC):
 
     @abstractmethod
     def get_params(self) -> Dict:
+        """
+        Get parameters of Model.
+
+        Returns
+        -------
+        Dict, list
+            The parameters.
+
+        """
         pass
 
     def transform(self, dataset: Dataset) -> Dataset:
+        """
+        A function to make the Model compatible with BaseTransformer.
+
+        It can either return predicted classes or predicted probabilities - it can be set using
+        `set_transform_to_probabilities` and `set_transform_to_classes` functions.
+
+        Parameters
+        ----------
+        dataset : Dataset
+            A Dataset object to be transformed.
+        Returns
+        -------
+        Dataset
+        """
         return self.__transform(dataset)
 
     def __transform(self, dataset: Dataset) -> Dataset:
@@ -174,22 +311,72 @@ class Model(BaseTransformer, ABC):
             return self.predict(dataset)
 
     def set_transform_to_probabilities(self) -> None:
+        """
+        Make `transform` function return probabilities.
+        """
         self.__transform_to_probabilities = True
 
     def set_transform_to_classes(self) -> None:
+        """
+        Make `transform` function return classes..
+        """
         self.__transform_to_probabilities = False
 
     def get_train_dataset(self) -> Optional[Dataset]:
+        """
+        Get a Dataset used for a training process.
+
+        Returns
+        -------
+        Dataset
+
+        """
         return self.__train_dataset
 
     def get_test_dataset(self) -> Optional[Dataset]:
+        """
+        Get a Dataset used for a test process.
+
+        Returns
+        -------
+        Dataset
+
+        """
         return self.__test_dataset
 
     def get_category_colnames(self) -> List[str]:
-        return list(self.__label_encoders.keys())
+        """
+        Get category column names, which were encoded during the fitting process.
 
-    def evaluate(self, metrics_output_class=None, metrics_output_probabilities=None,
+        Returns
+        -------
+        list(str)
+        """
+        if len(self.__label_encoders) > 0:
+            return list(self.__label_encoders.keys())
+        else:
+            return []
+
+    def evaluate(self, metrics_output_class: Optional[List[Callable[[pd.Series, pd.Series], float]]] = None,
+                 metrics_output_probabilities: Optional[List[Callable[[pd.Series, pd.Series], float]]] = None,
                  ds: Optional[Dataset] = None) -> pd.DataFrame:
+        """
+        Evaluate model.
+
+        Parameters
+        ----------
+        metrics_output_class : list[Callable[[pd.Series, pd.Series], float]], optional, default=None
+            List of functions to calculate metrics on predicted classes. If None is passed, accuracy, balanced accuracy,
+            precision, recall, specificity, f1, f1_weighted, geometric mean score are used.
+        metrics_output_probabilities : list[Callable[[pd.Series, pd.Series], float]], optional, default=None
+            List of functions to calculate metrics on predicted probabilities. If None is passed, ROC AUC is used.
+        ds : Dataset, optional, default=None
+            A Dataset object to calculate metric on. If None is passed, test Dataset from fitting is used.
+
+        Returns
+        -------
+        pd.DataFrame
+        """
 
         if self.verbose:
             print_unbuffered(f'Model {self.__repr__()} is being evaluated')
@@ -258,6 +445,10 @@ class _TargetEncode(BaseEstimator, TransformerMixin):
 
 
 class SKLEARNModelProtocol(Protocol):
+    """
+    A Protocol to define the expected structure of a Model from `scikit-learn` library.
+    """
+
     def fit(self, X: pd.DataFrame, y: pd.Series) -> Any:
         ...
 
@@ -275,6 +466,25 @@ class SKLEARNModelProtocol(Protocol):
 
 
 class ModelFromSKLEARN(Model):
+    """
+    Create Model from a model in `scikit-learn` library.
+
+    Parameters
+    ----------
+    base_model : SKLEARNModelProtocol
+        A model from `scikit-learn` library. Note: this object has to be clean (not fitted).
+    name : str
+        A name of the Model.
+    test_size : float, optional, default=None
+        Test size for a Dataset object in case it was not train-test-split. If a Dataset object was not train-test-split
+        and the parameter has value None, the training will be done on the all data.
+    random_state : int, optional, default=None
+        Random state seed.
+    verbose : bool, default=False
+        Print messages during calculations.
+
+    """
+
     def __init__(self, base_model: SKLEARNModelProtocol, name: str = '', test_size: Optional[float] = None,
                  random_state: Optional[int] = None, verbose: bool = False) -> None:
         super().__init__(name=name, test_size=test_size, random_state=random_state)
@@ -332,37 +542,132 @@ class ModelFromSKLEARN(Model):
 
 
 class RandomForest(ModelFromSKLEARN):
-    def __init__(self, name: str = '', test_size: Optional[float] = None, random_state: Optional[int] = None, *args,
-                 **kwargs) -> None:
+    """
+    Create RandomForest Model from a RandomForestClassifier implementation in `scikit-learn` library.
+
+    Parameters
+    ----------
+    name : str
+        A name of the Model.
+    test_size : float, optional, default=None
+        Test size for a Dataset object in case it was not train-test-split. If a Dataset object was not train-test-split
+        and the parameter has value None, the training will be done on the all data.
+    random_state : int, optional, default=None
+        Random state seed.
+    verbose : bool, default=False
+        Print messages during calculations.
+    *args : tuple, optional
+        Additional parameters for RandomForestClassifier from `scikit-learn` library.
+    **kwargs : dict, optional
+        Additional parameters for RandomForestClassifier from `scikit-learn` library.
+
+    """
+
+    def __init__(self, name: str = '', test_size: Optional[float] = None, random_state: Optional[int] = None,
+                 verbose: bool = False, *args, **kwargs) -> None:
         super().__init__(RandomForestClassifier(*args, **kwargs), name=name, test_size=test_size,
-                         random_state=random_state)
+                         random_state=random_state, verbose=verbose)
 
 
 class XGBoost(ModelFromSKLEARN):
-    def __init__(self, name: str = '', test_size: Optional[float] = None, random_state: Optional[int] = None, *args,
-                 **kwargs) -> None:
+    """
+    Create XGBoost Model from a XGBClassifier implementation in `xgboost` library.
+
+    Parameters
+    ----------
+    name : str
+        A name of the Model.
+    test_size : float, optional, default=None
+        Test size for a Dataset object in case it was not train-test-split. If a Dataset object was not train-test-split
+        and the parameter has value None, the training will be done on the all data.
+    random_state : int, optional, default=None
+        Random state seed.
+    verbose : bool, default=False
+        Print messages during calculations.
+    *args : tuple, optional
+        Additional parameters for XGBClassifier from `xgboost` library.
+    **kwargs : dict, optional
+        Additional parameters for XGBClassifier from `xgboost` library.
+
+    """
+
+    def __init__(self, name: str = '', test_size: Optional[float] = None, random_state: Optional[int] = None,
+                 verbose: bool = False, *args, **kwargs) -> None:
         super().__init__(
             xgb.XGBClassifier(eval_metric='logloss' if 'eval_metric' not in kwargs.keys() else kwargs['eval_metric'],
                               *args, **kwargs),
-            name=name, test_size=test_size, random_state=random_state
+            name=name, test_size=test_size, random_state=random_state, verbose=verbose
         )
 
 
 class RandomSearchCV(ModelFromSKLEARN):
-    def __init__(self, base_model: ModelFromSKLEARN, param_grid, n_iter=10, cv=5, scoring='balanced_accuracy',
-                 name: str = '', test_size: Optional[float] = None, random_state: Optional[int] = None, *args,
-                 **kwargs) -> None:
+    """
+    Create Model to perform Random Search on any of the model implementation matching SKLEARNModelProtocol.
+
+    Parameters
+    ----------
+    base_model : SKLEARNModelProtocol
+        A model from `scikit-learn` library. Note: this object has to be clean (not fitted).
+    param_grid : Dict
+        A parameter grid for searching.
+    n_iter : int
+        Number of iterations to be performed.
+    cv : int
+        Number of cross-validation folds.
+    scoring : str
+        Name of a function to be used to choose the best model.
+    name : str
+        A name of the Model.
+    test_size : float, optional, default=None
+        Test size for a Dataset object in case it was not train-test-split. If a Dataset object was not train-test-split
+        and the parameter has value None, the training will be done on the all data.
+    random_state : int, optional, default=None
+        Random state seed.
+    verbose : bool, default=False
+        Print messages during calculations.
+
+    """
+
+    def __init__(self, base_model: ModelFromSKLEARN, param_grid: Dict, n_iter: int = 10, cv: int = 5,
+                 scoring: str = 'balanced_accuracy', name: str = '', test_size: Optional[float] = None,
+                 random_state: Optional[int] = None, verbose: bool = False, *args, **kwargs) -> None:
         super().__init__(
             RS(base_model._model, param_grid, cv=cv, scoring=scoring, n_iter=n_iter, *args, **kwargs),
             name=name,
             test_size=test_size,
-            random_state=random_state
+            random_state=random_state,
+            verbose=verbose
         )
 
 
 class GridSearchCV(ModelFromSKLEARN):
-    def __init__(self, base_model: ModelFromSKLEARN, param_grid, cv=5, scoring='balanced_accuracy', name: str = '',
-                 test_size: Optional[float] = None, random_state: Optional[int] = None, *args, **kwargs) -> None:
+    """
+    Create Model to perform Grid Search on any of the model implementation matching SKLEARNModelProtocol.
+
+    Parameters
+    ----------
+    base_model : SKLEARNModelProtocol
+        A model from `scikit-learn` library. Note: this object has to be clean (not fitted).
+    param_grid : Dict
+        A parameter grid for searching.
+    cv : int
+        Number of cross-validation folds.
+    scoring : str
+        Name of a function to be used to choose the best model.
+    name : str
+        A name of the Model.
+    test_size : float, optional, default=None
+        Test size for a Dataset object in case it was not train-test-split. If a Dataset object was not train-test-split
+        and the parameter has value None, the training will be done on the all data.
+    random_state : int, optional, default=None
+        Random state seed.
+    verbose : bool, default=False
+        Print messages during calculations.
+
+    """
+    def __init__(self, base_model: ModelFromSKLEARN, param_grid: Dict, cv: int = 5,
+                 scoring: str = 'balanced_accuracy', name: str = '', test_size: Optional[float] = None,
+                 random_state: Optional[int] = None, verbose: bool = False, *args, **kwargs) -> None:
         if 'random_state' in base_model._model.get_params().keys():
             base_model._model.set_params(**{'random_state': random_state})
 
@@ -370,5 +675,6 @@ class GridSearchCV(ModelFromSKLEARN):
             GS(base_model._model, param_grid, cv=cv, scoring=scoring, *args, **kwargs),
             name=name,
             test_size=test_size,
-            random_state=random_state
+            random_state=random_state,
+            verbose=verbose
         )
