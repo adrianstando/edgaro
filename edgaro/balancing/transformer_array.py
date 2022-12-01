@@ -14,6 +14,9 @@ class TransformerArray(BaseTransformerArray):
     Create a class to apply Transformer transformation with more than one set of parameters and/or
     to each of the Dataset objects in DatasetArray.
 
+    Note: If you use NestedAutomaticTransformer (or children class) as a parameter to TransformerArray, it is advisable
+    to pass parameter `set_suffixes=False` in TransformerArray object. Otherwise, the suffixes will be distorted.
+
     Parameters
     ----------
     base_transformer : Transformer
