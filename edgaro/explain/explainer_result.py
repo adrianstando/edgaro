@@ -84,7 +84,7 @@ class ExplainerResult:
 
     def plot(self, variable: str, figsize: Optional[Tuple[int, int]] = (8, 8),
              add_plot: Optional[List[ExplainerResult]] = None, ax: Optional[Axes] = None,
-             show_legend: bool = True, y_lim: Optional[Tuple[float, float]] = None
+             show_legend: bool = True, y_lim: Optional[Tuple[float, float]] = None, metric_precision: int = 5
              ) -> None:
         """
         The function plots the PDP/ALE curve.
@@ -104,6 +104,8 @@ class ExplainerResult:
             The parameter indicates whether the legend should be plotted.
         y_lim : tuple(float, float), optional, default=None
             The limits of 0Y axis.
+        metric_precision : int, default=5
+            Number of digits to round the value of metrics.
 
         """
         if figsize is None and ax is None:
@@ -126,7 +128,8 @@ class ExplainerResult:
                 ExplainerResult.__plot_not_add(self.results, self.categorical_columns, self.curve_type, self.name,
                                                variable, ax, figsize, show_legend, y_lim)
             else:
-                self.__plot_add(variable, ax, figsize, curve_base, curves_add, add_plot, show_legend, y_lim)
+                self.__plot_add(variable, ax, figsize, curve_base, curves_add, add_plot, show_legend,
+                                y_lim, metric_precision)
 
     @staticmethod
     def __plot_not_add(results, categorical_columns, curve_type, name, variable, ax, figsize, show_legend,
@@ -185,7 +188,8 @@ class ExplainerResult:
 
         plt.xticks(rotation=0)
 
-    def __plot_add(self, variable, ax, figsize, curve_base, curves_add, add_plot, show_legend, y_lim) -> None:
+    def __plot_add(self, variable, ax, figsize, curve_base, curves_add, add_plot, show_legend,
+                   y_lim, metric_precision) -> None:
         curves_add = [c for c in curves_add if c is not None]
         add_plot_names = [c.name for c in add_plot if c.results[variable] is not None]
 
@@ -218,15 +222,15 @@ class ExplainerResult:
 
             text = ""
             if compare_results[0] is not None:
-                text += f'p-value={compare_results[0]:.3f}'
+                text += f'p-value={round(compare_results[0], metric_precision)}'
             if compare_results[1] is not None:
                 if text != "":
                     text += '\n'
-                text += f'mean_variance={compare_results[1]:.3f}'
+                text += f'mean_variance={round(compare_results[1], metric_precision)}'
             if compare_results[2] is not None:
                 if text != "":
                     text += '\n'
-                text += f'mean_abs={compare_results[2]:.3f}'
+                text += f'mean_abs={round(compare_results[2], metric_precision)}'
 
             if text != "":
                 ax.text(
