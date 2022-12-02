@@ -11,7 +11,6 @@ jobs:
       matrix:
         platform: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ['3.8', '3.9', '3.10']
-
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -28,45 +27,85 @@ jobs:
         OPENML_CREDENTIALS: ${{ secrets.OPENML_CREDENTIALS }}
         PLATFORM: ${{ matrix.platform }}
       run: tox
-#  deploy-package:
-#    needs: test
-#    runs-on: ubuntu-latest
-#    steps:
-#    - name: Checkout
-#      uses: actions/checkout@v3
-#    - name: Set up Python 3.9
-#      uses: actions/setup-python@v4
-#      with:
-#        python-version: '3.9'
-#    - name: Install dependencies
-#      run: |
-#        python -m pip install build
-#    - name: Build a binary wheel and a source tarball
-#      run: |
-#        python -m build --sdist --wheel --outdir dist/
-#    - name: Deploy to PyPI
-#      uses: pypa/gh-action-pypi-publish@release/v1
-#      with:
-#        password: ${{ secrets.PYPI_API_TOKEN }}
-#  deploy-docs:
-#    runs-on: ubuntu-latest
-#    steps:
-#     - name: Checkout
-#       uses: actions/checkout@v3
-#     - name: Set up Python 3.9
-#       uses: actions/setup-python@v4
-#       with:
-#         python-version: '3.9'
-#     - name: Install dependencies
-#       run: |
-#         pip install sphinx sphinx-rtd-theme docutils==0.16
-#     - name: Sphinx build
-#       run: |
-#         sphinx-build docs _build
-#     - name: Deploy website
-#       uses: peaceiris/actions-gh-pages@v3
-#       with:
-#         publish_branch: gh-pages
-#         github_token: ${{ secrets.GITHUB_TOKEN }}
-#         publish_dir: _build/
-#         force_orphan: true
+
+  deploy-docs:
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+     - name: Checkout
+       uses: actions/checkout@v3
+     - name: Set up Python 3.9
+       uses: actions/setup-python@v4
+       with:
+         python-version: '3.9'
+     - name: Install dependencies
+       run: |
+         pip install sphinx sphinx-rtd-theme docutils==0.16
+     - name: Sphinx build
+       run: |
+         sphinx-build docs _build
+     - name: Deploy website
+       uses: peaceiris/actions-gh-pages@v3
+       with:
+         publish_branch: gh-pages
+         github_token: ${{ secrets.GITHUB_TOKEN }}
+         publish_dir: _build/
+         force_orphan: true
+
+  deploy-package:
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    - name: Install dependencies
+      run: |
+        python -m pip install build
+    - name: Build a binary wheel and a source tarball
+      run: |
+        python -m build --sdist --wheel --outdir dist/
+    - name: Deploy to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
+
+  create-release:
+    needs: [deploy-docs, deploy-package]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    - name: Install dependencies
+      run: |
+        python -m pip install build
+    - name: Build a binary wheel and a source tarball
+      run: |
+        python -m build --sdist --wheel --outdir dist/
+    - name: Check news file existence
+      id: check_news_file
+      uses: andstor/file-existence-action@v2
+      with:
+        files: "${{ github.workspace }}/news/${{ github.ref_name }}.txt"
+    - name: Create release with news
+      if: steps.check_news_file.outputs.files_exists == 'true'
+      uses: softprops/action-gh-release@v1
+      with:
+        files: dist/*
+        body_path: ${{ github.workspace }}/news/${{ github.ref_name }}.txt
+    - name: Create release without news
+      if: steps.check_news_file.outputs.files_exists == 'false'
+      uses: softprops/action-gh-release@v1
+      with:
+        files: dist/*
+
