@@ -63,22 +63,14 @@ class Dataset:
         if self.__data is not None:
             return self.__data
         else:
-            if self.__train_dataset is None and self.__test_dataset is None:
-                return None
-            elif self.__train_dataset is not None and self.__test_dataset is not None:
-                if self.__train_dataset.data is not None and self.__test_dataset.data is not None:
-                    return pd.concat([self.__train_dataset.data, self.__test_dataset.data])
-                else:
-                    return None
-            elif self.__train_dataset is not None and self.__train_dataset.data is not None:
-                return self.__train_dataset.data
-            elif self.__test_dataset is not None and self.__test_dataset.data is not None:
-                return self.__test_dataset.data
+            if self.__train_dataset is not None and self.__test_dataset is not None and \
+                    self.__train_dataset.data is not None and self.__test_dataset.data is not None:
+                return pd.concat([self.__train_dataset.data, self.__test_dataset.data])
             else:
                 return None
 
     @data.setter
-    def data(self, val) -> None:
+    def data(self, val: Optional[pd.DataFrame]) -> None:
         if self.__train_dataset is None and self.__test_dataset is None:
             self.__data = val
         else:
@@ -92,22 +84,14 @@ class Dataset:
         if self.__target is not None:
             return self.__target
         else:
-            if self.__train_dataset is None and self.__test_dataset is None:
-                return None
-            elif self.__train_dataset is not None and self.__test_dataset is not None:
-                if self.__train_dataset.target is not None and self.__test_dataset.target is not None:
-                    return pd.concat([self.__train_dataset.target, self.__test_dataset.target])
-                else:
-                    return None
-            elif self.__train_dataset is not None and self.__train_dataset.target is not None:
-                return self.__train_dataset.target
-            elif self.__test_dataset is not None and self.__test_dataset.target is not None:
-                return self.__test_dataset.target
+            if self.__train_dataset is not None and self.__test_dataset is not None and \
+                    self.__train_dataset.target is not None and self.__test_dataset.target is not None:
+                return pd.concat([self.__train_dataset.target, self.__test_dataset.target])
             else:
                 return None
 
     @target.setter
-    def target(self, val) -> None:
+    def target(self, val: Optional[pd.Series]) -> None:
         if self.__train_dataset is None and self.__test_dataset is None:
             self.__target = val
         else:
@@ -217,7 +201,7 @@ class Dataset:
         if self.target is None:
             data = self.data
         elif self.data is None:
-            data = self.target
+            data = pd.DataFrame(self.target)
         else:
             data = self.data.assign(target=self.target)
 
@@ -413,7 +397,7 @@ class DatasetFromOpenML(Dataset):
         )
 
         if verbose:
-            print_unbuffered(f'Dataset from OpenML with id {str(id)} was downloaded')
+            print_unbuffered(f'Dataset from OpenML with id {str(task_id)} was downloaded')
 
         X = pd.DataFrame(X, columns=attribute_names)
         y = pd.Series(y, name='target')
@@ -422,8 +406,7 @@ class DatasetFromOpenML(Dataset):
             if categorical_indicator[i]:
                 col = X.columns[i]
                 col_type = X[col].dtype
-                if col_type not in ['category', 'object', 'int']:
-                    X[col] = np.array([col]).astype('category')
+                X[col] = np.array([col]).astype('category') if col_type not in ['category', 'object', 'int'] else X[col]
 
         super().__init__(name=data.name, dataframe=X, target=y, verbose=verbose)
 

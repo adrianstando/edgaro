@@ -1,6 +1,8 @@
+import numpy as np
 import pandas as pd
 import pytest
 import re
+import openml
 
 from copy import deepcopy
 
@@ -16,6 +18,19 @@ class TestCreateObjects:
         except (Exception,):
             assert False
 
+    def test_dataset_fail_df(self):
+        with pytest.raises(Exception):
+            Dataset(name_1, pd.concat([df_1, df_1]), target_1)
+
+    def test_dataset_fail_target(self):
+        with pytest.raises(Exception):
+            Dataset(name_1, df_1, pd.concat([target_1, target_1]))
+
+    def test_dataset_verbose(self, capsys):
+        ds = Dataset(name_1, df_1, target_1, verbose=True)
+        captured = capsys.readouterr()
+        assert captured.out == f'Dataset {ds.__repr__()} created\n'
+
     def test_csv_1(self):
         try:
             ds = DatasetFromCSV(path=example_path)
@@ -29,6 +44,11 @@ class TestCreateObjects:
             DatasetFromCSV(path=example_path, target=example_target)
         except (Exception,):
             assert False
+
+    def test_csv_verbose(self, capsys):
+        ds = DatasetFromCSV(path=example_path, target=example_target, verbose=True)
+        captured = capsys.readouterr()
+        assert captured.out.startswith(f'Data from {example_path} file is loaded\n')
 
     def test_openml(self):
         try:
@@ -71,9 +91,48 @@ class TestDatasetBasicProperties:
 
         assert IR == expected_IR
 
-    def test_generate_report(self, name, df, target, expected_IR, target_fake):
+    def test_imbalance_ratio_three_class_target(self, name, df, target, expected_IR, target_fake):
+        ds = Dataset(name, df, target_fake)
+        with pytest.raises(Exception):
+            IR = ds.imbalance_ratio
+
+    def test_imbalance_ratio_empty_target(self, name, df, target, expected_IR, target_fake):
+        ds = Dataset(name, df, None)
+        assert ds.imbalance_ratio == 0
+
+    def test_imbalance_ratio_one_class_target(self, name, df, target, expected_IR, target_fake):
+        ds = Dataset(name, df, pd.Series(np.ones(df.shape[0])))
+        assert ds.imbalance_ratio == 0
+
+    def test_generate_report_path(self, name, df, target, expected_IR, target_fake):
         try:
             ds = Dataset(name, df, target)
+            ds.generate_report(output_path=os.path.join('resources', 'out.html'), minimal=True)
+        except (Exception,):
+            assert False
+
+    def test_generate_report_jupyter(self, name, df, target, expected_IR, target_fake):
+        try:
+            ds = Dataset(name, df, target)
+            ds.generate_report(show_jupyter=True, minimal=True)
+        except (Exception,):
+            assert False
+
+    def test_generate_report_fail_none(self, name, df, target, expected_IR, target_fake):
+        ds = Dataset(name, None, None)
+        with pytest.raises(Exception):
+            ds.generate_report(output_path=os.path.join('resources', 'out.html'), minimal=True)
+
+    def test_generate_report_only_data(self, name, df, target, expected_IR, target_fake):
+        ds = Dataset(name, df, None)
+        try:
+            ds.generate_report(output_path=os.path.join('resources', 'out.html'), minimal=True)
+        except (Exception,):
+            assert False
+
+    def test_generate_report_only_target(self, name, df, target, expected_IR, target_fake):
+        ds = Dataset(name, None, target)
+        try:
             ds.generate_report(output_path=os.path.join('resources', 'out.html'), minimal=True)
         except (Exception,):
             assert False
@@ -150,6 +209,33 @@ class TestDatasetBasicProperties:
         with pytest.raises(Exception):
             ds.train_test_split(test_size=0.3, random_state=42)
 
+    def test_train_test_split_verbose(self, name, df, target, expected_IR, target_fake, capsys):
+        ds = Dataset(name, pd.concat([df for _ in range(3)]), pd.concat([target for _ in range(3)]), verbose=True)
+        ds.train_test_split(test_size=0.3, random_state=42)
+
+        captured = capsys.readouterr()
+        assert captured.out.endswith(f'Dataset {ds.__repr__()} was train-test-split\n')
+
+    def test_custom_train_test_split(self, name, df, target, expected_IR, target_fake):
+        ds = Dataset(name, None, None)
+        train = Dataset(name, pd.concat([df for _ in range(3)]), pd.concat([target for _ in range(3)]))
+        test = Dataset(name, pd.concat([df for _ in range(1)]), pd.concat([target for _ in range(1)]))
+
+        ds.custom_train_test_split(
+            train=train,
+            test=test
+        )
+
+        assert ds.train == train
+        assert ds.test == test
+
+    def test_head(self, name, df, target, expected_IR, target_fake):
+        ds = Dataset(name, df, target)
+        ds_head = ds.head(2)
+
+        assert ds_head.data.shape[0] == 2
+        assert ds_head.target.shape[0] == 2
+
 
 @pytest.mark.parametrize('ds1,ds2', [
     (Dataset(name_1, df_1, target_1), Dataset(name_1, df_1, target_2)),
@@ -197,6 +283,43 @@ class TestOpenML:
         out = dataset_openml.openml_description()
         pattern = '^Name: .* Description: .*$'
         assert re.match(pattern, out.replace('\n', ' '))
+
+
+@pytest.mark.parametrize('task', [
+    task_id_1
+])
+def test_dataset_openml_verbose(task, capsys):
+    ds = DatasetFromOpenML(task, apikey=APIKEY, verbose=True)
+    captured = capsys.readouterr()
+    assert captured.out.startswith(f'Dataset from OpenML with id {str(task)} was downloaded\n')
+
+
+@pytest.mark.parametrize('task', [
+    task_id_1
+])
+def test_apikey_fail_none(task):
+    tmp_code = openml.config.apikey
+    openml.config.apikey = ''
+
+    with pytest.raises(Exception):
+        DatasetFromOpenML(task, apikey=None)
+
+    openml.config.apikey = tmp_code
+
+
+@pytest.mark.parametrize('task', [
+    task_id_1
+])
+def test_apikey_fail_random(task):
+    tmp_code = openml.config.apikey
+    openml.config.apikey = ''
+
+    try:
+        DatasetFromOpenML(task, apikey=APIKEY)
+    except (Exception,):
+        assert False
+    finally:
+        openml.config.apikey = tmp_code
 
 
 @pytest.mark.parametrize('name, df, target, col_thresh_nan_remove, data_shape_nan, target_shape_nan', [
