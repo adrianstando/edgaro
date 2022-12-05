@@ -277,23 +277,20 @@ class DatasetArrayFromOpenMLSuite(DatasetArray):
             print_unbuffered(f'Benchmark suite data was downloaded for {suite_name}')
 
         dataset_array = []
-        if benchmark_suite.data is None:
-            raise Exception('No data was downloaded!')
-        else:
-            for i in benchmark_suite.data:
-                try:
-                    ds = DatasetFromOpenML(task_id=i, apikey=apikey)
-                    dataset_array.append(ds)
-                except openml.exceptions.OpenMLServerException:
-                    print(f'The dataset numer {i} was not downloaded due to the server exception!')
+        for i in benchmark_suite.data:
+            try:
+                ds = DatasetFromOpenML(task_id=i, apikey=apikey)
+                dataset_array.append(ds)
+            except openml.exceptions.OpenMLServerException:
+                print(f'The dataset numer {i} was not downloaded due to the server exception!')
 
-            self.__openml_name = benchmark_suite.name if 'name' in benchmark_suite.__dict__.keys() else ''
-            self.__openml_description = benchmark_suite.description if 'description' in benchmark_suite.__dict__.keys() else ''
+        self.__openml_name = benchmark_suite.name if 'name' in benchmark_suite.__dict__.keys() else ''
+        self.__openml_description = benchmark_suite.description if 'description' in benchmark_suite.__dict__.keys() else ''
 
-            super().__init__(datasets=dataset_array, name=name, verbose=verbose)
+        super().__init__(datasets=dataset_array, name=name, verbose=verbose)
 
-            if self.verbose:
-                print_unbuffered(f'DatasetArray from OpenML benchmark suite {suite_name} was created')
+        if verbose:
+            print_unbuffered(f'DatasetArray from OpenML benchmark suite {suite_name} was created')
 
     def openml_description(self) -> str:
         """
@@ -326,6 +323,7 @@ class DatasetArrayFromDirectory(DatasetArray):
     """
 
     def __init__(self, path: str, name: str = 'dataset_array', verbose: bool = False) -> None:
+        # !!!
         if not os.path.exists(path):
             raise Exception('The path does not exist!')
         if not os.path.isdir(path):
@@ -338,18 +336,17 @@ class DatasetArrayFromDirectory(DatasetArray):
         for filename in os.listdir(path):
             f = os.path.join(path, filename)
             if os.path.isfile(f):
-                if f.lower().endswith('.csv'):
-                    d = pd.read_csv(f)
-                elif f.lower().endswith('.npy'):
-                    d = np.load(f)
-                else:
-                    continue
+                if f.lower().endswith('.csv') or f.lower().endswith('.npy'):
+                    if f.lower().endswith('.csv'):
+                        d = pd.read_csv(f)
+                    elif f.lower().endswith('.npy'):
+                        d = pd.DataFrame(np.load(f, allow_pickle=True))
 
-                y = d[d.columns[-1]]
-                X = d.drop(d.columns[-1], axis=1)
-                dataset_array.append(
-                    Dataset(dataframe=X, target=y, name=os.path.splitext(filename)[0])
-                )
+                    y = d[d.columns[-1]]
+                    X = d.drop(d.columns[-1], axis=1)
+                    dataset_array.append(
+                        Dataset(dataframe=X, target=y, name=os.path.splitext(filename)[0])
+                    )
 
         if verbose:
             print_unbuffered(f'The files from {path} were loaded')

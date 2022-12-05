@@ -310,7 +310,7 @@ def test_apikey_fail_none(task):
 @pytest.mark.parametrize('task', [
     task_id_1
 ])
-def test_apikey_fail_random(task):
+def test_apikey_with_apikey_empty_openml(task):
     tmp_code = openml.config.apikey
     openml.config.apikey = ''
 

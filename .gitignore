@@ -8,3 +8,4 @@ test/resources/out.html
 /_build/
 /docs/_build/
 /dist
+.coverage

@@ -1,9 +1,10 @@
 import pytest
 import re
+import openml
 
 from copy import deepcopy
 
-from edgaro.data.dataset_array import DatasetArray, DatasetArrayFromOpenMLSuite
+from edgaro.data.dataset_array import DatasetArray, DatasetArrayFromOpenMLSuite, DatasetArrayFromDirectory
 from edgaro.data.dataset import Dataset, DatasetFromOpenML
 
 from .resources.objects import *
@@ -45,6 +46,11 @@ class TestDatasetArrayBasicProperties:
         except (Exception,):
             assert False
 
+    def test_verbose(self, ds1, ds2, capsys):
+        ds = DatasetArray([deepcopy(ds1), deepcopy(ds2)], verbose=True)
+        captured = capsys.readouterr()
+        assert captured.out.startswith(f'DatasetArray {ds.__repr__()} created\n')
+
     def test_dataset_array_with_dataset_arrays(self, ds1, ds2):
         tab = DatasetArray([
             deepcopy(ds1),
@@ -58,6 +64,22 @@ class TestDatasetArrayBasicProperties:
         assert tab[ds1.name] == ds1
         assert tab['example'][0] == ds2
         assert tab['example'][1] == ds1
+
+    def test_datasetarray_get_out_index(self, ds1, ds2):
+        tab = DatasetArray([
+            deepcopy(ds1),
+            DatasetArray([deepcopy(ds2), deepcopy(ds1)], name='example')
+        ])
+
+        assert tab[['non_exist_1', 'non_exist_2']] is None
+
+    def test_datasetarray_get_wrong_key(self, ds1, ds2):
+        tab = DatasetArray([
+            deepcopy(ds1),
+            DatasetArray([deepcopy(ds2), deepcopy(ds1)], name='example')
+        ])
+
+        assert tab[[100, 101]] is None
 
 
 class TestUniqueNames:
@@ -116,6 +138,15 @@ class TestEqual:
     def test_not_equal(self, ds1, ds2):
         tab1 = DatasetArray([deepcopy(ds1)])
         tab2 = DatasetArray([deepcopy(ds2)])
+        assert not tab1 == tab2
+
+    @pytest.mark.parametrize('ds1,ds2', [
+        (Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2)),
+        (DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY), DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY))
+    ])
+    def test_not_equal_name(self, ds1, ds2):
+        tab1 = DatasetArray([deepcopy(ds1), deepcopy(ds2)], name=ds1.name)
+        tab2 = DatasetArray([deepcopy(ds2), deepcopy(ds1)], name=ds2.name)
         assert not tab1 == tab2
 
     @pytest.mark.parametrize('da1,da2', [
@@ -211,6 +242,70 @@ class TestOtherFunctions:
         assert da[2][1].data.shape == (1, 2)
         assert da[2][1].target.shape == (1,)
 
+    @pytest.mark.parametrize('ds1, ds2', [
+        (DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY), DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY))
+    ])
+    def test_train_test_split(self, ds1, ds2):
+        tab = DatasetArray([deepcopy(ds1), deepcopy(ds2)])
+
+        try:
+            tab.train_test_split()
+        except (Exception,):
+            assert False
+
+        for ds in tab:
+            assert ds.was_split
+
+    @pytest.mark.parametrize('ds1, ds2', [
+        (DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY), DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY))
+    ])
+    def test_train_test_split_verbose(self, ds1, ds2, capsys):
+        tab = DatasetArray([deepcopy(ds1), deepcopy(ds2)], verbose=True)
+        tab.train_test_split()
+
+        captured = capsys.readouterr()
+        assert captured.out.endswith(f'DatasetArray {tab.__repr__()} was train-test-split\n')
+
+    @pytest.mark.parametrize('ds1, ds2', [
+        (DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY), DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY))
+    ])
+    def test_train_test_split_train_property(self, ds1, ds2):
+        tab = DatasetArray([deepcopy(ds1), deepcopy(ds2)], verbose=True)
+        tab.train_test_split()
+
+        assert tab.train.name.endswith('_train')
+
+    @pytest.mark.parametrize('ds1, ds2', [
+        (DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY), DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY))
+    ])
+    def test_train_test_split_test_property(self, ds1, ds2):
+        tab = DatasetArray([deepcopy(ds1), deepcopy(ds2)], verbose=True)
+        tab.train_test_split()
+
+        assert tab.test.name.endswith('_test')
+
+    @pytest.mark.parametrize('ds1, ds2', [
+        (DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY), DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY))
+    ])
+    def test_remove_outliers(self, ds1, ds2):
+        tab = DatasetArray([deepcopy(ds1), deepcopy(ds2)], verbose=True)
+
+        try:
+            tab.remove_outliers()
+        except (Exception,):
+            assert False
+
+    @pytest.mark.parametrize('ds1, ds2', [
+        (DatasetFromOpenML(task_id=task_id_1, apikey=APIKEY), DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY))
+    ])
+    def test_head(self, ds1, ds2):
+        ds = DatasetArray([ds1, ds2])
+        ds_head = ds.head(2)
+
+        for d in ds_head:
+            assert d.data.shape[0] == 2
+            assert d.target.shape[0] == 2
+
 
 @pytest.fixture(
     scope='module',
@@ -221,6 +316,45 @@ class TestOtherFunctions:
 )
 def dataset_openml(request):
     return DatasetArrayFromOpenMLSuite(request.param, apikey=APIKEY)
+
+
+@pytest.mark.parametrize('task', [
+    suite_name_1
+])
+def test_apikey_fail_none(task):
+    tmp_code = openml.config.apikey
+    openml.config.apikey = ''
+
+    with pytest.raises(Exception):
+        DatasetArrayFromOpenMLSuite(task, apikey=None)
+
+    openml.config.apikey = tmp_code
+
+
+@pytest.mark.parametrize('task', [
+    suite_name_1
+])
+def test_apikey_with_apikey_empty_openml(task):
+    tmp_code = openml.config.apikey
+    openml.config.apikey = ''
+
+    try:
+        DatasetArrayFromOpenMLSuite(task, apikey=APIKEY)
+    except (Exception,):
+        assert False
+    finally:
+        openml.config.apikey = tmp_code
+
+
+@pytest.mark.parametrize('task', [
+    suite_name_1
+])
+def test_apikey_verbose(task, capsys):
+    DatasetArrayFromOpenMLSuite(task, apikey=APIKEY, verbose=True)
+
+    captured = capsys.readouterr()
+    assert f'Benchmark suite data was downloaded for {task}\n' in captured.out
+    assert f'DatasetArray from OpenML benchmark suite {task} was created' in captured.out
 
 
 class TestOpenMLSuite:
@@ -239,6 +373,15 @@ class TestOpenMLSuite:
         length_2 = len(da)
 
         assert length_2 < length_1
+
+    def test_remove_non_binary_target_verbose(self, dataset_openml, capsys):
+        # These OpenML suites contain also non-binary target datasets
+        da = deepcopy(dataset_openml)
+        da.verbose = True
+        da.remove_non_binary_target_datasets()
+
+        captured = capsys.readouterr()
+        assert captured.out.startswith(f'Non binary datasets were removed from DatasetArray {da.__repr__()}\n')
 
 
 class TestRemoveNonBinary:
@@ -333,7 +476,6 @@ class TestRemoveNonBinary:
 
 
 class TestRemoveEmpty:
-
     def test_remove_empty_datasets(self):
         da = DatasetArray([
             Dataset(name_1 + '_1', None, None),
@@ -372,6 +514,24 @@ class TestRemoveEmpty:
         assert len(da) == 3
         assert len(da[2]) == 1
 
+    def test_remove_empty_datasets_verbose(self, capsys):
+        da = DatasetArray([
+            Dataset(name_1 + '_1', df_1, target_1),
+            Dataset(name_1 + '_2', df_1, target_1),
+            DatasetArray([
+                Dataset(name_4_nans + '_0', None, None),
+                Dataset(name_1 + '_1', df_1, target_1)
+            ])
+        ])
+
+        da = deepcopy(da)
+        da.verbose = True
+        da.remove_empty_datasets()
+
+        captured = capsys.readouterr()
+        print(captured.out)
+        assert captured.out.startswith(f'Empty datasets were removed from DatasetArray {da.__repr__()}\n')
+
 
 @pytest.mark.parametrize('ds1,ds2', [
     (DatasetArray([Dataset(name_1, df_1, target_1)]), Dataset(name_2, df_2, target_2)),
@@ -384,3 +544,40 @@ def test_append(ds1, ds2):
     len_1 = len(ds1)
     ds1.append(ds2)
     assert len(ds1) == len_1 + 1
+
+
+@pytest.mark.parametrize('ds1,ds2', [
+    (DatasetArray([Dataset(name_1, df_1, target_1)]), Dataset(name_2, df_2, target_2)),
+    (DatasetArray([Dataset(name_1, df_1, target_1)]), DatasetArray([Dataset(name_2, df_3, target_3), Dataset(name_1, df_3, target_3)]))
+])
+def test_append_list(ds1, ds2):
+    ds1 = deepcopy(ds1)
+    ds2 = deepcopy(ds2)
+    ds3 = deepcopy(ds2)
+    ds3.name += 'xx'
+
+    len_1 = len(ds1)
+    ds1.append([ds2, ds3])
+    assert len(ds1) == len_1 + 2
+
+
+class TestDatasetArrayFromDirectory:
+    def test_create_array(self):
+        try:
+            DatasetArrayFromDirectory('./resources')
+        except (Exception,):
+            assert False
+
+    def test_create_array_verbose(self, capsys):
+        path = './resources'
+        DatasetArrayFromDirectory(path, verbose=True)
+        captured = capsys.readouterr()
+        assert f'The files from {path} were loaded\n' in captured.out
+
+    def test_non_existing_path(self):
+        with pytest.raises(Exception):
+            DatasetArrayFromDirectory('./non-existing')
+
+    def test_not_dir(self):
+        with pytest.raises(Exception):
+            DatasetArrayFromDirectory('./resources/data_1.csv')
