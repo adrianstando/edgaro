@@ -361,9 +361,6 @@ def test_array_of_arrays_transform_columns_not_in_each_plot(model_array2):
 
         t[2][0].plot(variable=column)
 
-        print(t_2[0].results)
-        print(column1)
-
         with pytest.raises(Exception):
             t_2[0].plot(variable=column1)
 

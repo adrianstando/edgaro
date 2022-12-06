@@ -529,7 +529,6 @@ class TestRemoveEmpty:
         da.remove_empty_datasets()
 
         captured = capsys.readouterr()
-        print(captured.out)
         assert captured.out.startswith(f'Empty datasets were removed from DatasetArray {da.__repr__()}\n')
 
 

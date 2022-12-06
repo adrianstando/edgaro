@@ -111,13 +111,6 @@ class TestDatasetBasicProperties:
         except (Exception,):
             assert False
 
-    def test_generate_report_jupyter(self, name, df, target, expected_IR, target_fake):
-        try:
-            ds = Dataset(name, df, target)
-            ds.generate_report(show_jupyter=True, minimal=True)
-        except (Exception,):
-            assert False
-
     def test_generate_report_fail_none(self, name, df, target, expected_IR, target_fake):
         ds = Dataset(name, None, None)
         with pytest.raises(Exception):
