@@ -1,10 +1,15 @@
 import pandas as pd
 import pytest
 
+from copy import deepcopy
+
+from edgaro.balancing.transformer import SMOTE
+from edgaro.base.base_transformer import BaseTransformer
 from edgaro.data.dataset import Dataset
 from edgaro.data.dataset_array import DatasetArray
 from edgaro.balancing.transformer_array import TransformerArray
-from edgaro.balancing.nested_transformer import BasicAutomaticTransformer
+from edgaro.balancing.nested_transformer import BasicAutomaticTransformer, ExtensionAutomaticTransformer, \
+    AutomaticTransformer, NestedAutomaticTransformer
 
 from .resources.objects import *
 
@@ -22,6 +27,8 @@ def test_automatic_transformer_array(ds, n):
         array.transform(ds)
         str(array)
         repr(array)
+        str(super(NestedAutomaticTransformer, array))
+        repr(super(NestedAutomaticTransformer, array))
     except (Exception,):
         assert False
 
@@ -38,6 +45,9 @@ def test_automatic_transformer_array(ds, n):
 ])
 def test_automatic_transformer_array_suffix(ds, n, suffix):
     array = BasicAutomaticTransformer(n_per_method=n, result_array_sufix=suffix)
+
+    assert len(array.get_dataset_suffixes()) == 0
+
     array.fit(ds)
     out = array.transform(ds)
     assert out.name == ds.name + suffix
@@ -45,6 +55,13 @@ def test_automatic_transformer_array_suffix(ds, n, suffix):
     assert out[0].name.endswith('UNDERSAMPLING__Random')
     assert out[1].name.endswith('OVERSAMPLING__Random')
     assert out[2].name.endswith('OVERSAMPLING__SMOTE')
+
+    try:
+        out = array.get_dataset_suffixes()
+    except (Exception,):
+        assert False
+
+    assert len(out) > 0
 
 
 @pytest.mark.parametrize('ds', [
@@ -190,3 +207,180 @@ def test_array_of_automatic_transformer_array_shape(ds, n):
         assert len(trans_for_ds) == 3
         for trans_for_ir in trans_for_ds:
             assert len(trans_for_ir) == n
+
+
+@pytest.mark.parametrize('ds', [
+    Dataset(name_1, df_1, target_1),
+    Dataset(name_2, df_2, target_2)
+])
+def test_transform_empty(ds):
+    array = BasicAutomaticTransformer(n_per_method=2)
+    assert array.transform(ds) == DatasetArray([])
+
+
+@pytest.mark.parametrize('ds', [
+    Dataset(name_1, pd.concat([df_1 for _ in range(20)]), pd.concat([target_1 for _ in range(20)]))
+])
+def test_transform_keep_original(ds):
+    array = BasicAutomaticTransformer(n_per_method=2, keep_original_dataset=True)
+    array.fit(ds)
+    transform_true = array.transform(ds)
+
+    array.keep_original_dataset = False
+    transform_false = array.transform(ds)
+
+    assert len(transform_true) - 1 == len(transform_false)
+
+
+@pytest.mark.parametrize('ds', [
+    Dataset(name_1, pd.concat([df_1 for _ in range(20)]), pd.concat([target_1 for _ in range(20)]))
+])
+def test_output_verbose(ds, capsys):
+    array = BasicAutomaticTransformer(n_per_method=2, verbose=True)
+    array.fit(ds)
+    array.transform(ds)
+
+    captured = capsys.readouterr()
+    assert f'AutomaticTransformerArray {array.__repr__()} was fitted with {ds.name}' in captured.out
+    assert f'AutomaticTransformerArray {array.__repr__()} transformed {ds.name}' in captured.out
+
+
+@pytest.mark.parametrize('ds', [
+    Dataset(name_1, pd.concat([df_1 for _ in range(20)]), pd.concat([target_1 for _ in range(20)]))
+])
+def test_get_set_transformers(ds):
+    array = BasicAutomaticTransformer(n_per_method=2)
+    assert array.transformers == []
+    assert len(array) == 0
+    array.fit(ds)
+    array.transform(ds)
+    assert len(array.transformers) > 0
+    assert len(array) > 0
+
+    with pytest.raises(Exception):
+        array.transformers = deepcopy(array.transformers)
+
+    array1 = BasicAutomaticTransformer(n_per_method=2)
+    try:
+        array1.transformers = deepcopy(array.transformers)
+    except (Exception,):
+        assert False
+
+    try:
+        array1.transform(ds)
+    except (Exception,):
+        assert False
+
+
+@pytest.mark.parametrize('ds', [
+    Dataset(name_1, df_1, target_1)
+])
+def test_base_transformer_get_set(ds):
+    array = BasicAutomaticTransformer(n_per_method=2)
+
+    assert isinstance(array.base_transformer, list)
+
+    try:
+        ar = deepcopy(array)
+        ar.base_transformer = TransformerArray(SMOTE())
+        ar.fit(ds)
+    except (Exception,):
+        assert False
+
+    with pytest.raises(Exception):
+        ar = deepcopy(array)
+        tmp = TransformerArray(SMOTE())
+        tmp.__class__ = BaseTransformer
+        ar.base_transformer = tmp
+        x = ar.base_transformer
+
+
+@pytest.mark.parametrize('ds', [
+    Dataset(name_1, df_1, target_1)
+])
+def test_base_transformer_get_set_none(ds):
+    array = BasicAutomaticTransformer(n_per_method=2)
+    ar = deepcopy(array)
+    ar.base_transformer = None
+    assert ar.base_transformer == []
+
+
+@pytest.mark.parametrize('ds', [
+    Dataset(name_1, pd.concat([df_2 for _ in range(5)]), pd.concat([target_2 for _ in range(5)]))
+])
+def test_base_transformer_get_set_fail_fitted(ds):
+    array = BasicAutomaticTransformer(n_per_method=2)
+    ar = deepcopy(array)
+    ar.fit(ds)
+    with pytest.raises(Exception):
+        ar.base_transformer = None
+
+
+@pytest.mark.parametrize('ds', [
+    Dataset(name_1, pd.concat([df_1 for _ in range(20)]), pd.concat([target_1 for _ in range(20)]))
+])
+def test_get_item(ds):
+    array = BasicAutomaticTransformer(n_per_method=2)
+    assert array[0] is None
+    array.fit(ds)
+
+    try:
+        x = array[0]
+        x = array[1]
+        x = array[[1, 2]]
+    except (Exception,):
+        assert False
+
+    assert array[123444] is None
+    assert array[1.23] is None
+
+
+@pytest.mark.parametrize('ds', [
+    Dataset(name_1, pd.concat([df_2 for _ in range(5)]), pd.concat([target_2 for _ in range(5)]))
+])
+@pytest.mark.parametrize('n', [
+    2, 3
+])
+def test_extension_automatic_transformer_array(ds, n):
+    try:
+        array = ExtensionAutomaticTransformer(n_per_method=n)
+        str(array)
+        repr(array)
+    except (Exception,):
+        assert False
+
+
+@pytest.mark.parametrize('ds', [
+    Dataset(name_1, pd.concat([df_2 for _ in range(5)]), pd.concat([target_2 for _ in range(5)]))
+])
+@pytest.mark.parametrize('n', [
+    2, 3
+])
+def test_extension_automatic_transformer_array(ds, n):
+    try:
+        array = AutomaticTransformer(n_per_method=n)
+        str(array)
+        repr(array)
+    except (Exception,):
+        assert False
+
+
+@pytest.mark.parametrize('ds', [
+    Dataset(name_1, pd.concat([df_2 for _ in range(5)]), pd.concat([target_2 for _ in range(5)]))
+])
+def test_get_set_params(ds):
+    array = BasicAutomaticTransformer(n_per_method=2)
+    array.fit(ds)
+
+    try:
+        param = array.get_params()
+    except (Exception,):
+        assert False
+
+    assert isinstance(param, list)
+
+    try:
+        array.set_params(IR=[[1.5, 1] for _ in range(3)])
+    except (Exception,):
+        assert False
+
