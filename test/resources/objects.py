@@ -7,6 +7,10 @@ df_1 = pd.DataFrame({
     'a': [1.0, 2.0, 3.0],
     'b': ['a', 'b', 'c']
 })
+df_1_categorical = pd.DataFrame({
+    'a': [1, 2, 2],
+    'b': ['a', 'b', 'c']
+})
 target_1 = pd.Series([0, 0, 1])
 target_1_fake = pd.Series([2, 0, 1])
 name_1 = 'name_1'

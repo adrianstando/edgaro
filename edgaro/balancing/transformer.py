@@ -50,6 +50,11 @@ class Transformer(BaseTransformer, ABC):
         dataset : Dataset
             The object to fit Transformer on.
         """
+        if dataset.target is None:
+            raise Exception('Target data is not provided!')
+        if dataset.data is None:
+            raise Exception('Data in dataset is not provided!')
+
         d = dataset.train if dataset.was_split else dataset
         self._fit(d)
         self.__was_fitted = True
@@ -366,11 +371,6 @@ class SMOTE(TransformerFromIMBLEARN):
         super().__init__(transformer=transformer, name_sufix=name_sufix, verbose=verbose)
 
     def _fit(self, dataset: Dataset) -> None:
-        if dataset.target is None:
-            raise Exception('Target data is not provided!')
-        if dataset.data is None:
-            raise Exception('Data in dataset is not provided!')
-
         if self.__given_columns_categorical is not None:
             columns_categorical = self.__given_columns_categorical
         else:

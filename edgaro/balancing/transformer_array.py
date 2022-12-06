@@ -292,7 +292,7 @@ class TransformerArray(BaseTransformerArray):
 
     @base_transformer.setter
     def base_transformer(self, val: Transformer) -> None:
-        super().base_transformer = val
+        BaseTransformerArray.base_transformer.fset(self, val)
 
     def __str__(self) -> str:
         return f"TransformerArray{(' ' + self.__class__.__name__) if self.__class__.__name__ != 'TransformerArray' else ''} with {len(self.transformers)} transformers"

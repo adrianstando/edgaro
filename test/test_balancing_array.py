@@ -5,13 +5,14 @@ from imblearn.under_sampling import RandomUnderSampler
 from imblearn.over_sampling import RandomOverSampler
 from copy import deepcopy
 
-from edgaro.balancing.transformer import TransformerFromIMBLEARN, RandomUnderSampler as RandomUnderSampler_EDAGR, RandomOverSampler as RandomOverSampler_EDGAR
+from edgaro.balancing.transformer import TransformerFromIMBLEARN, RandomUnderSampler as RandomUnderSampler_EDAGR, \
+    RandomOverSampler as RandomOverSampler_EDGAR, Transformer
+from edgaro.base.base_transformer import BaseTransformer
 from edgaro.data.dataset import Dataset, DatasetFromOpenML
 from edgaro.data.dataset_array import DatasetArray
 from edgaro.balancing.transformer_array import TransformerArray
 
 from .resources.objects import *
-
 
 ds_openml_1 = DatasetFromOpenML(task_id=task_id_2, apikey=APIKEY)
 ds_openml_2 = deepcopy(ds_openml_1)
@@ -27,8 +28,10 @@ ds_openml_2.name += '__xx'
     Dataset(name_2, df_2, target_2),
     DatasetArray([Dataset(name_1, df_1, target_1)]),
     DatasetArray([Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2)]),
-    DatasetArray([Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2), DatasetArray([Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2)])]),
-    DatasetArray([DatasetArray([Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2)], name='x'), DatasetArray([Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2)])])
+    DatasetArray([Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2),
+                  DatasetArray([Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2)])]),
+    DatasetArray([DatasetArray([Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2)], name='x'),
+                  DatasetArray([Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2)])])
 ])
 def test_transformer_array(imblearn_sampler, ds):
     try:
@@ -42,6 +45,28 @@ def test_transformer_array(imblearn_sampler, ds):
         repr(array)
     except (Exception,):
         assert False
+
+
+@pytest.mark.parametrize('imblearn_sampler', [
+    RandomUnderSampler(sampling_strategy=1, random_state=42),
+    RandomOverSampler(sampling_strategy=1, random_state=42)
+])
+@pytest.mark.parametrize('ds', [
+    Dataset(name_1, df_1, target_1),
+    Dataset(name_2, df_2, target_2),
+    DatasetArray([Dataset(name_1, df_1, target_1)]),
+    DatasetArray([Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2)]),
+])
+def test_transform_keep_original(imblearn_sampler, ds):
+    transformer = TransformerFromIMBLEARN(imblearn_sampler)
+    array = TransformerArray(transformer, keep_original_dataset=True)
+    array.fit(ds)
+    transform_true = array.transform(ds)
+
+    array.keep_original_dataset = False
+    transform_false = array.transform(ds)
+
+    assert len(transform_true) - 1 == len(transform_false)
 
 
 @pytest.mark.parametrize('imblearn_sampler', [
@@ -147,7 +172,8 @@ def test_transformer_sufix_tab_2_datasetarray(imblearn_sampler, ds, sufix):
     RandomOverSampler(sampling_strategy=1, random_state=42)
 ])
 @pytest.mark.parametrize('ds', [
-    DatasetArray([Dataset(name_1, df_1, target_1), Dataset(name_2, df_1, target_1), Dataset(name_1 + '3', df_1, target_1)])
+    DatasetArray(
+        [Dataset(name_1, df_1, target_1), Dataset(name_2, df_1, target_1), Dataset(name_1 + '3', df_1, target_1)])
 ])
 @pytest.mark.parametrize('sufix', [
     ['_transformed_0', '_transformed_1'],
@@ -214,6 +240,14 @@ def test_imbalance_ratio_2(imblearn_sampler, ratio, ds):
     {
         'random_state': [1, 2],
         'sampling_strategy': [1, 0.98]
+    },
+    {
+        'random_state': [1, 2],
+        'imbalance_ratio': [1 / 1, 1 / 0.98]
+    },
+    {
+        'random_state': [1, 2],
+        'IR': [1 / 1, 1 / 0.98]
     }
 ])
 def test_set_get_params(imblearn_sampler, ds, param):
@@ -235,7 +269,10 @@ def test_set_get_params(imblearn_sampler, ds, param):
     for i in range(len(array.transformers)):
         tmp = {}
         for key in param:
-            tmp[key] = param[key][i]
+            if key == 'imbalance_ratio' or key == 'IR':
+                tmp['sampling_strategy'] = 1 / param[key][i]
+            else:
+                tmp[key] = param[key][i]
 
         expected_params = list(tmp.items())
         existing_params = list(array.transformers[i].get_params().items())
@@ -296,14 +333,14 @@ def test_set_get_params_2(imblearn_sampler, ds, param):
 ])
 @pytest.mark.parametrize('param', [
     [
-            [
-                {
-                    'sampling_strategy': 0.98
-                },
-                {
-                    'sampling_strategy': 1
-                }
-            ] for _ in range(2)
+        [
+            {
+                'sampling_strategy': 0.98
+            },
+            {
+                'sampling_strategy': 1
+            }
+        ] for _ in range(2)
     ],
     [
         [
@@ -343,14 +380,14 @@ def test_params_in_arguments(imblearn_sampler, ds, param):
 ])
 @pytest.mark.parametrize('param', [
     [
-            [
-                {
-                    'sampling_strategy': 0.98
-                },
-                {
-                    'sampling_strategy': 1
-                }
-            ] for _ in range(2)
+        [
+            {
+                'sampling_strategy': 0.98
+            },
+            {
+                'sampling_strategy': 1
+            }
+        ] for _ in range(2)
     ],
     [
         [
@@ -404,14 +441,14 @@ def test_params_in_arguments_and_sufix(imblearn_sampler, ds, param, sufix):
 ])
 @pytest.mark.parametrize('param', [
     [
-            [
-                {
-                    'sampling_strategy': 0.98
-                },
-                {
-                    'sampling_strategy': 1
-                }
-            ] for _ in range(2)
+        [
+            {
+                'sampling_strategy': 0.98
+            },
+            {
+                'sampling_strategy': 1
+            }
+        ] for _ in range(2)
     ],
     [
         [
@@ -482,3 +519,48 @@ def test_was_fitted(imblearn_sampler, ds):
     assert not array.was_fitted
     array.fit(ds)
     assert array.was_fitted
+
+
+@pytest.mark.parametrize('imblearn_sampler', [
+    RandomUnderSampler(sampling_strategy=1, random_state=42)
+])
+@pytest.mark.parametrize('ds', [
+    DatasetArray([Dataset(name_1, df_1, target_1)]),
+    DatasetArray([Dataset(name_1, df_1, target_1), Dataset(name_2, df_2, target_2)])
+])
+def test_output_verbose(imblearn_sampler, ds, capsys):
+    transformer = TransformerFromIMBLEARN(imblearn_sampler)
+    array = TransformerArray(transformer, verbose=True)
+    array.fit(ds)
+    array.transform(ds)
+
+    captured = capsys.readouterr()
+    assert f'TransformerArray {array.__repr__()} was fitted with {ds.name}' in captured.out
+    assert f'TransformerArray {array.__repr__()} transformed with {ds.name}' in captured.out
+
+
+@pytest.mark.parametrize('imblearn_sampler', [
+    RandomUnderSampler(sampling_strategy=1, random_state=42)
+])
+@pytest.mark.parametrize('ds', [
+    DatasetArray([Dataset(name_1, df_1, target_1)])
+])
+def test_base_transformer_get_set(imblearn_sampler, ds):
+    transformer = TransformerFromIMBLEARN(imblearn_sampler)
+    array = TransformerArray(transformer)
+
+    assert isinstance(array.base_transformer, Transformer)
+
+    try:
+        ar = deepcopy(array)
+        ar.base_transformer = deepcopy(imblearn_sampler)
+        ar.fit(ds)
+    except (Exception,):
+        assert False
+
+    with pytest.raises(Exception):
+        ar = deepcopy(array)
+        tmp = deepcopy(imblearn_sampler)
+        tmp.__class__ = BaseTransformer
+        ar.base_transformer = tmp
+        x = ar.base_transformer
