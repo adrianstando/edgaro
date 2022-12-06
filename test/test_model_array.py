@@ -144,6 +144,7 @@ def test_model_array_nested_output(ds):
     out = model.evaluate()
     assert isinstance(out, pd.DataFrame)
 
+
 @pytest.mark.parametrize('ds', [
     DatasetArray([
         Dataset(name_1, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)])),
