@@ -323,8 +323,8 @@ class ModelArray(BaseTransformerArray):
             raise Exception('Wrong base_transformer attribute')
 
     @base_transformer.setter
-    def base_transformer(self, val: Model):
-        super().transformers = val
+    def base_transformer(self, val: Model) -> None:
+        BaseTransformerArray.base_transformer.fset(self, val)
 
     def __str__(self) -> str:
         return f"ModelArray {self.name} with {len(self.get_models())} models"

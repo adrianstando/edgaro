@@ -1,9 +1,12 @@
 import pandas as pd
 import pytest
 
+from copy import deepcopy
+
+from edgaro.balancing.transformer import Transformer
 from edgaro.data.dataset_array import DatasetArray
 from edgaro.data.dataset import Dataset
-from edgaro.model.model import RandomForest
+from edgaro.model.model import RandomForest, Model
 from edgaro.model.model_array import ModelArray
 
 from .resources.objects import *
@@ -174,3 +177,32 @@ def test_output_verbose(ds, capsys):
     captured = capsys.readouterr()
     assert f'ModelArray {model.__repr__()} is being evaluated' in captured.out
     assert f'ModelArray {model.__repr__()} was evaluated' in captured.out
+
+
+@pytest.mark.parametrize('ds', [
+    DatasetArray([
+        Dataset(name_1, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)])),
+        Dataset(name_2, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)]))
+    ])
+])
+@pytest.mark.parametrize('model', [
+    RandomForest(max_depth=1, n_estimators=1, random_state=42)
+])
+def test_base_transformer_get_set(model, ds):
+    array = ModelArray(model)
+
+    assert isinstance(array.base_transformer, Model)
+
+    try:
+        ar = deepcopy(array)
+        ar.base_transformer = deepcopy(model)
+        ar.fit(ds)
+    except (Exception,):
+        assert False
+
+    with pytest.raises(Exception):
+        ar = deepcopy(array)
+        tmp = deepcopy(model)
+        tmp.__class__ = ModelArray
+        ar.base_transformer = tmp
+        x = ar.base_transformer
