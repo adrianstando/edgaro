@@ -32,6 +32,7 @@ release = '0.1'
 # ones.
 extensions = [
     'sphinx.ext.napoleon',
+    'myst_parser'
 ]
 
 napoleon_google_docstring = False

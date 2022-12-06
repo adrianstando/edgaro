@@ -7,11 +7,16 @@ Welcome to edgaro's documentation!
 ==================================
 
 .. toctree::
+   :hidden:
    :maxdepth: 2
 
    self
 
+.. include:: ../README.md
+   :parser: myst_parser.sphinx_
+
 .. toctree::
+   :hidden:
    :maxdepth: 2
    :caption: Class documentation:
 
@@ -20,11 +25,9 @@ Welcome to edgaro's documentation!
    source/edgaro.model
    source/edgaro.explain
 
+.. toctree::
+   :hidden:
+   :maxdepth: 2
+   :caption: Package changelog:
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   source/changelog.rst
