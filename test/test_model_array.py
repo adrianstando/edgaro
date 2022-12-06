@@ -82,6 +82,40 @@ def test_model_array_output(ds):
 
 @pytest.mark.parametrize('ds', [
     DatasetArray([
+        DatasetArray([
+            Dataset(name_1, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)])),
+            Dataset(name_2, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)])),
+            Dataset(name_2 + 'xx', pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)])),
+            DatasetArray([
+                Dataset(name_1, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)])),
+                Dataset(name_2, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)])),
+                Dataset(name_2 + 'xx', pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)])),
+                DatasetArray([
+                    Dataset(name_1, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)])),
+                    Dataset(name_2, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)])),
+                    Dataset(name_2 + 'xx', pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)])),
+                ])
+            ])
+        ]),
+        Dataset(name_2, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)]))
+    ])
+])
+def test_evaluate_many_nested(ds):
+    ds.remove_nans()
+
+    model = ModelArray(RandomForest(max_depth=1, n_estimators=1, random_state=42))
+    model.fit(ds)
+
+    try:
+        out = model.evaluate()
+    except (Exception,):
+        assert False
+
+    assert isinstance(out, pd.DataFrame)
+
+
+@pytest.mark.parametrize('ds', [
+    DatasetArray([
         Dataset(name_1, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)])),
         DatasetArray([
             Dataset(name_1, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)])),
@@ -109,3 +143,33 @@ def test_model_array_nested_output(ds):
 
     out = model.evaluate()
     assert isinstance(out, pd.DataFrame)
+
+@pytest.mark.parametrize('ds', [
+    DatasetArray([
+        Dataset(name_1, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)])),
+        Dataset(name_2, pd.concat([df_1 for _ in range(5)]), pd.concat([target_1 for _ in range(5)]))
+    ])
+])
+def test_output_verbose(ds, capsys):
+    ds.remove_nans()
+
+    model = ModelArray(RandomForest(max_depth=1, n_estimators=1, random_state=42), verbose=True)
+    model.fit(ds)
+    y = model.predict(ds)
+    y = model.predict_proba(ds)
+
+    model_repr_pre = model.__repr__()
+    for ele in model_repr_pre:
+        if ele.isdigit():
+            model_repr_pre = model_repr_pre.replace(ele, '0')
+
+    captured = capsys.readouterr()
+    assert f'ModelArray {model_repr_pre} is being fitted with {ds.name}' in captured.out
+    assert f'ModelArray {model.__repr__()} was fitted with {ds.name}' in captured.out
+    assert f'ModelArray {model.__repr__()} predicted on {ds.name}' in captured.out
+    assert f'ModelArray {model.__repr__()} predicted probabilities on {ds.name}' in captured.out
+
+    model.evaluate()
+    captured = capsys.readouterr()
+    assert f'ModelArray {model.__repr__()} is being evaluated' in captured.out
+    assert f'ModelArray {model.__repr__()} was evaluated' in captured.out

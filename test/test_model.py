@@ -52,6 +52,28 @@ class TestFitting:
             model.predict(ds_test_fitting.test)
             model.predict_proba(ds_test_fitting.test)
 
+    def test_fit_verbose(self, ds_test_fitting, capsys):
+        model = RandomForest(test_size=None, max_depth=1, n_estimators=1, random_state=42, verbose=True)
+        model.fit(ds_test_fitting)
+        captured = capsys.readouterr()
+        assert f'Model {RandomForest().__repr__()} is being fitted with {ds_test_fitting.name}' in captured.out
+        assert f'Model {model.__repr__()} was fitted with {ds_test_fitting.name}' in captured.out
+
+    def test_fit_print_scores(self, ds_test_fitting, capsys):
+        model = RandomForest(test_size=None, max_depth=1, n_estimators=1, random_state=42)
+        model.fit(ds_test_fitting, print_scores=True)
+        captured = capsys.readouterr()
+        assert not captured.out == ''
+
+    def test_evaluate_verbose(self, ds_test_fitting, capsys):
+        model = RandomForest(test_size=None, max_depth=1, n_estimators=1, random_state=42)
+        model.fit(ds_test_fitting)
+        model.verbose = True
+        model.evaluate()
+        captured = capsys.readouterr()
+        assert f'Model {model.__repr__()} is being evaluated' in captured.out
+        assert f'Model {model.__repr__()} was evaluated' in captured.out
+
     def test_xgboost(self, ds_test_fitting):
         try:
             model = XGBoost(test_size=None, max_depth=1, n_estimators=1, random_state=42)
@@ -107,6 +129,43 @@ class TestFitting:
         assert not model.was_fitted
         model.fit(ds_test_fitting)
         assert model.was_fitted
+
+
+def test_random_forest_empty_data():
+    ds = Dataset(name_1, None, target_1)
+    model = RandomForest(test_size=None, max_depth=1, n_estimators=1, random_state=42)
+    with pytest.raises(Exception):
+        model.fit(ds)
+
+
+def test_random_forest_empty_data2():
+    ds = Dataset(name_1, df_1, target_1)
+    ds.data = pd.DataFrame()
+    model = RandomForest(test_size=None, max_depth=1, n_estimators=1, random_state=42)
+    with pytest.raises(Exception):
+        model.fit(ds)
+
+
+def test_random_forest_empty_target():
+    ds = Dataset(name_1, df_1, None)
+    model = RandomForest(test_size=None, max_depth=1, n_estimators=1, random_state=42)
+    with pytest.raises(Exception):
+        model.fit(ds)
+
+
+def test_random_forest_non_binary():
+    ds = Dataset(name_1, df_1, target_1_fake)
+    model = RandomForest(test_size=None, max_depth=1, n_estimators=1, random_state=42)
+    with pytest.raises(Exception):
+        model.fit(ds)
+
+
+def test_random_forest_empty_target2():
+    ds = Dataset(name_1, df_1, target_1)
+    ds.target = pd.Series()
+    model = RandomForest(test_size=None, max_depth=1, n_estimators=1, random_state=42)
+    with pytest.raises(Exception):
+        model.fit(ds)
 
 
 class TestFittingWithSplit:
@@ -260,6 +319,24 @@ class TestModel:
         except (Exception,):
             assert False
 
+    def test_transform_data_none(self, model, ds_test_fitting):
+        model = deepcopy(model)
+        ds = deepcopy(ds_test_fitting)
+
+        model.fit(ds)
+        ds.data = None
+        with pytest.raises(Exception,):
+            X = model.transform_data(ds)
+
+    def test_transform_data_empty(self, model, ds_test_fitting):
+        model = deepcopy(model)
+        ds = deepcopy(ds_test_fitting)
+
+        model.fit(ds)
+        ds.data = pd.DataFrame()
+        with pytest.raises(Exception,):
+            X = model.transform_data(ds)
+
     def test_transform_target(self, model, ds_test_fitting):
         model = deepcopy(model)
         ds = deepcopy(ds_test_fitting)
@@ -269,6 +346,24 @@ class TestModel:
             Y = model.transform_target(ds)
         except (Exception,):
             assert False
+
+    def test_transform_target_none(self, model, ds_test_fitting):
+        model = deepcopy(model)
+        ds = deepcopy(ds_test_fitting)
+
+        model.fit(ds)
+        ds.target = None
+        with pytest.raises(Exception,):
+            X = model.transform_target(ds)
+
+    def test_transform_target_empty(self, model, ds_test_fitting):
+        model = deepcopy(model)
+        ds = deepcopy(ds_test_fitting)
+
+        model.fit(ds)
+        ds.target = pd.Series()
+        with pytest.raises(Exception,):
+            X = model.transform_target(ds)
 
     def test_output_types(self, model, ds_test_fitting):
         model = deepcopy(model)
@@ -280,6 +375,32 @@ class TestModel:
         assert y.check_binary_classification()
         y = model.predict_proba(ds)
         assert isinstance(y, Dataset)
+
+    def test_output_predict_with_none(self, model, ds_test_fitting):
+        model = deepcopy(model)
+        ds = deepcopy(ds_test_fitting)
+        model.fit(ds)
+
+        ds.data = None
+
+        with pytest.raises(Exception):
+            y = model.predict(ds)
+
+        with pytest.raises(Exception):
+            y = model.predict_proba(ds)
+
+    def test_output_verbose(self, model, ds_test_fitting, capsys):
+        model = deepcopy(model)
+        model.verbose = True
+        ds = deepcopy(ds_test_fitting)
+        model.fit(ds)
+
+        y = model.predict(ds)
+        y = model.predict_proba(ds)
+
+        captured = capsys.readouterr()
+        assert f'Model {model.__repr__()} predicted on {ds.name}' in captured.out
+        assert f'Model {model.__repr__()} predicted probabilities on {ds.name}' in captured.out
 
     def test_output_names(self, model, ds_test_fitting):
         model = deepcopy(model)

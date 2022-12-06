@@ -127,7 +127,7 @@ class Model(BaseTransformer, ABC):
             self._fit(ds)
 
             if print_scores:
-                self.evaluate()
+                print_unbuffered(self.evaluate())
 
             self.__was_fitted = True
 
@@ -216,6 +216,9 @@ class Model(BaseTransformer, ABC):
         Dataset
 
         """
+        if dataset.data is None:
+            raise Exception('Data in dataset is not provided!')
+
         df = self.transform_data(dataset)
         model_name = '_' + self.name if not self.name == dataset.name else ''
         name = dataset.name + model_name + '_predicted'
@@ -243,6 +246,9 @@ class Model(BaseTransformer, ABC):
         Dataset
 
         """
+        if dataset.data is None:
+            raise Exception('Data in dataset is not provided!')
+
         df = self.transform_data(dataset)
         model_name = '_' + self.name if not self.name == dataset.name else ''
         name = dataset.name + model_name + '_predicted_probabilities'
@@ -492,11 +498,6 @@ class ModelFromSKLEARN(Model):
         self.verbose = verbose
 
     def _fit(self, dataset: Dataset) -> None:
-        if dataset.target is None:
-            raise Exception('Target data is not provided!')
-        if dataset.data is None:
-            raise Exception('Data in dataset is not provided!')
-
         self._model.set_params(verbose=self.verbose)
 
         if 'random_state' in self._model.get_params().keys() and \
@@ -515,24 +516,18 @@ class ModelFromSKLEARN(Model):
             return False
 
     def _predict(self, dataset: Dataset, output_name: str) -> Dataset:
-        if dataset.data is None:
-            raise Exception('Data in dataset is not provided!')
-        else:
-            return Dataset(
-                name=output_name,
-                dataframe=None,
-                target=pd.Series(self._model.predict(dataset.data))
-            )
+        return Dataset(
+            name=output_name,
+            dataframe=None,
+            target=pd.Series(self._model.predict(dataset.data))
+        )
 
     def _predict_proba(self, dataset: Dataset, output_name: str) -> Dataset:
-        if dataset.data is None:
-            raise Exception('Data in dataset is not provided!')
-        else:
-            return Dataset(
-                name=output_name,
-                dataframe=None,
-                target=pd.Series(self._model.predict_proba(dataset.data)[:, 1])
-            )
+        return Dataset(
+            name=output_name,
+            dataframe=None,
+            target=pd.Series(self._model.predict_proba(dataset.data)[:, 1])
+        )
 
     def _set_params(self, **params) -> None:
         return self._model.set_params(**params)
@@ -665,6 +660,7 @@ class GridSearchCV(ModelFromSKLEARN):
         Print messages during calculations.
 
     """
+
     def __init__(self, base_model: ModelFromSKLEARN, param_grid: Dict, cv: int = 5,
                  scoring: str = 'balanced_accuracy', name: str = '', test_size: Optional[float] = None,
                  random_state: Optional[int] = None, verbose: bool = False, *args, **kwargs) -> None:
