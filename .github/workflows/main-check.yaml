@@ -41,7 +41,8 @@ jobs:
          python-version: '3.9'
      - name: Install dependencies
        run: |
-         pip install sphinx sphinx-rtd-theme docutils==0.16
+         pip install sphinx sphinx-rtd-theme docutils==0.17
+         pip install myst-parser
      - name: Sphinx build
        run: |
          sphinx-build docs _build
@@ -92,20 +93,12 @@ jobs:
     - name: Build a binary wheel and a source tarball
       run: |
         python -m build --sdist --wheel --outdir dist/
-    - name: Check news file existence
-      id: check_news_file
-      uses: andstor/file-existence-action@v2
-      with:
-        files: "${{ github.workspace }}/news/${{ github.ref_name }}.txt"
-    - name: Create release with news
-      if: steps.check_news_file.outputs.files_exists == 'true'
+    - name: Extract release notes
+      id: extract-release-notes
+      uses: ffurrer2/extract-release-notes@v1
+    - name: Create release
       uses: softprops/action-gh-release@v1
       with:
         files: dist/*
-        body_path: ${{ github.workspace }}/news/${{ github.ref_name }}.txt
-    - name: Create release without news
-      if: steps.check_news_file.outputs.files_exists == 'false'
-      uses: softprops/action-gh-release@v1
-      with:
-        files: dist/*
+        body: ${{ steps.extract-release-notes.outputs.release_notes }}
 
