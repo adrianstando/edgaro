@@ -7,6 +7,10 @@ df_1 = pd.DataFrame({
     'a': [1.0, 2.0, 3.0],
     'b': ['a', 'b', 'c']
 })
+df_1_x = pd.DataFrame({
+    'c': [1.0, 2.0, 3.0],
+    'd': ['a', 'b', 'c']
+})
 df_1_categorical = pd.DataFrame({
     'a': [1, 2, 2],
     'b': ['a', 'b', 'c']

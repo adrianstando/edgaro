@@ -40,6 +40,9 @@ class ExplainerResultArray:
         self.name = name
         self.curve_type = curve_type
 
+    def __len__(self) -> int:
+        return len(self.results)
+
     def __getitem__(self, key: Union[Union[str, int], List[Union[str, int]]]) \
             -> Optional[Union[ExplainerResult, ExplainerResultArray]]:
         if isinstance(key, list):
@@ -114,10 +117,13 @@ class ExplainerResultArray:
         fig, axes = plt.subplots(n_rows, n_col, figsize=figsize)
 
         for i in range(len(variables)):
+            ax_to_pass = axes[math.floor(i / n_col)][i - n_col * math.floor(i / n_col)] \
+                if n_rows > 1 else axes[math.floor(i / n_col)]
+
             results[0].plot(
                 add_plot=[results[j] for j in range(1, len(results))],
                 variable=variables[i],
-                ax=axes[math.floor(i / n_col)][i - n_col * math.floor(i / n_col)],
+                ax=ax_to_pass,
                 show_legend=False
             )
 
