@@ -6,6 +6,8 @@ import pandas as pd
 import numpy as np
 
 from typing import List, Union, Optional
+from imblearn.datasets import fetch_datasets
+from sklearn.model_selection import train_test_split
 
 from edgaro.data.dataset import Dataset, DatasetFromOpenML
 from edgaro.base.utils import print_unbuffered
@@ -323,7 +325,6 @@ class DatasetArrayFromDirectory(DatasetArray):
     """
 
     def __init__(self, path: str, name: str = 'dataset_array', verbose: bool = False) -> None:
-        # !!!
         if not os.path.exists(path):
             raise Exception('The path does not exist!')
         if not os.path.isdir(path):
@@ -352,3 +353,119 @@ class DatasetArrayFromDirectory(DatasetArray):
             print_unbuffered(f'The files from {path} were loaded')
 
         super().__init__(datasets=dataset_array, name=name, verbose=verbose)
+
+
+def load_benchmarking_set(apikey: Optional[str] = None):
+    """
+    The function loads an example benchmarking set.
+
+    Parameters
+    ----------
+    apikey : str, optional, default=None
+        An API key to OpenML (if you configured OpenML, you do not need to pass this parameter).
+        For details see `DatasetArrayFromOpenMLSuite` class documentation.
+
+    Returns
+    -------
+    DatasetArray
+    """
+
+    # Functions for changing some column types as `edgaro` assumes integers to be categorical
+
+    def convert_to_float(ds_array, dataset_name, column_name):
+        ds_array[dataset_name].data[column_name] = ds_array[dataset_name].data[column_name].astype('float64')
+
+    def convert_columns_to_int(ds_array, dataset_name, cols):
+        for col in cols:
+            convert_to_float(ds_array, dataset_name, col)
+
+    def convert_all_int_columns_to_float(ds_array, dataset_name):
+        d = ds_array[dataset_name].data
+        for col in list(d.select_dtypes(['uint8', 'int']).columns):
+            convert_to_float(ds_array, dataset_name, col)
+
+    # OpenML-CC18
+    df_openml = DatasetArrayFromOpenMLSuite('OpenML-CC18', apikey=apikey)
+    df_openml.remove_nans()
+    df_openml.remove_non_binary_target_datasets()
+    df_openml.remove_empty_datasets()
+    stats = pd.DataFrame({'name': [], 'IR': [], 'nrow': [], 'ncol': []})
+
+    for df in df_openml:
+        tmp = pd.DataFrame({'name': [df.name], 'IR': [df.imbalance_ratio],
+                            'nrow': [df.data.shape[0]], 'ncol': [df.data.shape[1]]})
+        stats = pd.concat([stats, tmp])
+
+    stats = stats[np.logical_and(stats.IR >= 1.5, stats.nrow >= 1000)]
+    df_openml = df_openml[list(stats.name)]
+    convert_all_int_columns_to_float(df_openml, 'spambase')
+    convert_all_int_columns_to_float(df_openml, 'qsar-biodeg')
+    convert_all_int_columns_to_float(df_openml, 'credit-g')
+    convert_all_int_columns_to_float(df_openml, 'adult')
+    convert_all_int_columns_to_float(df_openml, 'kc1')
+    convert_all_int_columns_to_float(df_openml, 'pc1')
+    convert_all_int_columns_to_float(df_openml, 'pc3')
+    convert_all_int_columns_to_float(df_openml, 'pc4')
+    convert_all_int_columns_to_float(df_openml, 'bank-marketing')
+    convert_columns_to_int(df_openml, 'churn', ['account_length', 'number_vmail_messages', 'total_day_calls',
+                                                'total_eve_calls', 'total_night_calls', 'total_intl_calls',
+                                                'number_customer_service_calls'])
+
+    # OpenML-100
+    df_openml2 = DatasetArrayFromOpenMLSuite('OpenML100', apikey=apikey)
+    df_openml2.remove_nans()
+    df_openml2.remove_non_binary_target_datasets()
+    df_openml2.remove_empty_datasets()
+    stats2 = pd.DataFrame({'name': [], 'IR': [], 'nrow': [], 'ncol': []})
+
+    for df in df_openml2:
+        tmp = pd.DataFrame({'name': [df.name], 'IR': [df.imbalance_ratio],
+                            'nrow': [df.data.shape[0]], 'ncol': [df.data.shape[1]]})
+        stats2 = pd.concat([stats2, tmp])
+
+    stats2 = stats2[np.logical_and(stats2.IR >= 1.5, stats2.nrow >= 1000)]
+    stats2 = stats2[np.logical_not(stats2.name.isin(stats.name))]  # so as not to repeat datasets
+    df_openml2 = df_openml2[list(stats2.name)]
+
+    df_openml2['SpeedDating'].data = df_openml2['SpeedDating'].data[[col
+                                                                     for col in df_openml2['SpeedDating'].data.columns
+                                                                     if col == 'd_age' or not col.startswith('d_')]]
+    convert_all_int_columns_to_float(df_openml2, 'steel-plates-fault')
+    convert_columns_to_int(df_openml2, 'sylva_agnostic',
+                           list(df_openml2['sylva_agnostic'].data.select_dtypes('int64').columns))
+
+    # imblearn
+    datasets = fetch_datasets()
+    stats3 = pd.DataFrame({'name': [], 'IR': [], 'nrow': [], 'ncol': []})
+    df_tab = []
+
+    for key in datasets.keys():
+        if key != 'ozone_level':  # this dataset is already included in previous set
+            ds = datasets[key]
+            df = Dataset(dataframe=pd.DataFrame(ds.data), target=pd.Series(ds.target), name=ds.DESCR)
+            df_tab.append(df)
+            tmp = pd.DataFrame({'name': [df.name], 'IR': [df.imbalance_ratio],
+                                'nrow': [df.data.shape[0]], 'ncol': [df.data.shape[1]]})
+            stats3 = pd.concat([stats3, tmp])
+
+    stats3 = stats3[np.logical_and(stats3.IR >= 1.5, stats3.nrow >= 1000)]
+    stats3 = stats3[np.logical_not(stats3.name.isin(stats.name))]  # so as not to repeat datasets
+    stats3 = stats3[np.logical_not(stats3.name.isin(stats2.name))]  # so as not to repeat datasets
+    exclude = ['optical_digits', 'satimage', 'pen_digits',
+               'letter_img']  # excluding datasets made from images since they are not real tabular data.
+    stats3 = stats3[np.logical_not(np.isin(np.array(stats3.name), exclude))]
+    df_tab = [d for d in df_tab if d.name in list(stats3.name)]
+
+    # `protein_homo` dataset is very big and after balancing, for example to `IR=1`, it would have gigantic sizes
+    # therefore, only subset of this dataset will be included in research
+    for df in df_tab:
+        if df.name == 'protein_homo':
+            X, _, y, _ = train_test_split(df.data, df.target, train_size=30000, stratify=df.target, random_state=42)
+            df.data = X
+            df.target = y
+
+    return DatasetArray(
+        datasets=df_openml.datasets + df_openml2.datasets + df_tab,
+        name='benchmarking_set',
+        verbose=False
+    )

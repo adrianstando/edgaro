@@ -8,6 +8,7 @@ from copy import deepcopy
 from typing import Optional, Union
 from pandas_profiling import ProfileReport
 from sklearn.model_selection import train_test_split
+from imblearn.datasets import fetch_datasets
 
 from edgaro.base.utils import print_unbuffered
 
@@ -420,3 +421,26 @@ class DatasetFromOpenML(Dataset):
             The Dataset description.
         """
         return "Name: " + self.name + '\n' + 'Description: ' + '\n' + self.__openml_description
+
+
+def load_mammography():
+    """
+    The function loads an example dataset 'mammography'.
+
+    Returns
+    -------
+    Dataset
+    """
+
+    mammography = fetch_datasets()['mammography']
+    X = mammography['data']
+    y = mammography['target']
+    name = mammography['DESCR']
+
+    return Dataset(
+        dataframe=pd.DataFrame(X),
+        target=pd.Series(y),
+        name=name
+    )
+
+

@@ -5,6 +5,7 @@ import openml
 from copy import deepcopy
 
 from edgaro.data.dataset_array import DatasetArray, DatasetArrayFromOpenMLSuite, DatasetArrayFromDirectory
+from edgaro.data.dataset_array import load_benchmarking_set
 from edgaro.data.dataset import Dataset, DatasetFromOpenML
 
 from .resources.objects import *
@@ -80,6 +81,15 @@ class TestDatasetArrayBasicProperties:
         ])
 
         assert tab[[100, 101]] is None
+
+
+def test_benchmarking_set():
+    try:
+        df = load_benchmarking_set()
+    except (Exception,):
+        assert False
+
+    assert isinstance(df, DatasetArray)
 
 
 class TestUniqueNames:

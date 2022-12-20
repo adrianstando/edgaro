@@ -6,7 +6,7 @@ import openml
 
 from copy import deepcopy
 
-from edgaro.data.dataset import Dataset, DatasetFromCSV, DatasetFromOpenML
+from edgaro.data.dataset import Dataset, DatasetFromCSV, DatasetFromOpenML, load_mammography
 
 from .resources.objects import *
 
@@ -55,6 +55,14 @@ class TestCreateObjects:
             DatasetFromOpenML(task_id_1, apikey=APIKEY)
         except (Exception,):
             assert False
+
+    def test_mammography(self):
+        try:
+            df = load_mammography()
+        except (Exception,):
+            assert False
+
+        assert isinstance(df, Dataset)
 
 
 @pytest.mark.parametrize('name, df, target, expected_IR, target_fake', [
