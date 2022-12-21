@@ -18,6 +18,13 @@ Welcome to edgaro's documentation!
 .. toctree::
    :hidden:
    :maxdepth: 2
+   :caption: User manual:
+
+   source/manual
+
+.. toctree::
+   :hidden:
+   :maxdepth: 2
    :caption: Class documentation:
 
    source/edgaro.data

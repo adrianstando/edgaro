@@ -13,13 +13,14 @@ This is the first official release of the package.
 
 It allows to perform all required computations for comparing and benchmarking balancing methods.
 
-## [0.2.0] - 2022-12-20
+## [0.2.0] - 2022-12-21
 
 ### Added
 
 - Example dataset
 - Benchmarking set
 - Extracted `requirements.txt` file for environment setup without using PyPI
+- User manual in documentation
 
 ## [0.1.0] - 2022-12-06
 
