@@ -85,7 +85,7 @@ class TestDatasetArrayBasicProperties:
 
 def test_benchmarking_set():
     try:
-        df = load_benchmarking_set()
+        df = load_benchmarking_set(apikey=APIKEY)
     except (Exception,):
         assert False
 
