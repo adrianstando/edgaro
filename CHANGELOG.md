@@ -13,6 +13,18 @@ This is the first official release of the package.
 
 It allows to perform all required computations for comparing and benchmarking balancing methods.
 
+## [0.2.0] - 2023-01-02
+
+### Added
+
+- Compare method for `ExplainerResultArray`
+- New plot method to summary benchmarking
+- Enable compare methods to return raw values
+
+### Removed
+
+- Two comparison metrics - only one, based on variance, is left
+
 ## [0.2.0] - 2022-12-21
 
 ### Added

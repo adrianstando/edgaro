@@ -225,8 +225,11 @@ def test_compare_result_array(pdp_transformed):
         t[0].compare([t1[0], t1[0]])
         t[0].compare([t1[0], t1[0]], variable=column1)
         t[0].compare([t1[0], t1[0]], variable=[column1, column2])
+        x = t[0].compare([t1[0], t1[0]], return_raw_per_variable=True)
     except (Exception,):
         assert False
+
+    assert len(x) > 1
 
 
 def test_compare_result_array(model_array):
@@ -301,6 +304,33 @@ def test_array_of_arrays_plot(model_array2):
         t1[0].name += '_xx'
 
         t[0].plot(variable=column, add_plot=[t1[0]])
+    except (Exception,):
+        assert False
+
+
+def test_explainer_result_plot(model_array2):
+    rf, t = model_array2
+    column = rf.get_models()[0].get_train_dataset().data.columns[0]
+    try:
+        t.plot(variables=column)
+    except (Exception,):
+        assert False
+
+
+def test_array_of_arrays_plot_regex(model_array2):
+    rf, t = model_array2
+    column = rf.get_models()[0].get_train_dataset().data.columns[0]
+    try:
+        t[2].plot(variables=column, model_filter=f"^{name_1}")
+    except (Exception,):
+        assert False
+
+
+def test_array_of_arrays_plot_summary_regex(model_array2):
+    rf, t = model_array2
+    column = rf.get_models()[0].get_train_dataset().data.columns[0]
+    try:
+        t[2].plot_summary(variables=column, model_filters=[f"^{name_1}", f"^{name_2}"])
     except (Exception,):
         assert False
 

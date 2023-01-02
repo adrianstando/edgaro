@@ -7,7 +7,7 @@ long_description = (here / "README.md").read_text(encoding="utf-8")
 
 setup(
     name="edgaro",
-    version="0.2.0",
+    version="0.3.0",
     # version="1.0.0",
     description="Explainable imbalanceD learninG compARatOr",
     long_description=long_description,

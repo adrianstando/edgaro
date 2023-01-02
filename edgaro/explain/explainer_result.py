@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 from typing import Dict, Union, Tuple, List, Optional, Literal
 from numpy import ndarray
 from matplotlib.axes import Axes
-from scipy.stats import fligner
 
 
 class Curve:
@@ -222,15 +221,10 @@ class ExplainerResult:
 
             text = ""
             if compare_results[0] is not None:
-                text += f'p-value={round(compare_results[0], metric_precision)}'
-            if compare_results[1] is not None:
-                if text != "":
-                    text += '\n'
-                text += f'mean_variance={round(compare_results[1], metric_precision)}'
-            if compare_results[2] is not None:
-                if text != "":
-                    text += '\n'
-                text += f'mean_abs={round(compare_results[2], metric_precision)}'
+                if len(add_plot) == 1:
+                    text += f'VOD={round(compare_results[0], metric_precision)}'
+                else:
+                    text += f'AVOD={round(compare_results[0], metric_precision)}'
 
             if text != "":
                 ax.text(
@@ -252,19 +246,15 @@ class ExplainerResult:
                 for inp_i in inp.results:
                     ExplainerResult.__retrieve_explainer_results(inp_i, explain_results_in)
 
-    def compare(self, other: List[ExplainerResult], variable: Optional[Union[str, List[str]]] = None) \
-            -> List[Optional[float]]:
+    def compare(self, other: List[ExplainerResult], variable: Optional[Union[str, List[str]]] = None,
+                return_raw_per_variable: bool = False) -> List[Union[float, list]]:
         """
-        The function calculates the metrics to compare the curves for a given variable.
+        The function calculates the metric to compare the curves for a given variable(s).
 
-        There are three metrics:
-            1. The p-value of the Fligner-Killeen [3]_ test for the distances between the curve in this object and
-               curves in `other`. To calculate this metric, the list `other` must have at least two elements.
-            2. The variance of the distances between curve in this object and curves in `other` in intermediate points.
-               If there is more than one `other` object, the mean variance is returned.
-            3. The mean of absolute values of distances between curve in this object and curves in `other` in
-               intermediate points. If there is more than one `other` object, the mean value of all calculated values
-               is returned.
+        Currently, there is only one comparison metric called `VOD` (Variance of Distances). It is the variance of
+        the distances between curve in this object and curves in `other` in intermediate points.
+        If there is more than one `other` object and `return_raw_per_variable=False`, the mean variance
+        is returned (`AVOD` - Averaged VOD).
 
         Parameters
         ----------
@@ -273,14 +263,12 @@ class ExplainerResult:
         variable : str, list[str], optional, default=None
             List of variable names to calculate the metric distances. If None, the metrics are calculated for
             all the columns in this object.
+        return_raw_per_variable : bool, default=False
+            If True, raw values for each variable are returned.
 
         Returns
         ----------
-        list[float, None]
-
-        References
-        ----------
-        .. [3] https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.fligner.html
+        list[float, list]
 
         """
 
@@ -298,20 +286,17 @@ class ExplainerResult:
             result_tab = self.__calculate_metrics_one_variable(variable, explain_results)
         else:
             var = list(self.results.keys()) if variable is None else variable
+            outs = [self.compare(variable=v, other=other) for v in var]
 
-            outs = [self.compare(variable=var, other=other) for var in var]
-            if len(outs) > 0 and isinstance(outs[0], list):
+            if not return_raw_per_variable:
                 for i in range(len(outs[0])):
-                    result_tab.append(np.mean([
+                    result_tab.append(float(np.mean([
                         o[i] for o in outs
-                    ]))
+                    ])))
             else:
-                raise Exception('Wrong output!')
+                result_tab = [tmp[0] for tmp in outs]
 
-        if np.alltrue([np.isscalar(val) or val is None for val in result_tab]):
-            return [float(val) if val is not None else val for val in result_tab]
-        else:
-            raise Exception('Wrong output!')
+        return result_tab
 
     def __calculate_metrics_one_variable(self, variable: str, explain_results: List[ExplainerResult]):
         result_tab = []
@@ -321,19 +306,19 @@ class ExplainerResult:
         ]
 
         # fligner test
-        if len(explain_results) < 2:
-            result_tab.append(None)
-        else:
-            _, out = fligner(*distances_to_original)
-            result_tab.append(out)
+        # if len(explain_results) < 2:
+        #    result_tab.append(None)
+        # else:
+        #    _, out = fligner(*distances_to_original)
+        #    result_tab.append(out)
 
         # variance
         variances = [np.var(deltas) for deltas in distances_to_original]
         result_tab.append(np.mean(variances))
 
         # mean of abs differences
-        abs_deltas = [np.mean(np.abs(deltas)) for deltas in distances_to_original]
-        result_tab.append(np.mean(abs_deltas))
+        # abs_deltas = [np.mean(np.abs(deltas)) for deltas in distances_to_original]
+        # result_tab.append(np.mean(abs_deltas))
 
         return result_tab
 
