@@ -312,7 +312,7 @@ def test_explainer_result_plot(model_array2):
     rf, t = model_array2
     column = rf.get_models()[0].get_train_dataset().data.columns[0]
     try:
-        t.plot(variables=column)
+        t[2].plot(variables=column)
     except (Exception,):
         assert False
 

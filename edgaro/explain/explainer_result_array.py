@@ -81,7 +81,7 @@ class ExplainerResultArray:
         if isinstance(res_array, ExplainerResult):
             if np.all([var in res_array.results.keys() for var in variables]):
                 if model_filter is not None:
-                    if re.match(model_filter, res_array.name) is not None:
+                    if re.search(model_filter, res_array.name) is not None:
                         results_in.append(res_array)
                 else:
                     results_in.append(res_array)
@@ -90,12 +90,14 @@ class ExplainerResultArray:
                 ExplainerResultArray.__find_matching_explainer_result_array(res, results_in, variables, model_filter)
 
     def plot(self, variables: Optional[List[str]] = None, n_col: int = 3, figsize: Optional[Tuple[int, int]] = None,
-             model_filter: Optional[str] = None):
+             model_filter: Optional[str] = None, index_base: Union[str, int] = -1,):
         """
         The function plots the PDP/ALE curves for given variables using all available Curves in the object.
 
         Parameters
         ----------
+        index_base : int, str, default=-1
+            Index of a curve to be a base for comparisons.
         variables : list[str], optional, default=None
             Variables for which the plot should be generated. If None, plots for all variables are generated if all the
             available ExplainerResult objects have exactly the same set of column names.
@@ -118,6 +120,9 @@ class ExplainerResultArray:
         if len(results) == 0:
             raise Exception('There are not matching models!')
 
+        base_model = self.results[index_base]
+        results.insert(0, base_model)
+
         n_rows = math.ceil(len(variables) / n_col)
         if figsize is None:
             figsize = (8 * n_col, 8 * n_rows)
@@ -136,9 +141,9 @@ class ExplainerResultArray:
 
         fig.tight_layout(rect=[0, 0.05, 1, 0.97])
         fig.legend([x.name for x in results], ncol=n_col, loc='lower center')
-        plt.suptitle(f"PDP curves for {self.name}", fontsize=18)
+        plt.suptitle(f"{self.curve_type} curves for {self.name}", fontsize=18)
 
-    def compare(self, variable: Optional[Union[str, List[str]]] = None, index_base: Union[str, int] = 0,
+    def compare(self, variable: Optional[Union[str, List[str]]] = None, index_base: Union[str, int] = -1,
                 return_raw: bool = True, return_raw_per_variable: bool = True, model_filter: Optional[str] = None) \
             -> List[Union[float, List]]:
         """
@@ -149,7 +154,7 @@ class ExplainerResultArray:
         variable : list[str], optional, default=None
             List of variable names to calculate the metric distances. If None, the metrics are calculated for
             all the columns in this object.
-        index_base : int, str, default=0
+        index_base : int, str, default=-1
             Index of a curve to be a base for comparisons.
         return_raw : bool, default=True
             If True, the metrics for each of the model are returned. Otherwise, the mean of the values is returned.
@@ -164,41 +169,48 @@ class ExplainerResultArray:
 
         """
 
-        if np.alltrue([isinstance(res, ExplainerResult) for res in self.results]):
-            def is_index_base(j):
-                if isinstance(index_base, int) and index_base == j:
-                    return True
-                if isinstance(index_base, str) and index_base == self.results[j].name:
-                    return True
-                return False
+        if isinstance(self.results[index_base], ExplainerResult):
+            if isinstance(index_base, int) and index_base < 0:
+                index_base = self.results.index(self.results[index_base])
 
-            def filter_objects(j):
-                if is_index_base(j):
+            def filter_objects(obj):
+                if model_filter is not None and \
+                        re.search(model_filter, obj.name) is None:
                     return False
-                if model_filter is not None:
-                    if re.match(model_filter, self.results[j].name) is None:
-                        return False
                 return True
+
+            def flatten(lst):
+                out = []
+                for i in range(len(lst)):
+                    if not (isinstance(lst[i], list) or isinstance(lst[i], ExplainerResultArray)):
+                        out.append(lst[i])
+                    else:
+                        tmp = flatten(lst[i])
+                        out = out + tmp
+                return out
 
             base_model = self[index_base]
             if base_model is None:
                 raise Exception('Wrong index_base argument!')
 
+            res = flatten(self.results)
+            res.remove(self.results[index_base])
+
             if return_raw:
                 out = []
-                for i in range(len(self.results)):
-                    if filter_objects(i):
+                for i in range(len(res)):
+                    if not filter_objects(res[i]):
                         continue
 
                     if not return_raw_per_variable:
-                        out.append(base_model.compare([self.results[i]], variable=variable,
+                        out.append(base_model.compare(res[i], variable=variable,
                                                       return_raw_per_variable=False)[0])
                     else:
-                        out.append(base_model.compare([self.results[i]], variable=variable,
+                        out.append(base_model.compare(res[i], variable=variable,
                                                       return_raw_per_variable=True))
                 return out
             else:
-                tab = [self.results[i] for i in range(len(self.results)) if filter_objects(i)]
+                tab = [res[i] for i in range(len(res)) if filter_objects(res[i])]
                 return base_model.compare(tab, variable=variable, return_raw_per_variable=return_raw_per_variable)
         elif np.alltrue([isinstance(res, ExplainerResultArray) for res in self.results]):
             return [
@@ -211,7 +223,7 @@ class ExplainerResultArray:
 
     def plot_summary(self, model_filters: Optional[List[str]] = None, filter_labels: [List[str]] = None,
                      variables: Optional[List[str]] = None, figsize: Optional[Tuple[int, int]] = None,
-                     index_base: Union[str, int] = 0):
+                     index_base: Union[str, int] = -1):
         """
         The function plots boxplots of comparison metrics of curves in the object.
 
@@ -227,31 +239,48 @@ class ExplainerResultArray:
             Each element in the list creates a new boxplot. If None, one boxplot of all results is plotted.
         filter_labels : list[str], optional, default=None
             Labels of model filters.
-        index_base : int, str, default=0
+        index_base : int, str, default=-1
             Index of a curve to be a base for comparisons.
         """
 
-        plt.subplots(figsize=figsize)
+        fig, ax = plt.subplots(figsize=figsize)
         plt.suptitle(f'Summary of {self.name}')
+        plt.xlabel('Filter')
+        plt.ylabel(r'VOD values [$10^{-5}$]')
+
+        def format_func(value, tick_number):
+            return str(int(value * 10 ** 5))
+
+        def flatten(lst):
+            out = []
+            for i in range(len(lst)):
+                if not isinstance(lst[i], list):
+                    out.append(lst[i])
+                else:
+                    tmp = flatten(lst[i])
+                    out = out + tmp
+            return out
+
+        ax.yaxis.set_major_formatter(plt.FuncFormatter(format_func))
+
         if model_filters is None:
             results = self.compare(variable=variables, index_base=index_base,
                                    return_raw=True, return_raw_per_variable=True)
-            results = np.array(results).flatten().tolist()
 
-            if filter_labels is not None:
-                if len(filter_labels) == 1:
-                    plt.boxplot(results, labels=filter_labels, patch_artist=True)
-                else:
-                    raise Exception('Incorrect length of filter_labels!')
+            results = flatten(results)
+
+            if filter_labels is not None and len(filter_labels) == 1 and \
+                    filter_labels is not None and len(filter_labels) == 1:
+                plt.boxplot(results, labels=filter_labels, patch_artist=True)
             else:
-                plt.boxplot(results, patch_artist=True)
+                plt.boxplot(results, labels=['All values'], patch_artist=True)
 
         else:
             results = []
             for f in model_filters:
                 tmp_out = self.compare(variable=variables, index_base=index_base,
                                        return_raw=True, return_raw_per_variable=True, model_filter=f)
-                tmp_out = np.array(tmp_out).flatten().tolist()
+                tmp_out = flatten(tmp_out)
                 results.append(tmp_out)
 
             if filter_labels is not None:
@@ -260,15 +289,7 @@ class ExplainerResultArray:
                 else:
                     raise Exception('Incorrect length of filter_labels!')
             else:
-                plt.boxplot(results, patch_artist=True)
-
-        ################
-        # FILTER categorical !!!!                                       <--??-
-        # TESTY                                                         <-----
-        #
-        # podpisać wniosek                                              <--??-
-        # czy można po włosku                                           <--??-
-        # class_weighht??                                               <--??-
+                plt.boxplot(results, patch_artist=True, labels=model_filters)
 
     def __str__(self) -> str:
         return f"ExplainerResultArray {self.name} for {len(self.results)} variables: {list(self.results)} with {self.curve_type} curve type"

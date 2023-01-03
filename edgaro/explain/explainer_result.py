@@ -83,7 +83,7 @@ class ExplainerResult:
 
     def plot(self, variable: str, figsize: Optional[Tuple[int, int]] = (8, 8),
              add_plot: Optional[List[ExplainerResult]] = None, ax: Optional[Axes] = None,
-             show_legend: bool = True, y_lim: Optional[Tuple[float, float]] = None, metric_precision: int = 5
+             show_legend: bool = True, y_lim: Optional[Tuple[float, float]] = None, metric_precision: int = 2
              ) -> None:
         """
         The function plots the PDP/ALE curve.
@@ -104,7 +104,7 @@ class ExplainerResult:
         y_lim : tuple(float, float), optional, default=None
             The limits of 0Y axis.
         metric_precision : int, default=5
-            Number of digits to round the value of metrics.
+            Number of digits to round the value of `metric value*10^5`.
 
         """
         if figsize is None and ax is None:
@@ -222,9 +222,9 @@ class ExplainerResult:
             text = ""
             if compare_results[0] is not None:
                 if len(add_plot) == 1:
-                    text += f'VOD={round(compare_results[0], metric_precision)}'
+                    text += 'VOD[$10^{-5}$]=' + f'{round(compare_results[0] * 10**5, metric_precision)}'
                 else:
-                    text += f'AVOD={round(compare_results[0], metric_precision)}'
+                    text += 'AVOD[$10^{-5}$]=' + f'{round(compare_results[0] * 10**5, metric_precision)}'
 
             if text != "":
                 ax.text(
