@@ -432,7 +432,7 @@ def load_mammography():
     Dataset
     """
 
-    mammography = fetch_datasets(filter_data=['mammography'])['mammography']
+    mammography = fetch_datasets(filter_data=('mammography',))['mammography']
     X = mammography['data']
     y = mammography['target']
     name = mammography['DESCR']
