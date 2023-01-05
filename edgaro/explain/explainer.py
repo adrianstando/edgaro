@@ -10,7 +10,7 @@ from typing import List, Optional, Literal
 
 from edgaro.data.dataset import Dataset
 from edgaro.model.model import Model
-from edgaro.explain.explainer_result import ExplainerResult, Curve
+from edgaro.explain.explainer_result import ModelProfileExplanation, Curve
 from edgaro.base.utils import print_unbuffered
 
 
@@ -105,7 +105,7 @@ class Explainer:
         if self.verbose:
             print_unbuffered(f'dalex explainer inside {self.__repr__()} was created with {dataset.name}')
 
-    def transform(self, variables: Optional[List[str]] = None) -> ExplainerResult:
+    def transform(self, variables: Optional[List[str]] = None) -> ModelProfileExplanation:
         """
         Calculate the curve.
 
@@ -116,7 +116,7 @@ class Explainer:
 
         Returns
         -------
-        ExplainerResult
+        ModelProfileExplanation
         """
         if self.explainer is None:
             raise Exception('Explainer was not fitted!')
@@ -167,7 +167,7 @@ class Explainer:
             print_unbuffered(f'{self.curve_type} was calculated calculated in {self.__repr__()} for '
                              f'{self.model.get_test_dataset().name}')
 
-        return ExplainerResult(dict_output, self.name, self.model.get_category_colnames())
+        return ModelProfileExplanation(dict_output, self.name, self.model.get_category_colnames())
 
     def __str__(self) -> str:
         return f"Explainer for model {self.name} with {self.curve_type} curve type"

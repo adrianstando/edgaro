@@ -2,39 +2,58 @@ from __future__ import annotations
 
 import math
 import re
+
+from abc import ABC, abstractmethod
 import matplotlib.pyplot as plt
 import numpy as np
 
 from typing import List, Literal, Optional, Union, Tuple
 
-from edgaro.explain.explainer_result import ExplainerResult
+from edgaro.explain.explainer_result import ModelProfileExplanation
 
 
-class ExplainerResultArray:
+class ExplanationArray(ABC):
+    def __int__(self) -> None:
+        pass
+
+    @abstractmethod
+    def plot(self) -> None:
+        pass
+
+    @abstractmethod
+    def compare(self) -> List[Union[float, list]]:
+        pass
+
+    @abstractmethod
+    def plot_summary(self) -> None:
+        pass
+
+
+class ModelProfileExplanationArray(ExplanationArray):
     """
     The class which represent the PDP/ALE curves for all variables in Model/ModelArray object.
 
     Parameters
     ----------
-    results : list[ExplainerResult, ExplainerResultArray]
-        A list of ExplainerResult/ExplainerResultArray with results.
+    results : list[ModelProfileExplanation, ModelProfileExplanationArray]
+        A list of ModelProfileExplanation/ModelProfileExplanationArray with results.
     name : str
-        The name of ExplainerResultArray. It is best if it is a Model/ModelArray name.
+        The name of ModelProfileExplanationArray. It is best if it is a Model/ModelArray name.
     curve_type : {'PDP', 'ALE'}, default='PDP'
         A curve type.
 
     Attributes
     ----------
-    results : list[ExplainerResult, ExplainerResultArray]
-        A list of ExplainerResult/ExplainerResultArray with results.
+    results : list[ModelProfileExplanation, ModelProfileExplanationArray]
+        A list of ModelProfileExplanation/ModelProfileExplanationArray with results.
     name : str
-        The name of ExplainerResultArray. It is best if it is a Model/ModelArray name.
+        The name of ModelProfileExplanationArray. It is best if it is a Model/ModelArray name.
     curve_type : {'PDP', 'ALE'}
         A curve type.
 
     """
 
-    def __init__(self, results: List[Union[ExplainerResult, ExplainerResultArray]], name: str,
+    def __init__(self, results: List[Union[ModelProfileExplanation, ModelProfileExplanationArray]], name: str,
                  curve_type: Literal['PDP', 'ALE'] = 'PDP') -> None:
         self.results = results
         self.name = name
@@ -44,14 +63,14 @@ class ExplainerResultArray:
         return len(self.results)
 
     def __getitem__(self, key: Union[Union[str, int], List[Union[str, int]]]) \
-            -> Optional[Union[ExplainerResult, ExplainerResultArray]]:
+            -> Optional[Union[ModelProfileExplanation, ModelProfileExplanationArray]]:
         if isinstance(key, list):
             outs = [self.__getitem__(k) for k in key]
             outs = [o for o in outs if o is not None]
             if len(outs) == 0:
                 return None
             else:
-                return ExplainerResultArray(results=outs, name=self.name + "_subset", curve_type=self.curve_type)
+                return ModelProfileExplanationArray(results=outs, name=self.name + "_subset", curve_type=self.curve_type)
         elif isinstance(key, str):
             for result in self.results:
                 if result.name == key:
@@ -63,7 +82,7 @@ class ExplainerResultArray:
 
     @staticmethod
     def __check_colnames(res_array, col_names_in):
-        if isinstance(res_array, ExplainerResult):
+        if isinstance(res_array, ModelProfileExplanation):
             if len(col_names_in) == 0:
                 col_names_in += res_array.results.keys()
                 return True
@@ -71,14 +90,14 @@ class ExplainerResultArray:
                 return set(res_array.results.keys()) == set(col_names_in)
         else:
             for res in res_array.results:
-                correct = ExplainerResultArray.__check_colnames(res, col_names_in)
+                correct = ModelProfileExplanationArray.__check_colnames(res, col_names_in)
                 if not correct:
                     return False
             return True
 
     @staticmethod
     def __find_matching_explainer_result_array(res_array, results_in, variables, model_filter):
-        if isinstance(res_array, ExplainerResult):
+        if isinstance(res_array, ModelProfileExplanation):
             if np.all([var in res_array.results.keys() for var in variables]):
                 if model_filter is not None:
                     if re.search(model_filter, res_array.name) is not None:
@@ -87,7 +106,7 @@ class ExplainerResultArray:
                     results_in.append(res_array)
         else:
             for res in res_array.results:
-                ExplainerResultArray.__find_matching_explainer_result_array(res, results_in, variables, model_filter)
+                ModelProfileExplanationArray.__find_matching_explainer_result_array(res, results_in, variables, model_filter)
 
     def plot(self, variables: Optional[List[str]] = None, n_col: int = 3, figsize: Optional[Tuple[int, int]] = None,
              model_filter: Optional[str] = None, index_base: Union[str, int] = -1,):
@@ -100,22 +119,22 @@ class ExplainerResultArray:
             Index of a curve to be a base for comparisons.
         variables : list[str], optional, default=None
             Variables for which the plot should be generated. If None, plots for all variables are generated if all the
-            available ExplainerResult objects have exactly the same set of column names.
+            available ModelProfileExplanation objects have exactly the same set of column names.
         n_col : int, default=3
             Number of columns in the final plot.
         figsize : tuple(int, int), optional, default=None
             The size of a figure. If None, the figure size is calculates as (8 * n_col, 8 * n_rows).
         model_filter : str, optional, default=None
-            A regex expression to filter the names of the ExplainerResult objects for comparing.
+            A regex expression to filter the names of the ModelProfileExplanation objects for comparing.
         """
         if variables is None:
             col_names = []
-            if not ExplainerResultArray.__check_colnames(self, col_names):
+            if not ModelProfileExplanationArray.__check_colnames(self, col_names):
                 raise Exception('The ResultArray contains curves for models with different column names!')
             variables = col_names
 
         results = []
-        ExplainerResultArray.__find_matching_explainer_result_array(self, results, variables, model_filter)
+        ModelProfileExplanationArray.__find_matching_explainer_result_array(self, results, variables, model_filter)
 
         if len(results) == 0:
             raise Exception('There are not matching models!')
@@ -161,7 +180,7 @@ class ExplainerResultArray:
         return_raw_per_variable : bool, default=True
             If True, the metrics for each of the variables are returned. Otherwise, the mean of the values is returned.
         model_filter : str, optional, default=None
-            A regex expression to filter the names of the ExplainerResult objects for comparing.
+            A regex expression to filter the names of the ModelProfileExplanation objects for comparing.
 
         Returns
         -------
@@ -169,7 +188,7 @@ class ExplainerResultArray:
 
         """
 
-        if isinstance(self.results[index_base], ExplainerResult):
+        if isinstance(self.results[index_base], ModelProfileExplanation):
             if isinstance(index_base, int) and index_base < 0:
                 index_base = self.results.index(self.results[index_base])
 
@@ -182,7 +201,7 @@ class ExplainerResultArray:
             def flatten(lst):
                 out = []
                 for i in range(len(lst)):
-                    if not (isinstance(lst[i], list) or isinstance(lst[i], ExplainerResultArray)):
+                    if not (isinstance(lst[i], list) or isinstance(lst[i], ModelProfileExplanationArray)):
                         out.append(lst[i])
                     else:
                         tmp = flatten(lst[i])
@@ -212,7 +231,7 @@ class ExplainerResultArray:
             else:
                 tab = [res[i] for i in range(len(res)) if filter_objects(res[i])]
                 return base_model.compare(tab, variable=variable, return_raw_per_variable=return_raw_per_variable)
-        elif np.alltrue([isinstance(res, ExplainerResultArray) for res in self.results]):
+        elif np.alltrue([isinstance(res, ModelProfileExplanationArray) for res in self.results]):
             return [
                 res.compare(variable=variable, index_base=index_base, return_raw=return_raw,
                             return_raw_per_variable=return_raw_per_variable, model_filter=model_filter)
@@ -231,11 +250,11 @@ class ExplainerResultArray:
         ----------
         variables : list[str], optional, default=None
             Variables for which the plot should be generated. If None, plots for all variables are generated if all the
-            available ExplainerResult objects have exactly the same set of column names.
+            available ModelProfileExplanation objects have exactly the same set of column names.
         figsize : tuple(int, int), optional, default=None
             The size of a figure. If None, the figure size is calculates as (8 * n_col, 8 * n_rows).
         model_filters : list[str], optional, default=None
-            List of regex expressions to filter the names of the ExplainerResult objects for comparing.
+            List of regex expressions to filter the names of the ModelProfileExplanation objects for comparing.
             Each element in the list creates a new boxplot. If None, one boxplot of all results is plotted.
         filter_labels : list[str], optional, default=None
             Labels of model filters.
@@ -292,7 +311,7 @@ class ExplainerResultArray:
                 plt.boxplot(results, patch_artist=True, labels=model_filters)
 
     def __str__(self) -> str:
-        return f"ExplainerResultArray {self.name} for {len(self.results)} variables: {list(self.results)} with {self.curve_type} curve type"
+        return f"ModelProfileExplanationArray {self.name} for {len(self.results)} variables: {list(self.results)} with {self.curve_type} curve type"
 
     def __repr__(self) -> str:
-        return f"<ExplainerResultArray {self.name} with {self.curve_type} curve type>"
+        return f"<ModelProfileExplanationArray {self.name} with {self.curve_type} curve type>"

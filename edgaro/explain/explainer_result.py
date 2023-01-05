@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+from abc import ABC, abstractmethod
 from typing import Dict, Union, Tuple, List, Optional, Literal
 from numpy import ndarray
 from matplotlib.axes import Axes
@@ -40,7 +41,20 @@ class Curve:
         return f"<Curve with {len(self.x)} points>"
 
 
-class ExplainerResult:
+class Explanation(ABC):
+    def __int__(self) -> None:
+        pass
+
+    @abstractmethod
+    def plot(self) -> None:
+        pass
+
+    @abstractmethod
+    def compare(self, other: List[Explanation]) -> List[Union[float, list]]:
+        pass
+
+
+class ModelProfileExplanation(Explanation):
     """
     The class which represent the PDP/ALE curves for all variables in one Model.
 
@@ -49,7 +63,7 @@ class ExplainerResult:
     results : Dict[str, Curve]
         A dictionary of pairs (column name, Curve object), which represents curves for all variables in one Model.
     name : str
-        The name of ExplainerResult. It is best if it is a Model name.
+        The name of ModelProfileExplanation. It is best if it is a Model name.
     categorical_columns : list[str]
         List of categorical variables.
     curve_type : {'PDP', 'ALE'}, default='PDP'
@@ -60,7 +74,7 @@ class ExplainerResult:
     results : Dict[str, Curve]
         A dictionary of pairs (column name, Curve object), which represents curves for all variables in one Model.
     name : str
-        The name of ExplainerResult. It is best if it is a Model name.
+        The name of ModelProfileExplanation. It is best if it is a Model name.
     categorical_columns : list[str]
         List of categorical variables.
     curve_type : {'PDP', 'ALE'}
@@ -81,8 +95,8 @@ class ExplainerResult:
         else:
             return None
 
-    def plot(self, variable: str, figsize: Optional[Tuple[int, int]] = (8, 8),
-             add_plot: Optional[List[ExplainerResult]] = None, ax: Optional[Axes] = None,
+    def plot(self, variable: Optional[str] = None, figsize: Optional[Tuple[int, int]] = (8, 8),
+             add_plot: Optional[List[ModelProfileExplanation]] = None, ax: Optional[Axes] = None,
              show_legend: bool = True, y_lim: Optional[Tuple[float, float]] = None, metric_precision: int = 2
              ) -> None:
         """
@@ -90,12 +104,12 @@ class ExplainerResult:
 
         Parameters
         ----------
-        variable : str
-            Variable for which the plot should be generated.
+        variable : str, optional, default=None
+            Variable for which the plot should be generated. If None, the first column is plotted.
         figsize : tuple(int, int), optional, default=(8, 8)
             Size of a figure.
-        add_plot : list[ExplainerResult], optional, default=None
-            List of other ExplainerResult objects that also contain the `variable` and should be plotted.
+        add_plot : list[ModelProfileExplanation], optional, default=None
+            List of other ModelProfileExplanation objects that also contain the `variable` and should be plotted.
         ax : matplotlib.axes.Axes, optional, default=None
             The parameter should be passed if the plot is to be created in a certain Axis. In that situation, `figsize`
             parameter is ignored.
@@ -110,9 +124,12 @@ class ExplainerResult:
         if figsize is None and ax is None:
             figsize = (8, 8)
 
+        if variable is None:
+            variable = list(self.results.keys())[0]
+
         if add_plot is None:
-            ExplainerResult.__plot_not_add(self.results, self.categorical_columns, self.curve_type, self.name,
-                                           variable, ax, figsize, show_legend, y_lim)
+            ModelProfileExplanation.__plot_not_add(self.results, self.categorical_columns, self.curve_type, self.name,
+                                                   variable, ax, figsize, show_legend, y_lim)
         else:
             curve_base = self.results[variable]
             if curve_base is None:
@@ -124,8 +141,8 @@ class ExplainerResult:
 
             if len(curves_add) == 0:
                 warnings.warn(f'None of the added plots have variable called {variable}!')
-                ExplainerResult.__plot_not_add(self.results, self.categorical_columns, self.curve_type, self.name,
-                                               variable, ax, figsize, show_legend, y_lim)
+                ModelProfileExplanation.__plot_not_add(self.results, self.categorical_columns, self.curve_type,
+                                                       self.name, variable, ax, figsize, show_legend, y_lim)
             else:
                 self.__plot_add(variable, ax, figsize, curve_base, curves_add, add_plot, show_legend,
                                 y_lim, metric_precision)
@@ -199,12 +216,12 @@ class ExplainerResult:
                 p += 1
 
         if variable not in self.categorical_columns:
-            ExplainerResult.__plot_add_continuous(ax, figsize, curve_base, curves_add)
+            ModelProfileExplanation.__plot_add_continuous(ax, figsize, curve_base, curves_add)
             plt.title(f"{self.curve_type} curve for variable: " + variable)
         else:
-            ExplainerResult.__plot_add_categorical(self.name, variable, ax, figsize,
-                                                   curve_base, curves_add, add_plot_names,
-                                                   f"{self.curve_type} curve for variable: " + variable)
+            ModelProfileExplanation.__plot_add_categorical(self.name, variable, ax, figsize,
+                                                           curve_base, curves_add, add_plot_names,
+                                                           f"{self.curve_type} curve for variable: " + variable)
 
         if show_legend:
             plt.legend([self.name] + add_plot_names)
@@ -222,9 +239,9 @@ class ExplainerResult:
             text = ""
             if compare_results[0] is not None:
                 if len(add_plot) == 1:
-                    text += 'VOD[$10^{-5}$]=' + f'{round(compare_results[0] * 10**5, metric_precision)}'
+                    text += 'VOD[$10^{-5}$]=' + f'{round(compare_results[0] * 10 ** 5, metric_precision)}'
                 else:
-                    text += 'AVOD[$10^{-5}$]=' + f'{round(compare_results[0] * 10**5, metric_precision)}'
+                    text += 'AVOD[$10^{-5}$]=' + f'{round(compare_results[0] * 10 ** 5, metric_precision)}'
 
             if text != "":
                 ax.text(
@@ -236,17 +253,17 @@ class ExplainerResult:
 
     @staticmethod
     def __retrieve_explainer_results(inp, explain_results_in):
-        if isinstance(inp, ExplainerResult):
+        if isinstance(inp, ModelProfileExplanation):
             explain_results_in.append(inp)
         else:
             if isinstance(inp, list):
                 for inp_i in inp:
-                    ExplainerResult.__retrieve_explainer_results(inp_i, explain_results_in)
+                    ModelProfileExplanation.__retrieve_explainer_results(inp_i, explain_results_in)
             else:
                 for inp_i in inp.results:
-                    ExplainerResult.__retrieve_explainer_results(inp_i, explain_results_in)
+                    ModelProfileExplanation.__retrieve_explainer_results(inp_i, explain_results_in)
 
-    def compare(self, other: List[ExplainerResult], variable: Optional[Union[str, List[str]]] = None,
+    def compare(self, other: List[ModelProfileExplanation], variable: Optional[Union[str, List[str]]] = None,
                 return_raw_per_variable: bool = False) -> List[Union[float, list]]:
         """
         The function calculates the metric to compare the curves for a given variable(s).
@@ -258,8 +275,8 @@ class ExplainerResult:
 
         Parameters
         ----------
-        other : list[ExplainerResult]
-            List of ExplainerResult objects to compare the curve against.
+        other : list[ModelProfileExplanation]
+            List of ModelProfileExplanation objects to compare the curve against.
         variable : str, list[str], optional, default=None
             List of variable names to calculate the metric distances. If None, the metrics are calculated for
             all the columns in this object.
@@ -278,7 +295,7 @@ class ExplainerResult:
                 raise Exception('Variable is not available!')
 
             explain_results = []
-            ExplainerResult.__retrieve_explainer_results(other, explain_results)
+            ModelProfileExplanation.__retrieve_explainer_results(other, explain_results)
 
             if np.all([o[variable] is None for o in explain_results]):
                 raise Exception('Variable in \'other\' is not available!')
@@ -298,7 +315,7 @@ class ExplainerResult:
 
         return result_tab
 
-    def __calculate_metrics_one_variable(self, variable: str, explain_results: List[ExplainerResult]):
+    def __calculate_metrics_one_variable(self, variable: str, explain_results: List[ModelProfileExplanation]):
         result_tab = []
         distances_to_original = [
             res[variable].y - self[variable].y
@@ -323,7 +340,7 @@ class ExplainerResult:
         return result_tab
 
     def __str__(self) -> str:
-        return f"ExplainerResult {self.name} for {len(self.results.keys())} variables: {list(self.results.keys())} with {self.curve_type} curve type"
+        return f"ModelProfileExplanation {self.name} for {len(self.results.keys())} variables: {list(self.results.keys())} with {self.curve_type} curve type"
 
     def __repr__(self) -> str:
-        return f"<ExplainerResult {self.name} with {self.curve_type} curve type>"
+        return f"<ModelProfileExplanation {self.name} with {self.curve_type} curve type>"

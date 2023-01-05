@@ -281,7 +281,7 @@ In case of input ``ModelArray``:
    exp.fit()
    explanation = exp.transform()
 
-These functions return ``ExplainerResult`` and ``ExplainerResultArray``
+These functions return ``ModelProfileExplanation`` and ``ModelProfileExplanationArray``
 objects that make it possible to compare explanations and visualise
 them.
 

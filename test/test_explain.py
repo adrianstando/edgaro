@@ -7,8 +7,8 @@ from copy import deepcopy
 from edgaro.data.dataset import DatasetFromOpenML, Dataset
 from edgaro.balancing.transformer import TransformerFromIMBLEARN, RandomUnderSampler as RUS
 from edgaro.balancing.transformer_array import TransformerArray
-from edgaro.explain.explainer_result import ExplainerResult
-from edgaro.explain.explainer_result_array import ExplainerResultArray
+from edgaro.explain.explainer_result import ModelProfileExplanation
+from edgaro.explain.explainer_result_array import ModelProfileExplanationArray
 from edgaro.model.model import RandomForest
 from edgaro.model.model_array import ModelArray
 from edgaro.explain.explainer import Explainer
@@ -219,20 +219,20 @@ def test_compare_result_array(pdp_transformed):
 
     try:
         t1 = deepcopy(t)
-        t1[0].results[column1].y += 0.1
-        t1[0].name += '_xx'
+        t1.results[column1].y += 0.1
+        t1.name += '_xx'
 
-        t[0].compare([t1[0], t1[0]])
-        t[0].compare([t1[0], t1[0]], variable=column1)
-        t[0].compare([t1[0], t1[0]], variable=[column1, column2])
-        x = t[0].compare([t1[0], t1[0]], return_raw_per_variable=True)
+        t.compare([t1, t1])
+        t.compare([t1, t1], variable=column1)
+        t.compare([t1, t1], variable=[column1, column2])
+        x = t.compare([t1, t1], return_raw_per_variable=True)
     except (Exception,):
         assert False
 
     assert len(x) > 1
 
 
-def test_compare_result_array(model_array):
+def test_compare_result_array_2(model_array):
     cols = list(model_array.get_models()[0].get_test_dataset().data.columns)
     column1 = cols[0]
     column2 = cols[1]
@@ -436,8 +436,8 @@ def test_explainer_result_array_get(model_array2):
         assert False
 
     assert len(x) == 2
-    assert isinstance(x, ExplainerResultArray)
-    assert isinstance(y, ExplainerResult)
-    assert isinstance(z, ExplainerResult)
+    assert isinstance(x, ModelProfileExplanationArray)
+    assert isinstance(y, ModelProfileExplanation)
+    assert isinstance(z, ModelProfileExplanation)
 
 

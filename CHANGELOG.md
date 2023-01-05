@@ -19,6 +19,10 @@ It allows to perform all required computations for comparing and benchmarking ba
 
 - Parallel computing support in `explain` module
 
+### Changed
+
+- `ExplainerResult` and `ExplainerResultArray` classes are changed to `ModelProfileExplanation` and `ModelProfileExplanationArray`
+
 ## [0.2.0] - 2023-01-02
 
 ### Added

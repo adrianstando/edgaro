@@ -5,8 +5,8 @@ from typing import Union, Optional, Literal
 from edgaro.model.model import Model
 from edgaro.model.model_array import ModelArray
 from edgaro.explain.explainer import Explainer
-from edgaro.explain.explainer_result import ExplainerResult
-from edgaro.explain.explainer_result_array import ExplainerResultArray
+from edgaro.explain.explainer_result import ModelProfileExplanation
+from edgaro.explain.explainer_result_array import ModelProfileExplanationArray
 from edgaro.base.utils import print_unbuffered
 
 
@@ -71,7 +71,7 @@ class ExplainerArray:
         if self.verbose:
             print_unbuffered(f'dalex explainers inside {self.__repr__()} were created')
 
-    def transform(self, variables=None) -> Union[ExplainerResult, ExplainerResultArray]:
+    def transform(self, variables=None) -> Union[ModelProfileExplanation, ModelProfileExplanationArray]:
         """
         Calculate the curve.
 
@@ -82,7 +82,7 @@ class ExplainerArray:
 
         Returns
         -------
-        ExplainerResult, ExplainerResultArray
+        ModelProfileExplanation, ModelProfileExplanationArray
         """
         if self.verbose:
             print_unbuffered(f'{self.curve_type}s are being calculated in {self.__repr__()}')
@@ -94,7 +94,7 @@ class ExplainerArray:
             if len(res) == 1:
                 out = res[0]
             else:
-                out = ExplainerResultArray(
+                out = ModelProfileExplanationArray(
                     results=res,
                     name=self.name,
                     curve_type=self.curve_type
@@ -111,7 +111,7 @@ class ExplainerArray:
             if len(res) == 1:
                 out = res[0]
             else:
-                out = ExplainerResultArray(
+                out = ModelProfileExplanationArray(
                     results=res,
                     name=self.name,
                     curve_type=self.curve_type
