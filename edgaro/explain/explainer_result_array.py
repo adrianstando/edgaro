@@ -9,7 +9,7 @@ import numpy as np
 
 from typing import List, Literal, Optional, Union, Tuple
 
-from edgaro.explain.explainer_result import ModelProfileExplanation
+from edgaro.explain.explainer_result import ModelProfileExplanation, ModelPartsExplanation
 
 
 class ExplanationArray(ABC):
@@ -70,7 +70,8 @@ class ModelProfileExplanationArray(ExplanationArray):
             if len(outs) == 0:
                 return None
             else:
-                return ModelProfileExplanationArray(results=outs, name=self.name + "_subset", curve_type=self.curve_type)
+                return ModelProfileExplanationArray(results=outs, name=self.name + "_subset",
+                                                    curve_type=self.curve_type)
         elif isinstance(key, str):
             for result in self.results:
                 if result.name == key:
@@ -106,10 +107,11 @@ class ModelProfileExplanationArray(ExplanationArray):
                     results_in.append(res_array)
         else:
             for res in res_array.results:
-                ModelProfileExplanationArray.__find_matching_explainer_result_array(res, results_in, variables, model_filter)
+                ModelProfileExplanationArray.__find_matching_explainer_result_array(res, results_in, variables,
+                                                                                    model_filter)
 
     def plot(self, variables: Optional[List[str]] = None, n_col: int = 3, figsize: Optional[Tuple[int, int]] = None,
-             model_filter: Optional[str] = None, index_base: Union[str, int] = -1,):
+             model_filter: Optional[str] = None, index_base: Union[str, int] = -1, ):
         """
         The function plots the PDP/ALE curves for given variables using all available Curves in the object.
 
@@ -315,3 +317,127 @@ class ModelProfileExplanationArray(ExplanationArray):
 
     def __repr__(self) -> str:
         return f"<ModelProfileExplanationArray {self.name} with {self.curve_type} curve type>"
+
+
+class ModelPartsExplanationArray(ExplanationArray):
+    """
+    The class which represent the Variable Importance for all variables in Model/ModelArray object.
+
+    Parameters
+    ----------
+    results : list[ModelPartsExplanation, ModelPartsExplanationArray]
+        A list of ModelPartsExplanation/ModelPartsExplanationArray with results.
+    name : str
+        The name of ModelPartsExplanationArray. It is best if it is a Model/ModelArray name.
+    explanation_type : {'VI'}, default='VI'
+        An explanation type.
+
+    Attributes
+    ----------
+    results : list[ModelPartsExplanation, ModelPartsExplanationArray]
+        A list of ModelPartsExplanation/ModelPartsExplanationArray with results.
+    name : str
+        The name of ModelPartsExplanationArray. It is best if it is a Model/ModelArray name.
+    explanation_type : {'VI'}, default='VI'
+        An explanation type.
+
+    """
+
+    def __init__(self, results: List[Union[ModelPartsExplanation, ModelPartsExplanationArray]],
+                 name: str, explanation_type: Literal['VI'] = 'VI') -> None:
+        self.results = results
+        self.name = name
+        self.explanation_type = explanation_type
+
+    def __len__(self) -> int:
+        return len(self.results)
+
+    def __getitem__(self, key: Union[Union[str, int], List[Union[str, int]]]) \
+            -> Optional[Union[ModelPartsExplanation, ModelPartsExplanationArray]]:
+        if isinstance(key, list):
+            outs = [self.__getitem__(k) for k in key]
+            outs = [o for o in outs if o is not None]
+            if len(outs) == 0:
+                return None
+            else:
+                return ModelPartsExplanationArray(results=outs, name=self.name + "_subset",
+                                                  explanation_type=self.explanation_type)
+        elif isinstance(key, str):
+            for result in self.results:
+                if result.name == key:
+                    return result
+        elif isinstance(key, int):
+            if key <= len(self.results):
+                return self.results[key]
+        return None
+
+    def plot(self) -> None:
+        pass
+
+    def compare(self, variable: Optional[Union[str, List[str]]] = None, max_variables: Optional[int] = None,
+                return_raw: bool = True, index_base: Union[str, int] = -1, model_filter: Optional[str] = None) \
+            -> List[Union[float, list]]:
+        """
+        The function compares variable importance in the array.
+
+        Parameters
+        ----------
+        variable : str, list[str], optional, default=None
+            List of variable names to calculate the metric distances. If None, the metrics are calculated for
+            all the columns in this object.
+        max_variables : int, optional, default=None
+            Maximal number of variables from the current object to be taken into account.
+        return_raw : bool, default=True
+            If True, the p-values are returned for each model. Otherwise, the mean value is returned.
+        index_base : int, str, default=-1
+            Index of an explanation to be a base for comparisons.
+        model_filter : str, optional, default=None
+            A regex expression to filter the names of the ModelPartsExplanation objects for comparing.
+
+        Returns
+        -------
+        list[float, list]
+
+        """
+
+        if isinstance(self.results[index_base], ModelPartsExplanation):
+            if isinstance(index_base, int) and index_base < 0:
+                index_base = self.results.index(self.results[index_base])
+
+            def filter_objects(obj):
+                if model_filter is not None and \
+                        re.search(model_filter, obj.name) is None:
+                    return False
+                return True
+
+            def flatten(lst):
+                out = []
+                for i in range(len(lst)):
+                    if not (isinstance(lst[i], list) or isinstance(lst[i], ModelProfileExplanationArray)):
+                        out.append(lst[i])
+                    else:
+                        tmp = flatten(lst[i])
+                        out = out + tmp
+                return out
+
+            base_model = self[index_base]
+            if base_model is None:
+                raise Exception('Wrong index_base argument!')
+
+            res = flatten(self.results)
+            res.remove(self.results[index_base])
+
+            res_filtered = [res[i] for i in range(len(res)) if filter_objects(res[i])]
+            return base_model.compare(other=res_filtered, variable=variable, max_variables=max_variables,
+                                      return_raw=return_raw)
+        elif np.alltrue([isinstance(res, ModelPartsExplanationArray) for res in self.results]):
+            return [
+                res.compare(variable=variable, max_variables=max_variables, return_raw=return_raw,
+                            index_base=index_base, model_filter=model_filter)
+                for res in self.results
+            ]
+        else:
+            raise Exception('Wrong result structure!')
+
+    def plot_summary(self) -> None:
+        pass

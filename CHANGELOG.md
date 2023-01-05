@@ -18,9 +18,13 @@ It allows to perform all required computations for comparing and benchmarking ba
 ### Added
 
 - Parallel computing support in `explain` module
+- Variable Importance option in `Explainer` and `ExplainerArray` classes
+- Variable Importance explanation in `ModelPartsExplanation` and `ModelPartsExplanationArray` classes in `explain` module
+- Variable Importance comparison metric based on Wilcoxon statistical test
 
 ### Changed
 
+- Parameter name `curve_type` in `Explainer` and `ExplainerArray` classes changed to `explanation_type`
 - `ExplainerResult` and `ExplainerResultArray` classes are changed to `ModelProfileExplanation` and `ModelProfileExplanationArray`
 
 ## [0.2.0] - 2023-01-02

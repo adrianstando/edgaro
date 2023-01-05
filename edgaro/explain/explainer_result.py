@@ -9,6 +9,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, Union, Tuple, List, Optional, Literal
 from numpy import ndarray
 from matplotlib.axes import Axes
+from scipy.stats import wilcoxon
 
 
 class Curve:
@@ -344,3 +345,112 @@ class ModelProfileExplanation(Explanation):
 
     def __repr__(self) -> str:
         return f"<ModelProfileExplanation {self.name} with {self.curve_type} curve type>"
+
+
+class ModelPartsExplanation(Explanation):
+    """
+    The class represents the Variable Importance for all variables in one Model.
+
+    Parameters
+    ----------
+    results : Dict[str, float]
+        A dictionary of pairs (column name, value), which represents Variable Importance for all variables in one Model.
+    name : str
+        The name of ModelProfileExplanation. It is best if it is a Model name.
+    explanation_type : {'VI'}, default='VI'
+        An explanation type.
+
+    Attributes
+    ----------
+    results : Dict[str, float]
+        A dictionary of pairs (column name, value), which represents Variable Importance for all variables in one Model.
+    name : str
+        The name of ModelProfileExplanation. It is best if it is a Model name.
+    explanation_type : {'VI'}, default='VI'
+        An explanation type.
+    """
+    def __init__(self, results: Dict[str, float], name: str, explanation_type: Literal['VI'] = 'VI') -> None:
+        self.results = results
+        self.name = name
+        self.explanation_type = explanation_type
+
+    def __getitem__(self, key: str) -> Optional[float]:
+        if key in self.results.keys():
+            return self.results[key]
+        else:
+            return None
+
+    def plot(self) -> None:
+        pass
+
+    def compare(self, other: List[ModelPartsExplanation], variable: Optional[Union[str, List[str]]] = None,
+                max_variables: Optional[int] = None, return_raw: bool = True) -> List[Union[float, list]]:
+        """
+        The function calculates the metric to compare model parts of two or more models.
+
+        Currently, there is only one metric based on the Wilcoxon statistical test [3]_. The metric value is the
+        p-value of this test, where the inputs are variable importance values.
+        The idea is based on the approach presented in the article [4]_.
+
+        Parameters
+        ----------
+        other : list[ModelPartsExplanation]
+            List of ModelPartsExplanation objects to compare the curve against.
+        variable : str, list[str], optional, default=None
+            List of variable names to calculate the metric distances. If None, the metrics are calculated for
+            all the columns in this object.
+        max_variables : int, optional, default=None
+            Maximal number of variables from the current object to be taken into account.
+        return_raw : bool, default=True
+            If True, the p-values are returned for each model. Otherwise, the mean value is returned.
+
+        Returns
+        -------
+        list[float, list]
+
+        References
+        ----------
+        .. [3] https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.wilcoxon.html
+        .. [4] https://www.sciencedirect.com/science/article/pii/S2666764922000145
+
+        """
+
+        out = []
+
+        res = pd.DataFrame.from_dict(self.results, orient='index').reset_index()
+        res.columns = ['colname', 'val']
+        res = res.sort_values('val')
+
+        if variable is not None:
+            res = res[res['colname'].isin(variable)]
+            if res.shape[0] != len(variable):
+                raise Exception('Wrong variable names were provided!')
+
+        if max_variables is not None:
+            res = res.loc[list(range(max_variables))]
+
+        column_order = res['colname'].to_list()
+        for obj in other:
+            res_other = pd.DataFrame.from_dict(obj.results, orient='index').reset_index()
+            res_other.columns = ['colname', 'val']
+            res_other.set_index('colname')
+            res_other = res_other.loc[column_order]
+            res_other = res_other.reset_index()
+
+            stat_test = wilcoxon(res['val'].tolist(), res_other['val'].to_list())
+            p_value = stat_test[1]
+            out.append(p_value)
+
+        if not return_raw:
+            return [np.mean(out)[0]]
+        else:
+            return out
+
+    def __str__(self) -> str:
+        return f"ModelPartsExplanation {self.name} for {len(self.results.keys())} variables: {list(self.results.keys())} with {self.explanation_type} curve type"
+
+    def __repr__(self) -> str:
+        return f"<ModelPartsExplanation {self.name} with {self.explanation_type} curve type>"
+
+
+
