@@ -4,6 +4,7 @@ import pandas as pd
 import warnings
 import sys
 import os
+import multiprocessing
 
 from typing import List, Optional, Literal
 
@@ -11,6 +12,13 @@ from edgaro.data.dataset import Dataset
 from edgaro.model.model import Model
 from edgaro.explain.explainer_result import ExplainerResult, Curve
 from edgaro.base.utils import print_unbuffered
+
+
+def _predict_func(model, data):
+    if isinstance(data, np.ndarray):
+        data = pd.DataFrame(data)
+    data.columns = model.get_test_dataset().data.columns
+    return np.array(model.predict_proba(Dataset('', data, None)).target)
 
 
 class Explainer:
@@ -44,6 +52,9 @@ class Explainer:
         Print messages during calculations.
     explainer : dx.Explainer, optional
         An explainer object from `dalex` package.
+    processes : int, default=1
+        Number of processes for the calculation of explanations.
+        If -1, it is replaced with the number of available CPU cores.
 
     References
     ----------
@@ -52,24 +63,23 @@ class Explainer:
 
     """
 
-    def __init__(self, model: Model, N: Optional[int] = None,
-                 curve_type: Literal['PDP', 'ALE'] = 'PDP', verbose: bool = False) -> None:
+    def __init__(self, model: Model, N: Optional[int] = None, curve_type: Literal['PDP', 'ALE'] = 'PDP',
+                 verbose: bool = False, processes: int = 1) -> None:
         self.model = model
         self.explainer = None
         self.name = model.name
         self.N = N
         self.curve_type = curve_type
         self.verbose = verbose
+        self.processes = processes
+
+        if self.processes == -1:
+            self.processes = multiprocessing.cpu_count()
 
     def fit(self) -> None:
         """
         Fit the Explainer object and create an explainer attribute.
         """
-        def predict_func(model, data):
-            if isinstance(data, np.ndarray):
-                data = pd.DataFrame(data)
-            data.columns = model.get_test_dataset().data.columns
-            return np.array(model.predict_proba(Dataset('', data, None)).target)
 
         dataset = self.model.get_test_dataset()
 
@@ -88,7 +98,7 @@ class Explainer:
                 sys.stdout = open(os.devnull, 'w')
 
             self.explainer = dx.Explainer(self.model, dataset.data, dataset.target, label=dataset.name,
-                                          verbose=self.verbose, predict_function=predict_func)
+                                          verbose=self.verbose, predict_function=_predict_func)
             if not self.verbose:
                 sys.stdout = sys.__stdout__
 
@@ -132,7 +142,8 @@ class Explainer:
             for col in category_colnames:
                 out_category = self.explainer.model_profile(verbose=False, variables=[col],
                                                             variable_type='categorical',
-                                                            N=self.N, type=curve_type)
+                                                            N=self.N, type=curve_type,
+                                                            processes=self.processes)
                 y = out_category.result['_yhat_']
                 x = out_category.result['_x_']
                 dict_output[str(col)] = Curve(x, y)
@@ -141,7 +152,8 @@ class Explainer:
         if len(other_colnames) > 0:
             out_others = self.explainer.model_profile(verbose=False, variables=other_colnames,
                                                       variable_type='numerical',
-                                                      N=self.N, type=curve_type)
+                                                      N=self.N, type=curve_type,
+                                                      processes=self.processes)
             variable_names = out_others.result['_vname_'].unique()
             y = out_others.result['_yhat_']
             x = out_others.result['_x_']
