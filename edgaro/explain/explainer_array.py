@@ -14,7 +14,7 @@ from edgaro.base.utils import print_unbuffered
 
 class ExplainerArray:
     """
-    Create a class to calculate PDP [1]_, ALE [2]_ curves or Feature Importance for Model and ModelArray objects.
+    Create a class to calculate PDP [1]_, ALE [2]_ curves or Variable Importance for Model and ModelArray objects.
 
     Parameters
     ----------
@@ -62,7 +62,7 @@ class ExplainerArray:
     """
 
     def __init__(self, models: Union[Model, ModelArray], N: Optional[int] = None,
-                 explanation_type: Literal['PDP', 'ALE'] = 'PDP', verbose: bool = False, processes: int = 1,
+                 explanation_type: Literal['PDP', 'ALE', 'VI'] = 'PDP', verbose: bool = False, processes: int = 1,
                  random_state: Optional[int] = None, B: Optional[int] = 10) -> None:
         self.models = models
         self.sub_calculators = None
