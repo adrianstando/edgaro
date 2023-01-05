@@ -289,6 +289,12 @@ class Dataset:
                 self.data = self.data[index]
                 self.target = self.target[index]
 
+    def remove_categorical_and_ordinal_variables(self):
+        """
+        Remove categorical and ordinal variables.
+        """
+        self.data = self.data.select_dtypes(exclude=["category", "uint8", "int64"])
+
     def head(self, n: int = 10):
         """
         Get first `n` rows of the Dataset.

@@ -20,6 +20,7 @@ It allows to perform all required computations for comparing and benchmarking ba
 - Compare method for `ExplainerResultArray`
 - New plot method to summary benchmarking
 - Enable compare methods to return raw values
+- Benchmarking set is also available with only continuous variables
 
 ### Removed
 

@@ -203,6 +203,13 @@ class DatasetArray:
         if self.verbose:
             print_unbuffered(f'Empty datasets were removed from DatasetArray {self.__repr__()}')
 
+    def remove_categorical_and_ordinal_variables(self):
+        """
+        Remove categorical and ordinal variables.
+        """
+        for ds in self.datasets:
+            ds.remove_categorical_and_ordinal_variables()
+
     def append(self, other: Union[Dataset, DatasetArray, List[Union[Dataset, DatasetArray]]]) -> None:
         """
         Append new object to an DatasetArray.
@@ -355,7 +362,8 @@ class DatasetArrayFromDirectory(DatasetArray):
         super().__init__(datasets=dataset_array, name=name, verbose=verbose)
 
 
-def load_benchmarking_set(apikey: Optional[str] = None):
+def load_benchmarking_set(apikey: Optional[str] = None, keep_categorical: bool = False, minimal_IR: float = 1.5,
+                          minimal_n_rows: int = 1000, percent_categorical_to_remove: float = 0.75):
     """
     The function loads an example benchmarking set.
 
@@ -364,6 +372,15 @@ def load_benchmarking_set(apikey: Optional[str] = None):
     apikey : str, optional, default=None
         An API key to OpenML (if you configured OpenML, you do not need to pass this parameter).
         For details see `DatasetArrayFromOpenMLSuite` class documentation.
+    keep_categorical : bool, default=False
+        If True, the datasets will remain categorical variables.
+    minimal_IR : float, default=1.5
+        Minimal IR in the set.
+    minimal_n_rows : int, default=1000
+        Minimal number of rows in a Dataset.
+    percent_categorical_to_remove : float, default=0.75
+        Only applicable if keep_categorical=False; if categorical and nominal variables are above that number of
+        all variables, the Dataset is removed.
 
     Returns
     -------
@@ -384,6 +401,8 @@ def load_benchmarking_set(apikey: Optional[str] = None):
         for col in list(d.select_dtypes(['uint8', 'int']).columns):
             convert_to_float(ds_array, dataset_name, col)
 
+    exclude_global = ['nomao', 'Internet-Advertisements', 'isolet', 'sylva_agnostic', 'webpage']
+
     # OpenML-CC18
     df_openml = DatasetArrayFromOpenMLSuite('OpenML-CC18', apikey=apikey)
     df_openml.remove_nans()
@@ -396,20 +415,41 @@ def load_benchmarking_set(apikey: Optional[str] = None):
                             'nrow': [df.data.shape[0]], 'ncol': [df.data.shape[1]]})
         stats = pd.concat([stats, tmp])
 
-    stats = stats[np.logical_and(stats.IR >= 1.5, stats.nrow >= 1000)]
+    stats = stats[np.logical_and(stats.IR >= minimal_IR, stats.nrow >= minimal_n_rows)]
+    stats = stats[np.logical_not(np.isin(np.array(stats.name), exclude_global))]
     df_openml = df_openml[list(stats.name)]
-    convert_all_int_columns_to_float(df_openml, 'spambase')
-    convert_all_int_columns_to_float(df_openml, 'qsar-biodeg')
-    convert_all_int_columns_to_float(df_openml, 'credit-g')
-    convert_all_int_columns_to_float(df_openml, 'adult')
-    convert_all_int_columns_to_float(df_openml, 'kc1')
-    convert_all_int_columns_to_float(df_openml, 'pc1')
-    convert_all_int_columns_to_float(df_openml, 'pc3')
-    convert_all_int_columns_to_float(df_openml, 'pc4')
-    convert_all_int_columns_to_float(df_openml, 'bank-marketing')
-    convert_columns_to_int(df_openml, 'churn', ['account_length', 'number_vmail_messages', 'total_day_calls',
-                                                'total_eve_calls', 'total_night_calls', 'total_intl_calls',
-                                                'number_customer_service_calls'])
+
+    if not keep_categorical:
+        for i in range(len(df_openml)):
+            df_openml[i].data = df_openml[i].data.convert_dtypes()
+
+        n_cols = [ds.data.shape[1] for ds in df_openml]
+        colnames = list(stats.name)
+        df_openml.remove_categorical_and_ordinal_variables()
+        n_cols_after = [ds.data.shape[1] for ds in df_openml]
+        exclude = []
+
+        for i in range(len(n_cols_after)):
+            if n_cols_after[i] / n_cols[i] < 1 - percent_categorical_to_remove:
+                exclude.append(colnames[i])
+
+        for exc in exclude:
+            colnames.remove(exc)
+
+        df_openml = df_openml[colnames]
+    else:
+        convert_all_int_columns_to_float(df_openml, 'spambase')
+        convert_all_int_columns_to_float(df_openml, 'qsar-biodeg')
+        convert_all_int_columns_to_float(df_openml, 'credit-g')
+        convert_all_int_columns_to_float(df_openml, 'adult')
+        convert_all_int_columns_to_float(df_openml, 'kc1')
+        convert_all_int_columns_to_float(df_openml, 'pc1')
+        convert_all_int_columns_to_float(df_openml, 'pc3')
+        convert_all_int_columns_to_float(df_openml, 'pc4')
+        convert_all_int_columns_to_float(df_openml, 'bank-marketing')
+        convert_columns_to_int(df_openml, 'churn', ['account_length', 'number_vmail_messages', 'total_day_calls',
+                                                    'total_eve_calls', 'total_night_calls', 'total_intl_calls',
+                                                    'number_customer_service_calls'])
 
     # OpenML-100
     df_openml2 = DatasetArrayFromOpenMLSuite('OpenML100', apikey=apikey)
@@ -423,16 +463,35 @@ def load_benchmarking_set(apikey: Optional[str] = None):
                             'nrow': [df.data.shape[0]], 'ncol': [df.data.shape[1]]})
         stats2 = pd.concat([stats2, tmp])
 
-    stats2 = stats2[np.logical_and(stats2.IR >= 1.5, stats2.nrow >= 1000)]
+    stats2 = stats2[np.logical_and(stats2.IR >= minimal_IR, stats2.nrow >= minimal_n_rows)]
     stats2 = stats2[np.logical_not(stats2.name.isin(stats.name))]  # so as not to repeat datasets
+    stats2 = stats2[np.logical_not(np.isin(np.array(stats2.name), exclude_global))]
     df_openml2 = df_openml2[list(stats2.name)]
 
     df_openml2['SpeedDating'].data = df_openml2['SpeedDating'].data[[col
                                                                      for col in df_openml2['SpeedDating'].data.columns
                                                                      if col == 'd_age' or not col.startswith('d_')]]
-    convert_all_int_columns_to_float(df_openml2, 'steel-plates-fault')
-    convert_columns_to_int(df_openml2, 'sylva_agnostic',
-                           list(df_openml2['sylva_agnostic'].data.select_dtypes('int64').columns))
+
+    if not keep_categorical:
+        for i in range(len(df_openml2)):
+            df_openml2[i].data = df_openml2[i].data.convert_dtypes()
+
+        n_cols = [ds.data.shape[1] for ds in df_openml2]
+        colnames = list(stats2.name)
+        df_openml2.remove_categorical_and_ordinal_variables()
+        n_cols_after = [ds.data.shape[1] for ds in df_openml2]
+        exclude = []
+
+        for i in range(len(n_cols_after)):
+            if n_cols_after[i] / n_cols[i] < 1 - percent_categorical_to_remove:
+                exclude.append(colnames[i])
+
+        for exc in exclude:
+            colnames.remove(exc)
+
+        df_openml2 = df_openml2[colnames]
+    else:
+        convert_all_int_columns_to_float(df_openml2, 'steel-plates-fault')
 
     # imblearn
     datasets = fetch_datasets()
@@ -448,12 +507,13 @@ def load_benchmarking_set(apikey: Optional[str] = None):
                                 'nrow': [df.data.shape[0]], 'ncol': [df.data.shape[1]]})
             stats3 = pd.concat([stats3, tmp])
 
-    stats3 = stats3[np.logical_and(stats3.IR >= 1.5, stats3.nrow >= 1000)]
+    stats3 = stats3[np.logical_and(stats3.IR >= minimal_IR, stats3.nrow >= minimal_n_rows)]
     stats3 = stats3[np.logical_not(stats3.name.isin(stats.name))]  # so as not to repeat datasets
     stats3 = stats3[np.logical_not(stats3.name.isin(stats2.name))]  # so as not to repeat datasets
     exclude = ['optical_digits', 'satimage', 'pen_digits',
                'letter_img']  # excluding datasets made from images since they are not real tabular data.
     stats3 = stats3[np.logical_not(np.isin(np.array(stats3.name), exclude))]
+    stats3 = stats3[np.logical_not(np.isin(np.array(stats3.name), exclude_global))]
     df_tab = [d for d in df_tab if d.name in list(stats3.name)]
 
     # `protein_homo` dataset is very big and after balancing, for example to `IR=1`, it would have gigantic sizes
@@ -463,6 +523,28 @@ def load_benchmarking_set(apikey: Optional[str] = None):
             X, _, y, _ = train_test_split(df.data, df.target, train_size=30000, stratify=df.target, random_state=42)
             df.data = X
             df.target = y
+
+    if not keep_categorical:
+        for i in range(len(df_tab)):
+            df_tab[i].data = df_tab[i].data.convert_dtypes()
+
+        n_cols = [ds.data.shape[1] for ds in df_tab]
+        colnames = list(stats3.name)
+
+        for i in range(len(df_tab)):
+            df_tab[i].remove_categorical_and_ordinal_variables()
+
+        n_cols_after = [ds.data.shape[1] for ds in df_tab]
+        exclude = []
+
+        for i in range(len(n_cols_after)):
+            if n_cols_after[i] / n_cols[i] < 1 - percent_categorical_to_remove:
+                exclude.append(colnames[i])
+
+        for exc in exclude:
+            colnames.remove(exc)
+
+        df_tab = [d for d in df_tab if d.name in colnames]
 
     return DatasetArray(
         datasets=df_openml.datasets + df_openml2.datasets + df_tab,
