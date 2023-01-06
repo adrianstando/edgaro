@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from typing import List, Literal, Optional, Union, Tuple
+from matplotlib.axes import Axes
 
 from edgaro.explain.explainer_result import ModelProfileExplanation, ModelPartsExplanation
 
@@ -265,7 +266,7 @@ class ModelProfileExplanationArray(ExplanationArray):
         """
 
         fig, ax = plt.subplots(figsize=figsize)
-        plt.suptitle(f'Summary of {self.name}')
+        plt.title(f'Summary of {self.curve_type} for {self.name}')
         plt.xlabel('Filter')
         plt.ylabel(r'VOD values [$10^{-5}$]')
 
@@ -371,8 +372,40 @@ class ModelPartsExplanationArray(ExplanationArray):
                 return self.results[key]
         return None
 
-    def plot(self) -> None:
-        pass
+    def plot(self, variable: Optional[Union[str, List[str]]] = None, max_variables: Optional[int] = None,
+             index_base: Union[str, int] = -1, figsize: Optional[Tuple[int, int]] = (8, 8),
+             ax: Optional[Axes] = None, show_legend: bool = True, x_lim: Optional[Tuple[float, float]] = None,
+             metric_precision: int = 3) -> None:
+        """
+        The function plots the Variable Importance profile using all ModelPartsExplanation objects.
+
+        Parameters
+        ----------
+        variable : str, list[str], optional, default=None
+            Variable for which the VI should be plotted. If None, the all columns is plotted.
+        figsize : tuple(int, int), optional, default=(8, 8)
+            Size of a figure.
+        max_variables : int, optional, default=None
+            Maximal number of variables from the current object to be taken into account.
+        ax : matplotlib.axes.Axes, optional, default=None
+            The parameter should be passed if the plot is to be created in a certain Axis. In that situation, `figsize`
+            parameter is ignored.
+        show_legend : bool, default=True
+            The parameter indicates whether the legend should be plotted.
+        x_lim : tuple(float, float), optional, default=None
+            The limits of 0X axis.
+        metric_precision : int, default=5
+            Number of digits to round the value of the metric value.
+        index_base : int, str, default=-1
+            Index of an explanation to be a base for comparisons.
+        """
+
+        base = self.results[index_base]
+        plots = self.results.copy()
+        plots.remove(base)
+
+        base.plot(variable=variable, figsize=figsize, max_variables=max_variables,
+                  add_plot=plots, ax=ax, show_legend=show_legend, x_lim=x_lim, metric_precision=metric_precision)
 
     def compare(self, variable: Optional[Union[str, List[str]]] = None, max_variables: Optional[int] = None,
                 return_raw: bool = True, index_base: Union[str, int] = -1, model_filter: Optional[str] = None) \
@@ -439,5 +472,118 @@ class ModelPartsExplanationArray(ExplanationArray):
         else:
             raise Exception('Wrong result structure!')
 
-    def plot_summary(self) -> None:
-        pass
+    def plot_summary(self, model_filters: Optional[List[str]] = None, filter_labels: [List[str]] = None,
+                     variables: Optional[List[str]] = None, max_variables: Optional[int] = None,
+                     figsize: Optional[Tuple[int, int]] = None, index_base: Union[str, int] = -1,
+                     significance_level: Optional[float] = None) -> None:
+        """
+        The function plots boxplots of comparison metrics of VI in the object if significance_level is provided.
+        Otherwise, the results of the statistical test are plotted as barplots according to the significance_level.
+
+        Parameters
+        ----------
+        variables : str, list[str], optional, default=None
+            Variable for which the VI should be plotted. If None, the all columns is plotted.
+        figsize : tuple(int, int), optional, default=(8, 8)
+            Size of a figure.
+        model_filters : list[str], optional, default=None
+            List of regex expressions to filter the names of the ModelPartsExplanation objects for comparing.
+            Each element in the list creates a new boxplot. If None, one boxplot / barplot of all results is plotted.
+        filter_labels : list[str], optional, default=None
+            Labels of model filters.
+        index_base : int, str, default=-1
+            Index of an explanation to be a base for comparisons.
+        max_variables : int, optional, default=None
+            Maximal number of variables from the current object to be taken into account.
+        significance_level : float, optional, default=None
+            A significance level of the statistical test (metric).
+
+        """
+
+        def flatten(lst):
+            out = []
+            for i in range(len(lst)):
+                if not isinstance(lst[i], list):
+                    out.append(lst[i])
+                else:
+                    tmp = flatten(lst[i])
+                    out = out + tmp
+            return out
+
+        def extract_accepted_rejected(tab):
+            n = len(tab)
+            res = np.array(tab)
+            reject = np.sum(res <= significance_level)
+            accept = n - reject
+            return accept / n, reject / n
+
+        plt.subplots(figsize=figsize)
+
+        if model_filters is None:
+            results = self.compare(variable=variables, index_base=index_base,
+                                   return_raw=True, max_variables=max_variables)
+
+            results = flatten(results)
+
+            if filter_labels is not None:
+                if len(filter_labels) == 1:
+                    lbl = filter_labels
+                else:
+                    raise Exception('Incorrect length of filter_labels!')
+            else:
+                lbl = ['All values']
+
+            if significance_level is None:
+                plt.boxplot(results, labels=lbl, patch_artist=True)
+            else:
+                accepted, rejected = extract_accepted_rejected(results)
+
+                plt.bar([0.8], accepted, 0.4, label='Accepted')
+                plt.bar([1.2], rejected, 0.4, label='Rejected')
+                plt.xticks([0.8, 1.2], lbl)
+
+        else:
+            results = []
+            for f in model_filters:
+                tmp_out = self.compare(variable=variables, index_base=index_base,
+                                       return_raw=True, model_filter=f, max_variables=max_variables)
+                tmp_out = flatten(tmp_out)
+                results.append(tmp_out)
+
+            if filter_labels is not None:
+                if len(filter_labels) == len(model_filters):
+                    lbl = filter_labels
+                else:
+                    raise Exception('Incorrect length of filter_labels!')
+            else:
+                lbl = filter_labels
+
+            if significance_level is None:
+                plt.boxplot(results, labels=lbl, patch_artist=True)
+            else:
+                accepted = []
+                rejected = []
+
+                for r in results:
+                    acc, rej = extract_accepted_rejected(r)
+                    accepted.append(acc)
+                    rejected.append(rej)
+
+                bar_width = 0.4
+                x = lbl
+                x_axis = np.arange(len(x))
+
+                plt.bar(x_axis, accepted, label='Accepted')
+                plt.bar(x_axis + bar_width, rejected, label='Rejected')
+                plt.legend()
+
+                plt.xticks(x_axis + bar_width / 2, x)
+
+        if significance_level is None:
+            plt.ylabel(r'p-values')
+            plt.title(f'Summary of {self.explanation_type} for {self.name}')
+            plt.xlabel('Filter')
+        else:
+            plt.ylabel('Test result')
+            plt.title(f'Summary of {self.explanation_type} for {self.name} with p-value significance level {significance_level}')
+            plt.xlabel('Filter')

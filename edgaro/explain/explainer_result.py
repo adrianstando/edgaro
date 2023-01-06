@@ -147,6 +147,7 @@ class ModelProfileExplanation(Explanation):
             else:
                 self.__plot_add(variable, ax, figsize, curve_base, curves_add, add_plot, show_legend,
                                 y_lim, metric_precision)
+        plt.ylabel(self.curve_type)
 
     @staticmethod
     def __plot_not_add(results, categorical_columns, curve_type, name, variable, ax, figsize, show_legend,
@@ -369,6 +370,7 @@ class ModelPartsExplanation(Explanation):
     explanation_type : {'VI'}, default='VI'
         An explanation type.
     """
+
     def __init__(self, results: Dict[str, float], name: str, explanation_type: Literal['VI'] = 'VI') -> None:
         self.results = results
         self.name = name
@@ -380,8 +382,116 @@ class ModelPartsExplanation(Explanation):
         else:
             return None
 
-    def plot(self) -> None:
-        pass
+    @staticmethod
+    def __extract_res(obj, variable, max_variables):
+        res = pd.DataFrame.from_dict(obj.results, orient='index').reset_index()
+        res.columns = ['colname', 'val']
+        res = res.sort_values('val')
+
+        if variable is not None:
+            res = res[res['colname'].isin(variable)]
+            if res.shape[0] != len(variable):
+                raise Exception('Wrong variable names were provided!')
+
+        if max_variables is not None:
+            res = res.loc[list(range(max_variables))]
+
+        return res
+
+    def plot(self, variable: Optional[Union[str, List[str]]] = None,
+             add_plot: Optional[List[ModelPartsExplanation]] = None, max_variables: Optional[int] = None,
+             figsize: Optional[Tuple[int, int]] = (8, 8), ax: Optional[Axes] = None, show_legend: bool = True,
+             x_lim: Optional[Tuple[float, float]] = None, metric_precision: int = 3) -> None:
+        """
+        The function plots the Variable Importance profile.
+
+        Parameters
+        ----------
+        variable : str, list[str], optional, default=None
+            Variable for which the VI should be plotted. If None, the all columns is plotted.
+        figsize : tuple(int, int), optional, default=(8, 8)
+            Size of a figure.
+        add_plot : list[ModelPartsExplanation], optional, default=None
+            List of other ModelPartsExplanation objects that also contain the `variable` and should be plotted.
+        max_variables : int, optional, default=None
+            Maximal number of variables from the current object to be taken into account.
+        ax : matplotlib.axes.Axes, optional, default=None
+            The parameter should be passed if the plot is to be created in a certain Axis. In that situation, `figsize`
+            parameter is ignored.
+        show_legend : bool, default=True
+            The parameter indicates whether the legend should be plotted.
+        x_lim : tuple(float, float), optional, default=None
+            The limits of 0X axis.
+        metric_precision : int, default=5
+            Number of digits to round the value of the metric value.
+
+        """
+
+        res = ModelPartsExplanation.__extract_res(self, variable, max_variables)
+        column_order = res['colname'].to_list()
+
+        if ax is not None:
+            plt.sca(ax)
+        elif figsize is not None:
+            plt.subplots(figsize=figsize)
+
+        if add_plot is not None:
+            def extraction(a):
+                res_other = ModelPartsExplanation.__extract_res(a, variable, None)
+                res_other.set_index('colname')
+                res_other = res_other.loc[column_order]
+                res_other = res_other.reset_index()
+                return res_other
+
+            group_height = 0.8
+            y = res['colname']
+            bar_height = group_height / (len(add_plot) + 1)
+            y_axis = np.arange(len(y))
+
+            plt.barh(y_axis, res['val'], bar_height, label=self.name)
+
+            for i in range(len(add_plot)):
+                p = extraction(add_plot[i])
+                plt.barh(y_axis + (i + 1) * bar_height, p['val'], bar_height, label=add_plot[i].name)
+
+            plt.yticks(y_axis + group_height / 2, y)
+        else:
+            plt.barh(res['colname'], res['val'])
+
+        plt.title(f"Variable importance for {self.name}")
+
+        plt.xlabel("Variable Importance")
+        plt.ylabel("Variable")
+        if show_legend:
+            if add_plot is None:
+                plt.legend([self.name])
+            else:
+                plt.legend()
+        if x_lim is not None:
+            plt.ylim(x_lim)
+
+        if add_plot is not None:
+            compare_results = self.compare(add_plot, variable=variable, max_variables=max_variables, return_raw=False)
+            if not np.alltrue([r is None for r in compare_results]):
+                if ax is None:
+                    ax = plt.gca()
+                y_min, y_max = ax.get_ylim()
+                x_min, x_max = ax.get_xlim()
+
+                text = ""
+                if compare_results[0] is not None:
+                    if len(add_plot) == 1:
+                        text += 'p-value=' + f'{round(compare_results[0] * 10 ** 5, metric_precision)}'
+                    else:
+                        text += 'MEAN(p-value)=' + f'{round(compare_results[0] * 10 ** 5, metric_precision)}'
+
+                if text != "":
+                    ax.text(
+                        x_min + 0.7 * (x_max - x_min),
+                        y_min + 0.2 * (y_max - y_min),
+                        text,
+                        fontsize='medium'
+                    )
 
     def compare(self, other: List[ModelPartsExplanation], variable: Optional[Union[str, List[str]]] = None,
                 max_variables: Optional[int] = None, return_raw: bool = True) -> List[Union[float, list]]:
@@ -417,17 +527,7 @@ class ModelPartsExplanation(Explanation):
 
         out = []
 
-        res = pd.DataFrame.from_dict(self.results, orient='index').reset_index()
-        res.columns = ['colname', 'val']
-        res = res.sort_values('val')
-
-        if variable is not None:
-            res = res[res['colname'].isin(variable)]
-            if res.shape[0] != len(variable):
-                raise Exception('Wrong variable names were provided!')
-
-        if max_variables is not None:
-            res = res.loc[list(range(max_variables))]
+        res = self.__extract_res(variable, max_variables)
 
         column_order = res['colname'].to_list()
         for obj in other:
@@ -451,6 +551,3 @@ class ModelPartsExplanation(Explanation):
 
     def __repr__(self) -> str:
         return f"<ModelPartsExplanation {self.name} with {self.explanation_type} curve type>"
-
-
-

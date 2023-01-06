@@ -13,7 +13,7 @@ This is the first official release of the package.
 
 It allows to perform all required computations for comparing and benchmarking balancing methods.
 
-## [Unreleased] - 2023-01-05
+## [Unreleased] - 2023-01-06
 
 ### Added
 
@@ -21,6 +21,7 @@ It allows to perform all required computations for comparing and benchmarking ba
 - Variable Importance option in `Explainer` and `ExplainerArray` classes
 - Variable Importance explanation in `ModelPartsExplanation` and `ModelPartsExplanationArray` classes in `explain` module
 - Variable Importance comparison metric based on Wilcoxon statistical test
+- Variable Importance plots and summary plots
 
 ### Changed
 
