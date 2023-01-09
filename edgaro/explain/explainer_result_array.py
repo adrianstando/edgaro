@@ -40,7 +40,7 @@ class ModelProfileExplanationArray(ExplanationArray):
         A list of ModelProfileExplanation/ModelProfileExplanationArray with results.
     name : str
         The name of ModelProfileExplanationArray. It is best if it is a Model/ModelArray name.
-    curve_type : {'PDP', 'ALE'}, default='PDP'
+    explanation_type : {'PDP', 'ALE'}, default='PDP'
         A curve type.
 
     Attributes
@@ -49,16 +49,16 @@ class ModelProfileExplanationArray(ExplanationArray):
         A list of ModelProfileExplanation/ModelProfileExplanationArray with results.
     name : str
         The name of ModelProfileExplanationArray. It is best if it is a Model/ModelArray name.
-    curve_type : {'PDP', 'ALE'}
+    explanation_type : {'PDP', 'ALE'}
         A curve type.
 
     """
 
     def __init__(self, results: List[Union[ModelProfileExplanation, ModelProfileExplanationArray]], name: str,
-                 curve_type: Literal['PDP', 'ALE'] = 'PDP') -> None:
+                 explanation_type: Literal['PDP', 'ALE'] = 'PDP') -> None:
         self.results = results
         self.name = name
-        self.curve_type = curve_type
+        self.explanation_type = explanation_type
 
     def __len__(self) -> int:
         return len(self.results)
@@ -72,7 +72,7 @@ class ModelProfileExplanationArray(ExplanationArray):
                 return None
             else:
                 return ModelProfileExplanationArray(results=outs, name=self.name + "_subset",
-                                                    curve_type=self.curve_type)
+                                                    explanation_type=self.explanation_type)
         elif isinstance(key, str):
             for result in self.results:
                 if result.name == key:
@@ -163,7 +163,7 @@ class ModelProfileExplanationArray(ExplanationArray):
 
         fig.tight_layout(rect=[0, 0.05, 1, 0.97])
         fig.legend([x.name for x in results], ncol=n_col, loc='lower center')
-        plt.suptitle(f"{self.curve_type} curves for {self.name}", fontsize=18)
+        plt.suptitle(f"{self.explanation_type} curves for {self.name}", fontsize=18)
 
     def compare(self, variable: Optional[Union[str, List[str]]] = None, index_base: Union[str, int] = -1,
                 return_raw: bool = True, return_raw_per_variable: bool = True, model_filter: Optional[str] = None) \
@@ -266,7 +266,7 @@ class ModelProfileExplanationArray(ExplanationArray):
         """
 
         fig, ax = plt.subplots(figsize=figsize)
-        plt.title(f'Summary of {self.curve_type} for {self.name}')
+        plt.title(f'Summary of {self.explanation_type} for {self.name}')
         plt.xlabel('Filter')
         plt.ylabel(r'VOD values [$10^{-5}$]')
 
@@ -314,10 +314,10 @@ class ModelProfileExplanationArray(ExplanationArray):
                 plt.boxplot(results, patch_artist=True, labels=model_filters)
 
     def __str__(self) -> str:
-        return f"ModelProfileExplanationArray {self.name} for {len(self.results)} variables: {list(self.results)} with {self.curve_type} curve type"
+        return f"ModelProfileExplanationArray {self.name} for {len(self.results)} variables: {list(self.results)} with {self.explanation_type} curve type"
 
     def __repr__(self) -> str:
-        return f"<ModelProfileExplanationArray {self.name} with {self.curve_type} curve type>"
+        return f"<ModelProfileExplanationArray {self.name} with {self.explanation_type} curve type>"
 
 
 class ModelPartsExplanationArray(ExplanationArray):

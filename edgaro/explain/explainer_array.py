@@ -139,7 +139,7 @@ class ExplainerArray:
             out = cls(
                 results=res,
                 name=self.name,
-                curve_type=self.explanation_type
+                explanation_type=self.explanation_type
             )
 
         if self.verbose:

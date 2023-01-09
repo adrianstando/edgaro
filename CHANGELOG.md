@@ -20,6 +20,7 @@ It allows to perform all required computations for comparing and benchmarking ba
 - Parallel computing support in `explain` module
 - Variable Importance option in `Explainer` and `ExplainerArray` classes
 - Variable Importance explanation in `ModelPartsExplanation` and `ModelPartsExplanationArray` classes in `explain` module
+- Parameter name `curve_type` in `ModelPartsExplanation` and `ModelPartsExplanationArray` (previously `ExplainerResult` and `ExplainerResultArray`) changed to `explanation_type`
 - Variable Importance comparison metric based on Wilcoxon statistical test
 - Variable Importance plots and summary plots
 

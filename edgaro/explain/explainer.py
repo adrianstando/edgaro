@@ -97,6 +97,7 @@ class Explainer:
         """
 
         dataset = self.model.get_test_dataset()
+        dataset = self.model.transform_target(dataset) # ??? VI residual
 
         if dataset is None:
             raise Exception('Error with dataset!')

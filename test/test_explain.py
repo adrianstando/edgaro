@@ -361,7 +361,7 @@ def test_array_of_arrays_transform_columns_not_in_each(model_array2):
         t1[0].name += '_xx'
 
         # there are also datasets, which don't contain given columns
-        pdp = ExplainerArray(rf, N=10, explanation_type=t.curve_type)
+        pdp = ExplainerArray(rf, N=10, explanation_type=t.explanation_type)
         pdp.fit()
 
         pdp.transform(variables=[column, column1])
@@ -379,7 +379,7 @@ def test_array_of_arrays_transform_columns_not_in_each_plot(model_array2):
         t1[0].name += '_xx'
 
         # there are also datasets, which don't contain given columns
-        pdp = ExplainerArray(rf, N=10, explanation_type=t.curve_type)
+        pdp = ExplainerArray(rf, N=10, explanation_type=t.explanation_type)
         pdp.fit()
 
         t_2 = pdp.transform(variables=[column, column1])

@@ -67,7 +67,7 @@ class ModelProfileExplanation(Explanation):
         The name of ModelProfileExplanation. It is best if it is a Model name.
     categorical_columns : list[str]
         List of categorical variables.
-    curve_type : {'PDP', 'ALE'}, default='PDP'
+    explanation_type : {'PDP', 'ALE'}, default='PDP'
         A curve type.
 
     Attributes
@@ -78,17 +78,17 @@ class ModelProfileExplanation(Explanation):
         The name of ModelProfileExplanation. It is best if it is a Model name.
     categorical_columns : list[str]
         List of categorical variables.
-    curve_type : {'PDP', 'ALE'}
+    explanation_type : {'PDP', 'ALE'}
         A curve type.
 
     """
 
     def __init__(self, results: Dict[str, Curve], name: str, categorical_columns: List[str],
-                 curve_type: Literal['PDP', 'ALE'] = 'PDP') -> None:
+                 explanation_type: Literal['PDP', 'ALE'] = 'PDP') -> None:
         self.results = results
         self.name = name
         self.categorical_columns = categorical_columns
-        self.curve_type = curve_type
+        self.explanation_type = explanation_type
 
     def __getitem__(self, key: str) -> Optional[Curve]:
         if key in self.results.keys():
@@ -129,7 +129,7 @@ class ModelProfileExplanation(Explanation):
             variable = list(self.results.keys())[0]
 
         if add_plot is None:
-            ModelProfileExplanation.__plot_not_add(self.results, self.categorical_columns, self.curve_type, self.name,
+            ModelProfileExplanation.__plot_not_add(self.results, self.categorical_columns, self.explanation_type, self.name,
                                                    variable, ax, figsize, show_legend, y_lim)
         else:
             curve_base = self.results[variable]
@@ -142,15 +142,15 @@ class ModelProfileExplanation(Explanation):
 
             if len(curves_add) == 0:
                 warnings.warn(f'None of the added plots have variable called {variable}!')
-                ModelProfileExplanation.__plot_not_add(self.results, self.categorical_columns, self.curve_type,
+                ModelProfileExplanation.__plot_not_add(self.results, self.categorical_columns, self.explanation_type,
                                                        self.name, variable, ax, figsize, show_legend, y_lim)
             else:
                 self.__plot_add(variable, ax, figsize, curve_base, curves_add, add_plot, show_legend,
                                 y_lim, metric_precision)
-        plt.ylabel(self.curve_type)
+        plt.ylabel(self.explanation_type)
 
     @staticmethod
-    def __plot_not_add(results, categorical_columns, curve_type, name, variable, ax, figsize, show_legend,
+    def __plot_not_add(results, categorical_columns, explanation_type, name, variable, ax, figsize, show_legend,
                        y_lim) -> None:
         curve = results[variable]
         if curve is None:
@@ -166,9 +166,9 @@ class ModelProfileExplanation(Explanation):
         else:
             plt.bar(curve.x, curve.y)
 
-        if curve_type == 'PDP':
+        if explanation_type == 'PDP':
             plt.title("PDP curve for variable: " + variable)
-        elif curve_type == 'ALE':
+        elif explanation_type == 'ALE':
             plt.title("ALE curve for variable: " + variable)
         else:
             raise Exception('Wrong curve type!')
@@ -219,11 +219,11 @@ class ModelProfileExplanation(Explanation):
 
         if variable not in self.categorical_columns:
             ModelProfileExplanation.__plot_add_continuous(ax, figsize, curve_base, curves_add)
-            plt.title(f"{self.curve_type} curve for variable: " + variable)
+            plt.title(f"{self.explanation_type} curve for variable: " + variable)
         else:
             ModelProfileExplanation.__plot_add_categorical(self.name, variable, ax, figsize,
                                                            curve_base, curves_add, add_plot_names,
-                                                           f"{self.curve_type} curve for variable: " + variable)
+                                                           f"{self.explanation_type} curve for variable: " + variable)
 
         if show_legend:
             plt.legend([self.name] + add_plot_names)
@@ -342,10 +342,10 @@ class ModelProfileExplanation(Explanation):
         return result_tab
 
     def __str__(self) -> str:
-        return f"ModelProfileExplanation {self.name} for {len(self.results.keys())} variables: {list(self.results.keys())} with {self.curve_type} curve type"
+        return f"ModelProfileExplanation {self.name} for {len(self.results.keys())} variables: {list(self.results.keys())} with {self.explanation_type} curve type"
 
     def __repr__(self) -> str:
-        return f"<ModelProfileExplanation {self.name} with {self.curve_type} curve type>"
+        return f"<ModelProfileExplanation {self.name} with {self.explanation_type} curve type>"
 
 
 class ModelPartsExplanation(Explanation):
