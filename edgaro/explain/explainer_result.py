@@ -395,6 +395,7 @@ class ModelPartsExplanation(Explanation):
 
         if max_variables is not None:
             r = min(max_variables, len(variable)) if variable is not None else max_variables
+            r = min(r, res.shape[0])
             res = res.iloc[list(range(r))]
 
         return res

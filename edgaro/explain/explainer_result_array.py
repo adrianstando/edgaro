@@ -403,6 +403,7 @@ class ModelPartsExplanationArray(ExplanationArray):
         base = self.results[index_base]
         plots = self.results.copy()
         plots.remove(base)
+        plots = ModelPartsExplanationArray.__flatten(plots)
 
         base.plot(variable=variable, figsize=figsize, max_variables=max_variables,
                   add_plot=plots, ax=ax, show_legend=show_legend, x_lim=x_lim, metric_precision=metric_precision)
@@ -443,21 +444,11 @@ class ModelPartsExplanationArray(ExplanationArray):
                     return False
                 return True
 
-            def flatten(lst):
-                out = []
-                for i in range(len(lst)):
-                    if not (isinstance(lst[i], list) or isinstance(lst[i], ModelProfileExplanationArray)):
-                        out.append(lst[i])
-                    else:
-                        tmp = flatten(lst[i])
-                        out = out + tmp
-                return out
-
             base_model = self[index_base]
             if base_model is None:
                 raise Exception('Wrong index_base argument!')
 
-            res = flatten(self.results)
+            res = ModelPartsExplanationArray.__flatten(self.results)
             res.remove(self.results[index_base])
 
             res_filtered = [res[i] for i in range(len(res)) if filter_objects(res[i])]
@@ -500,16 +491,6 @@ class ModelPartsExplanationArray(ExplanationArray):
 
         """
 
-        def flatten(lst):
-            out = []
-            for i in range(len(lst)):
-                if not isinstance(lst[i], list):
-                    out.append(lst[i])
-                else:
-                    tmp = flatten(lst[i])
-                    out = out + tmp
-            return out
-
         def extract_accepted_rejected(tab):
             n = len(tab)
             res = np.array(tab)
@@ -523,7 +504,7 @@ class ModelPartsExplanationArray(ExplanationArray):
             results = self.compare(variable=variables, index_base=index_base,
                                    return_raw=True, max_variables=max_variables)
 
-            results = flatten(results)
+            results = ModelPartsExplanationArray.__flatten(results)
 
             if filter_labels is not None:
                 if len(filter_labels) == 1:
@@ -540,14 +521,15 @@ class ModelPartsExplanationArray(ExplanationArray):
 
                 plt.bar([0.8], accepted, 0.4, label='Accepted')
                 plt.bar([1.2], rejected, 0.4, label='Rejected')
-                plt.xticks([0.8, 1.2], lbl)
+                plt.xticks([1], lbl)
+                plt.legend()
 
         else:
             results = []
             for f in model_filters:
                 tmp_out = self.compare(variable=variables, index_base=index_base,
                                        return_raw=True, model_filter=f, max_variables=max_variables)
-                tmp_out = flatten(tmp_out)
+                tmp_out = ModelPartsExplanationArray.__flatten(tmp_out)
                 results.append(tmp_out)
 
             if filter_labels is not None:
@@ -556,7 +538,7 @@ class ModelPartsExplanationArray(ExplanationArray):
                 else:
                     raise Exception('Incorrect length of filter_labels!')
             else:
-                lbl = filter_labels
+                lbl = model_filters
 
             if significance_level is None:
                 plt.boxplot(results, labels=lbl, patch_artist=True)
@@ -573,8 +555,8 @@ class ModelPartsExplanationArray(ExplanationArray):
                 x = lbl
                 x_axis = np.arange(len(x))
 
-                plt.bar(x_axis, accepted, label='Accepted')
-                plt.bar(x_axis + bar_width, rejected, label='Rejected')
+                plt.bar(x_axis, accepted, bar_width, label='Accepted')
+                plt.bar(x_axis + bar_width, rejected, bar_width, label='Rejected')
                 plt.legend()
 
                 plt.xticks(x_axis + bar_width / 2, x)
@@ -584,6 +566,18 @@ class ModelPartsExplanationArray(ExplanationArray):
             plt.title(f'Summary of {self.explanation_type} for {self.name}')
             plt.xlabel('Filter')
         else:
-            plt.ylabel('Test result')
-            plt.title(f'Summary of {self.explanation_type} for {self.name} with p-value significance level {significance_level}')
+            plt.ylabel('Fraction of tests')
+            plt.title(
+                f'Summary of {self.explanation_type} for {self.name} with p-value significance level {significance_level}')
             plt.xlabel('Filter')
+
+    @staticmethod
+    def __flatten(lst):
+        out = []
+        for i in range(len(lst)):
+            if not (isinstance(lst[i], list) or isinstance(lst[i], ModelPartsExplanationArray)):
+                out.append(lst[i])
+            else:
+                tmp = ModelPartsExplanationArray.__flatten(lst[i])
+                out = out + tmp
+        return out
