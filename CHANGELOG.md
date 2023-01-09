@@ -13,7 +13,7 @@ This is the first official release of the package.
 
 It allows to perform all required computations for comparing and benchmarking balancing methods.
 
-## [Unreleased] - 2023-01-06
+## [Unreleased] - 2023-01-09
 
 ### Added
 
@@ -29,7 +29,7 @@ It allows to perform all required computations for comparing and benchmarking ba
 - Parameter name `curve_type` in `Explainer` and `ExplainerArray` classes changed to `explanation_type`
 - `ExplainerResult` and `ExplainerResultArray` classes are changed to `ModelProfileExplanation` and `ModelProfileExplanationArray`
 
-## [0.2.0] - 2023-01-02
+## [0.3.0] - 2023-01-02
 
 ### Added
 
