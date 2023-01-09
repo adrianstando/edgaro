@@ -394,13 +394,14 @@ class ModelPartsExplanation(Explanation):
                 raise Exception('Wrong variable names were provided!')
 
         if max_variables is not None:
-            res = res.loc[list(range(max_variables))]
+            r = min(max_variables, len(variable)) if variable is not None else max_variables
+            res = res.iloc[list(range(r))]
 
         return res
 
     def plot(self, variable: Optional[Union[str, List[str]]] = None,
              add_plot: Optional[List[ModelPartsExplanation]] = None, max_variables: Optional[int] = None,
-             figsize: Optional[Tuple[int, int]] = (8, 8), ax: Optional[Axes] = None, show_legend: bool = True,
+             figsize: Optional[Tuple[int, int]] = (8, 8), ax: Optional[Axes] = None, show_legend: bool = False,
              x_lim: Optional[Tuple[float, float]] = None, metric_precision: int = 3) -> None:
         """
         The function plots the Variable Importance profile.
@@ -430,6 +431,9 @@ class ModelPartsExplanation(Explanation):
         res = ModelPartsExplanation.__extract_res(self, variable, max_variables)
         column_order = res['colname'].to_list()
 
+        if isinstance(variable, str):
+            variable = [variable]
+
         if ax is not None:
             plt.sca(ax)
         elif figsize is not None:
@@ -438,7 +442,7 @@ class ModelPartsExplanation(Explanation):
         if add_plot is not None:
             def extraction(a):
                 res_other = ModelPartsExplanation.__extract_res(a, variable, None)
-                res_other.set_index('colname')
+                res_other = res_other.set_index('colname')
                 res_other = res_other.loc[column_order]
                 res_other = res_other.reset_index()
                 return res_other
@@ -468,7 +472,7 @@ class ModelPartsExplanation(Explanation):
             else:
                 plt.legend()
         if x_lim is not None:
-            plt.ylim(x_lim)
+            plt.xlim(x_lim)
 
         if add_plot is not None:
             compare_results = self.compare(add_plot, variable=variable, max_variables=max_variables, return_raw=False)
@@ -481,9 +485,9 @@ class ModelPartsExplanation(Explanation):
                 text = ""
                 if compare_results[0] is not None:
                     if len(add_plot) == 1:
-                        text += 'p-value=' + f'{round(compare_results[0] * 10 ** 5, metric_precision)}'
+                        text += 'p-value=' + f'{round(compare_results[0], metric_precision)}'
                     else:
-                        text += 'MEAN(p-value)=' + f'{round(compare_results[0] * 10 ** 5, metric_precision)}'
+                        text += 'MEAN(p-value)=' + f'{round(compare_results[0], metric_precision)}'
 
                 if text != "":
                     ax.text(
@@ -527,13 +531,13 @@ class ModelPartsExplanation(Explanation):
 
         out = []
 
-        res = self.__extract_res(variable, max_variables)
+        res = ModelPartsExplanation.__extract_res(self, variable, max_variables)
 
         column_order = res['colname'].to_list()
         for obj in other:
             res_other = pd.DataFrame.from_dict(obj.results, orient='index').reset_index()
             res_other.columns = ['colname', 'val']
-            res_other.set_index('colname')
+            res_other = res_other.set_index('colname')
             res_other = res_other.loc[column_order]
             res_other = res_other.reset_index()
 
@@ -542,7 +546,7 @@ class ModelPartsExplanation(Explanation):
             out.append(p_value)
 
         if not return_raw:
-            return [np.mean(out)[0]]
+            return [float(np.mean(out))]
         else:
             return out
 
