@@ -546,8 +546,13 @@ def load_benchmarking_set(apikey: Optional[str] = None, keep_categorical: bool =
 
         df_tab = [d for d in df_tab if d.name in colnames]
 
-    return DatasetArray(
+    out = DatasetArray(
         datasets=df_openml.datasets + df_openml2.datasets + df_tab,
         name='benchmarking_set',
         verbose=False
     )
+
+    for d in out:
+        d.data = d.data.astype(float)
+
+    return out
