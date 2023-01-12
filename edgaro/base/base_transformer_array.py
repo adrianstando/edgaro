@@ -8,6 +8,7 @@ from copy import deepcopy
 from edgaro.data.dataset import Dataset
 from edgaro.data.dataset_array import DatasetArray
 from edgaro.base.base_transformer import BaseTransformer
+from edgaro.base.utils import print_unbuffered
 
 
 class BaseTransformerArray:
@@ -137,7 +138,17 @@ class BaseTransformerArray:
         if isinstance(dataset, Dataset):
             if not self.__input_shape == 1:
                 raise Exception('DatasetArray was fitted, but single Dataset was provided!')
-            tab = [transformator.transform(dataset) for transformator in self.__transformers]
+
+            tab = []
+            for transformator in self.__transformers:
+                try:
+                    t = transformator.transform(dataset)
+                    tab.append(t)
+                except (Exception,) as exc:
+                    print_unbuffered(f"An Exception occurred while transforming {dataset.name} with "
+                                     f"{transformator.__str__()}")
+                    print_unbuffered(exc)
+
             try:
                 return DatasetArray(
                     tab,
@@ -154,14 +165,21 @@ class BaseTransformerArray:
         else:
             if not self.__input_shape == len(dataset):
                 raise Exception('Dataset was fitted, but DatasetArray was provided!')
+
+            tab = []
+            for i in range(len(dataset)):
+                try:
+                    t = self.__transformers[i].transform(dataset[i])
+                    tab.append(t)
+                except (Exception,) as exc:
+                    print_unbuffered(f"An Exception occurred while transforming {dataset[i].name} with "
+                                     f"{self.__transformers[i].__str__()}")
+                    print_unbuffered(exc)
+
             return DatasetArray(
                 [self.__transformers[i].transform(dataset[i]) for i in range(len(dataset))],
                 name=dataset.name + self.transformer_sufix
             )
-
-    """
-    Each parameter has to be a list!!
-    """
 
     def set_params(self, **params) -> None:
         """
