@@ -177,7 +177,7 @@ class BaseTransformerArray:
                     print_unbuffered(exc)
 
             return DatasetArray(
-                [self.__transformers[i].transform(dataset[i]) for i in range(len(dataset))],
+                tab,
                 name=dataset.name + self.transformer_sufix
             )
 
