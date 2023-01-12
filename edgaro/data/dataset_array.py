@@ -401,7 +401,7 @@ def load_benchmarking_set(apikey: Optional[str] = None, keep_categorical: bool =
         for col in list(d.select_dtypes(['uint8', 'int']).columns):
             convert_to_float(ds_array, dataset_name, col)
 
-    exclude_global = ['nomao', 'Internet-Advertisements', 'isolet', 'sylva_agnostic', 'webpage']
+    exclude_global = ['nomao', 'Internet-Advertisements', 'isolet', 'sylva_agnostic', 'webpage', 'scene']
 
     # OpenML-CC18
     df_openml = DatasetArrayFromOpenMLSuite('OpenML-CC18', apikey=apikey)
