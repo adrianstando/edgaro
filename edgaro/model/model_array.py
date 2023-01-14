@@ -305,7 +305,7 @@ class ModelArray(BaseTransformerArray):
 
     @transformers.setter
     def transformers(self, val: List[Union[Model, ModelArray, List]]) -> None:
-        super().transformers = val
+        BaseTransformerArray.transformers.fset(self, val)
 
     @property
     def base_transformer(self) -> Model:
