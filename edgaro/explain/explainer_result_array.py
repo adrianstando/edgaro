@@ -143,6 +143,7 @@ class ModelProfileExplanationArray(ExplanationArray):
             raise Exception('There are not matching models!')
 
         base_model = self.results[index_base]
+        results.remove(base_model)
         results.insert(0, base_model)
 
         n_rows = math.ceil(len(variables) / n_col)
@@ -581,3 +582,9 @@ class ModelPartsExplanationArray(ExplanationArray):
                 tmp = ModelPartsExplanationArray.__flatten(lst[i])
                 out = out + tmp
         return out
+
+    def __str__(self) -> str:
+        return f"ModelPartsExplanationArray {self.name}"
+
+    def __repr__(self) -> str:
+        return f"<ModelPartsExplanationArray {self.name}>"
