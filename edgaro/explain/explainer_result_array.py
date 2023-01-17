@@ -269,10 +269,10 @@ class ModelProfileExplanationArray(ExplanationArray):
         fig, ax = plt.subplots(figsize=figsize)
         plt.title(f'Summary of {self.explanation_type} for {self.name}')
         plt.xlabel('Filter')
-        plt.ylabel(r'VOD values [$10^{-5}$]')
+        plt.ylabel(r'SDD values [$10^{-3}$]')
 
         def format_func(value, tick_number):
-            return str(int(value * 10 ** 5))
+            return str(int(value * 10 ** 3))
 
         def flatten(lst):
             out = []

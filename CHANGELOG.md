@@ -13,7 +13,7 @@ This is the first official release of the package.
 
 It allows to perform all required computations for comparing and benchmarking balancing methods.
 
-## [Unreleased] - 2023-01-09
+## [Unreleased] - 2023-01-17
 
 ### Added
 
@@ -26,6 +26,7 @@ It allows to perform all required computations for comparing and benchmarking ba
 
 ### Changed
 
+- Metric to compare PDP and ALE changed from VOD to SDD
 - Parameter name `curve_type` in `Explainer` and `ExplainerArray` classes changed to `explanation_type`
 - `ExplainerResult` and `ExplainerResultArray` classes are changed to `ModelProfileExplanation` and `ModelProfileExplanationArray`
 

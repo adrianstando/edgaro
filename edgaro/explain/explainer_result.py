@@ -241,9 +241,9 @@ class ModelProfileExplanation(Explanation):
             text = ""
             if compare_results[0] is not None:
                 if len(add_plot) == 1:
-                    text += 'VOD[$10^{-5}$]=' + f'{round(compare_results[0] * 10 ** 5, metric_precision)}'
+                    text += 'SDD[$10^{-3}$]=' + f'{round(compare_results[0] * 10 ** 3, metric_precision)}'
                 else:
-                    text += 'AVOD[$10^{-5}$]=' + f'{round(compare_results[0] * 10 ** 5, metric_precision)}'
+                    text += 'ASDD[$10^{-3}$]=' + f'{round(compare_results[0] * 10 ** 3, metric_precision)}'
 
             if text != "":
                 ax.text(
@@ -270,10 +270,10 @@ class ModelProfileExplanation(Explanation):
         """
         The function calculates the metric to compare the curves for a given variable(s).
 
-        Currently, there is only one comparison metric called `VOD` (Variance of Distances). It is the variance of
+        Currently, there is only one comparison metric called `SDD` (Standard Deviation of Distances). It is the variance of
         the distances between curve in this object and curves in `other` in intermediate points.
         If there is more than one `other` object and `return_raw_per_variable=False`, the mean variance
-        is returned (`AVOD` - Averaged VOD).
+        is returned (`ASDD` - Averaged SDD).
 
         Parameters
         ----------
@@ -332,7 +332,7 @@ class ModelProfileExplanation(Explanation):
         #    result_tab.append(out)
 
         # variance
-        variances = [np.var(deltas) for deltas in distances_to_original]
+        variances = [np.std(deltas) for deltas in distances_to_original]
         result_tab.append(np.mean(variances))
 
         # mean of abs differences
