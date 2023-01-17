@@ -144,7 +144,12 @@ class ModelProfileExplanationArray(ExplanationArray):
             raise Exception('There are not matching models!')
 
         base_model = self.results[index_base]
-        results.remove(base_model)
+
+        try:
+            results.remove(base_model)
+        except (Exception,):
+            pass
+
         results.insert(0, base_model)
 
         n_rows = math.ceil(len(variables) / n_col)
