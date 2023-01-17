@@ -386,6 +386,7 @@ class ModelPartsExplanation(Explanation):
     def __extract_res(obj, variable, max_variables):
         res = pd.DataFrame.from_dict(obj.results, orient='index').reset_index()
         res.columns = ['colname', 'val']
+        res['colname'] = res['colname'].astype("string")
         res = res.sort_values('val')
 
         if variable is not None:
@@ -443,13 +444,14 @@ class ModelPartsExplanation(Explanation):
         if add_plot is not None:
             def extraction(a):
                 res_other = ModelPartsExplanation.__extract_res(a, variable, None)
+                res_other['colname'] = res_other['colname'].astype("string")
                 res_other = res_other.set_index('colname')
                 res_other = res_other.loc[column_order]
                 res_other = res_other.reset_index()
                 return res_other
 
             group_height = 0.8
-            y = res['colname']
+            y = res['colname'].astype("string")
             bar_height = group_height / (len(add_plot) + 1)
             y_axis = np.arange(len(y))
 
