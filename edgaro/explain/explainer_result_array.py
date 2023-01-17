@@ -9,7 +9,6 @@ import numpy as np
 
 from typing import List, Literal, Optional, Union, Tuple
 from matplotlib.axes import Axes
-from math import log10
 
 from edgaro.explain.explainer_result import ModelProfileExplanation, ModelPartsExplanation
 
@@ -473,7 +472,7 @@ class ModelPartsExplanationArray(ExplanationArray):
     def plot_summary(self, model_filters: Optional[List[str]] = None, filter_labels: [List[str]] = None,
                      variables: Optional[List[str]] = None, max_variables: Optional[int] = None,
                      figsize: Optional[Tuple[int, int]] = None, index_base: Union[str, int] = -1,
-                     significance_level: Optional[float] = None, log_scale: bool = False) -> None:
+                     significance_level: Optional[float] = None) -> None:
         """
         The function plots boxplots of comparison metrics of VI in the object if significance_level is provided.
         Otherwise, the results of the statistical test are plotted as barplots according to the significance_level.
@@ -495,8 +494,6 @@ class ModelPartsExplanationArray(ExplanationArray):
             Maximal number of variables from the current object to be taken into account.
         significance_level : float, optional, default=None
             A significance level of the statistical test (metric).
-        log_scale : bool, default=False
-            If True, the boxplots of p-values will be plotted in the :math:`-log_{10}` scale.
 
         """
 
@@ -506,9 +503,6 @@ class ModelPartsExplanationArray(ExplanationArray):
             reject = np.sum(res <= significance_level)
             accept = n - reject
             return accept / n, reject / n
-
-        def format_func(value, tick_number):
-            return str(int((-1) * log10(value)))
 
         plt.subplots(figsize=figsize)
 
@@ -527,9 +521,7 @@ class ModelPartsExplanationArray(ExplanationArray):
                 lbl = ['All values']
 
             if significance_level is None:
-                ax = plt.boxplot(results, labels=lbl, patch_artist=True)
-                if log_scale:
-                    ax.yaxis.set_major_formatter(plt.FuncFormatter(format_func))
+                plt.boxplot(results, labels=lbl, patch_artist=True)
             else:
                 accepted, rejected = extract_accepted_rejected(results)
 
@@ -555,9 +547,7 @@ class ModelPartsExplanationArray(ExplanationArray):
                 lbl = model_filters
 
             if significance_level is None:
-                ax = plt.boxplot(results, labels=lbl, patch_artist=True)
-                if log_scale:
-                    ax.yaxis.set_major_formatter(plt.FuncFormatter(format_func))
+                plt.boxplot(results, labels=lbl, patch_artist=True)
             else:
                 accepted = []
                 rejected = []

@@ -540,6 +540,7 @@ class ModelPartsExplanation(Explanation):
         for obj in other:
             res_other = pd.DataFrame.from_dict(obj.results, orient='index').reset_index()
             res_other.columns = ['colname', 'val']
+            res_other['colname'] = res_other['colname'].astype("string")
             res_other = res_other.set_index('colname')
             res_other = res_other.loc[column_order]
             res_other = res_other.reset_index()
