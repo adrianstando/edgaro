@@ -50,11 +50,15 @@ class Model(BaseTransformer, ABC):
         Random state seed.
     verbose : bool
         Print messages during calculations.
+    majority_class_label : str, optional, default=None
+        The label of the majority class. It is recommended to pass this argument; otherwise, it will be guessed.
+        The guess may be wrong if the dataset is balanced - consequently, experiment results may be wrong. If None,
+        it will be tried to extract the information from the majority_class_label attribute of the Dataset object.
 
     """
 
-    def __init__(self, name: str = '', test_size: Optional[float] = None,
-                 random_state: Optional[int] = None, verbose: bool = False) -> None:
+    def __init__(self, name: str = '', test_size: Optional[float] = None, random_state: Optional[int] = None,
+                 verbose: bool = False, majority_class_label: Optional[str] = None) -> None:
         super().__init__()
         self.__transform_to_probabilities = False
         self.__train_dataset = None
@@ -66,6 +70,7 @@ class Model(BaseTransformer, ABC):
         self.random_state = random_state
         self.__was_fitted = False
         self.verbose = verbose
+        self.majority_class_label = majority_class_label
 
     def fit(self, dataset: Dataset, print_scores: bool = False) -> None:
         """
@@ -87,6 +92,9 @@ class Model(BaseTransformer, ABC):
         """
         if self.verbose:
             print_unbuffered(f'Model {self.__repr__()} is being fitted with {dataset.name}')
+
+        if self.majority_class_label is None and dataset.majority_class_label is not None:
+            self.majority_class_label = dataset.majority_class_label
 
         if dataset.data is None or (dataset.data is not None and len(dataset.data) == 0):
             raise Exception('The dataset has empty data!')
@@ -117,7 +125,7 @@ class Model(BaseTransformer, ABC):
                 ds.data[col] = le.fit_transform(ds.data[[col]])
                 self.__label_encoders[col] = le
 
-            self.__target_encoder = _TargetEncode()
+            self.__target_encoder = _TargetEncode(majority_class_label=self.majority_class_label)
             ds.target = self.__target_encoder.fit_transform(ds.target)
             self.__train_dataset.target = self.__target_encoder.transform(self.__train_dataset.target)
 
@@ -422,9 +430,10 @@ class Model(BaseTransformer, ABC):
 
 
 class _TargetEncode(BaseEstimator, TransformerMixin):
-    def __init__(self) -> None:
+    def __init__(self, majority_class_label: Optional[str] = None) -> None:
         self.mapping = None
         super().__init__()
+        self.majority_class_label = majority_class_label
 
     def fit(self, y: pd.Series) -> _TargetEncode:
         names, counts = np.unique(y, return_counts=True)
@@ -432,19 +441,30 @@ class _TargetEncode(BaseEstimator, TransformerMixin):
             raise Exception('The input vector is wrong!')
         elif len(names) != 2:
             raise Exception('The input vector do not has two classes!')
-        else:
-            if counts[0] < counts[1]:
-                index_min = 0
-                index_max = 1
-            else:
-                index_min = 1
-                index_max = 0
+        elif self.majority_class_label is not None:
+            names = names.tolist()
+            ind = names.index(self.majority_class_label)
+            if counts[0] == counts[1]:
+                self.mapping = {
+                    names[0 if ind == 1 else 1]: 1,
+                    names[ind]: 0
+                }
+                return self
+            elif (ind == 1 and counts[0] < counts[1]) or (ind == 0 and counts[1] < counts[0]):
+                raise Exception('Wrong majority class label!')
 
-            self.mapping = {
-                names[index_min]: 1,
-                names[index_max]: 0
-            }
-            return self
+        if counts[0] < counts[1]:
+            index_min = 0
+            index_max = 1
+        else:
+            index_min = 1
+            index_max = 0
+
+        self.mapping = {
+            names[index_min]: 1,
+            names[index_max]: 0
+        }
+        return self
 
     def transform(self, y: pd.Series) -> pd.Series:
         return y.map(self.mapping)

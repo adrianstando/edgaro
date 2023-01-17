@@ -30,6 +30,10 @@ It allows to perform all required computations for comparing and benchmarking ba
 - Parameter name `curve_type` in `Explainer` and `ExplainerArray` classes changed to `explanation_type`
 - `ExplainerResult` and `ExplainerResultArray` classes are changed to `ModelProfileExplanation` and `ModelProfileExplanationArray`
 
+### Fixed
+
+- The swap of the majority and the minority class when data after balancing is perfectly balanced
+
 ## [0.3.0] - 2023-01-02
 
 ### Added

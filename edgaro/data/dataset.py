@@ -37,6 +37,10 @@ class Dataset:
         Name of the dataset.
     verbose : bool
         Print messages during calculations.
+    majority_class_label : str, optional, default=None
+        The label of the majority class. It is recommended to set this attribute; otherwise, it will be guessed while
+        encoding in the `model` module. The guess may be wrong only if the dataset is balanced - consequently,
+        experiment results may be wrong.
     """
 
     def __init__(self, name: str, dataframe: Optional[pd.DataFrame], target: Optional[pd.Series],
@@ -52,6 +56,8 @@ class Dataset:
 
         self.__train_dataset: Optional[Dataset] = None
         self.__test_dataset: Optional[Dataset] = None
+
+        self.majority_class_label = None
 
         if self.verbose:
             print_unbuffered(f'Dataset {self.__repr__()} created')

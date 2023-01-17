@@ -1,5 +1,6 @@
 import warnings
 import pandas as pd
+import numpy as np
 
 from abc import ABC, abstractmethod
 from typing import Dict, Protocol, Any, Tuple, Optional, List, Union
@@ -105,6 +106,12 @@ class Transformer(BaseTransformer, ABC):
 
         if self.verbose:
             print_unbuffered(f'Transformer {self.__repr__()} transformed with {dataset.name}')
+
+        if dataset.majority_class_label is None:
+            names, counts = np.unique(dataset.target, return_counts=True)
+            out.majority_class_label = names[1 if counts[0] < counts[1] else 0]
+        else:
+            out.majority_class_label = dataset.majority_class_label
 
         return out
 
