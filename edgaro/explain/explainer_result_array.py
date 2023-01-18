@@ -9,6 +9,7 @@ import numpy as np
 
 from typing import List, Literal, Optional, Union, Tuple
 from matplotlib.axes import Axes
+from statsmodels.stats.multitest import fdrcorrection
 
 from edgaro.explain.explainer_result import ModelProfileExplanation, ModelPartsExplanation
 
@@ -472,7 +473,7 @@ class ModelPartsExplanationArray(ExplanationArray):
     def plot_summary(self, model_filters: Optional[List[str]] = None, filter_labels: [List[str]] = None,
                      variables: Optional[List[str]] = None, max_variables: Optional[int] = None,
                      figsize: Optional[Tuple[int, int]] = None, index_base: Union[str, int] = -1,
-                     significance_level: Optional[float] = None) -> None:
+                     significance_level: Optional[float] = None, fdr_correction: bool = True) -> None:
         """
         The function plots boxplots of comparison metrics of VI in the object if significance_level is provided.
         Otherwise, the results of the statistical test are plotted as barplots according to the significance_level.
@@ -494,6 +495,8 @@ class ModelPartsExplanationArray(ExplanationArray):
             Maximal number of variables from the current object to be taken into account.
         significance_level : float, optional, default=None
             A significance level of the statistical test (metric).
+        fdr_correction : bool, default=True
+            Add p-value correction for false discovery rate.
 
         """
 
@@ -511,6 +514,9 @@ class ModelPartsExplanationArray(ExplanationArray):
                                    return_raw=True, max_variables=max_variables)
 
             results = ModelPartsExplanationArray.__flatten(results)
+
+            if significance_level is not None and fdr_correction:
+                _, results = fdrcorrection(results, significance_level)
 
             if filter_labels is not None:
                 if len(filter_labels) == 1:
@@ -545,6 +551,15 @@ class ModelPartsExplanationArray(ExplanationArray):
                     raise Exception('Incorrect length of filter_labels!')
             else:
                 lbl = model_filters
+
+            if significance_level is not None and fdr_correction:
+                res_lengths = [len(r) for r in results]
+                flat_results = [item for sublist in results for item in sublist]
+                _, flat_results = fdrcorrection(flat_results, significance_level)
+                q = 0
+                for i in range(len(results)):
+                    results[i] = flat_results[q:(q+res_lengths[i])]
+                    q += res_lengths[i]
 
             if significance_level is None:
                 plt.boxplot(results, labels=lbl, patch_artist=True)

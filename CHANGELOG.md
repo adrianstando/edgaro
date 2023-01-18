@@ -13,7 +13,7 @@ This is the first official release of the package.
 
 It allows to perform all required computations for comparing and benchmarking balancing methods.
 
-## [Unreleased] - 2023-01-17
+## [0.4.0] - 2023-01-18
 
 ### Added
 
@@ -22,6 +22,7 @@ It allows to perform all required computations for comparing and benchmarking ba
 - Variable Importance explanation in `ModelPartsExplanation` and `ModelPartsExplanationArray` classes in `explain` module
 - Parameter name `curve_type` in `ModelPartsExplanation` and `ModelPartsExplanationArray` (previously `ExplainerResult` and `ExplainerResultArray`) changed to `explanation_type`
 - Variable Importance comparison metric based on Wilcoxon statistical test
+- FDR correction on the results of multiple Wilcoxon statistical tests
 - Variable Importance plots and summary plots
 
 ### Changed
