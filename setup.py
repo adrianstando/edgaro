@@ -7,7 +7,7 @@ long_description = (here / "README.md").read_text(encoding="utf-8")
 
 setup(
     name="edgaro",
-    version="0.3.0",
+    version="0.4.0",
     # version="1.0.0",
     description="Explainable imbalanceD learninG compARatOr",
     long_description=long_description,
@@ -34,10 +34,10 @@ setup(
     python_requires=">=3.8, <4",
     install_requires=[
         'setuptools',
-        'pandas>=1.2.5',
+        'pandas>=1.4.4',
         'numpy>=1.20.3',
         'dalex>=1.5.0',
-        'imbalanced-learn>=0.9.1',
+        'imbalanced-learn>=0.10.1',
         'matplotlib>=3.4.3',
         'openml>=0.12.2',
         'pandas-profiling>=3.3.0',
@@ -45,7 +45,8 @@ setup(
         'scikit-learn>=1.1.0',
         'imblearn>=0.0',
         'xgboost>=1.5.0',
-        'scipy>=1.7.3'
+        'scipy>=1.7.3',
+        'statsmodels>=0.13.2'
     ],
     project_urls={
         # "Documentation": "https://adrianstando.github.io/edgaro",
