@@ -31,9 +31,9 @@ class Curve:
         Points on 0Y axis.
     """
 
-    def __init__(self, x: ndarray, y: ndarray) -> None:
-        self.x = x
-        self.y = y
+    def __init__(self, x: Optional[ndarray, pd.Series], y: Optional[ndarray, pd.Series]) -> None:
+        self.x = x if not isinstance(x, pd.Series) else x.reset_index(drop=True)
+        self.y = y if not isinstance(y, pd.Series) else y.reset_index(drop=True)
 
     def __str__(self) -> str:
         return f"Curve with {len(self.x)} points\nx:\n" + str(self.x) + "\ny:\n" + str(self.y)
@@ -318,9 +318,18 @@ class ModelProfileExplanation(Explanation):
         return result_tab
 
     def __calculate_metrics_one_variable(self, variable: str, explain_results: List[ModelProfileExplanation]):
+
+        def dist(res):
+            y1 = res[variable].y
+            y1 = y1.reset_index(drop=True) if isinstance(y1, pd.Series) else y1
+
+            y2 = self[variable].y
+            y2 = y2.reset_index(drop=True) if isinstance(y2, pd.Series) else y2
+            return y1 - y2
+
         result_tab = []
         distances_to_original = [
-            res[variable].y - self[variable].y
+            dist(res)
             for res in explain_results
         ]
 
