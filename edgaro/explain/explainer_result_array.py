@@ -502,7 +502,7 @@ class ModelPartsExplanationArray(ExplanationArray):
         significance_level : float, optional, default=None
             A significance level of the statistical test (metric).
         fdr_correction : bool, default=True
-            Add p-value correction for false discovery rate.
+            Add p-value correction for false discovery rate. Note that it is used only if significance_level is not None.
         return_df : bool, default=False
             If True, the method returns a dataframe on which a plot is created.
 
