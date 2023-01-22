@@ -252,7 +252,7 @@ class ModelProfileExplanationArray(ExplanationArray):
 
     def plot_summary(self, model_filters: Optional[List[str]] = None, filter_labels: [List[str]] = None,
                      variables: Optional[List[str]] = None, figsize: Optional[Tuple[int, int]] = None,
-                     index_base: Union[str, int] = -1):
+                     index_base: Union[str, int] = -1, return_df: bool = False):
         """
         The function plots boxplots of comparison metrics of curves in the object.
 
@@ -270,6 +270,8 @@ class ModelProfileExplanationArray(ExplanationArray):
             Labels of model filters.
         index_base : int, str, default=-1
             Index of a curve to be a base for comparisons.
+        return_df : bool, default=False
+            If True, the method returns a dataframe on which a plot is created.
         """
 
         fig, ax = plt.subplots(figsize=figsize)
@@ -319,6 +321,9 @@ class ModelProfileExplanationArray(ExplanationArray):
                     raise Exception('Incorrect length of filter_labels!')
             else:
                 plt.boxplot(results, patch_artist=True, labels=model_filters)
+
+        if return_df:
+            return results
 
     def __str__(self) -> str:
         return f"ModelProfileExplanationArray {self.name} for {len(self.results)} variables: {list(self.results)} with {self.explanation_type} curve type"
@@ -473,7 +478,8 @@ class ModelPartsExplanationArray(ExplanationArray):
     def plot_summary(self, model_filters: Optional[List[str]] = None, filter_labels: [List[str]] = None,
                      variables: Optional[List[str]] = None, max_variables: Optional[int] = None,
                      figsize: Optional[Tuple[int, int]] = None, index_base: Union[str, int] = -1,
-                     significance_level: Optional[float] = None, fdr_correction: bool = True) -> None:
+                     significance_level: Optional[float] = None, fdr_correction: bool = True,
+                     return_df: bool = False) -> None:
         """
         The function plots boxplots of comparison metrics of VI in the object if significance_level is provided.
         Otherwise, the results of the statistical test are plotted as barplots according to the significance_level.
@@ -497,6 +503,8 @@ class ModelPartsExplanationArray(ExplanationArray):
             A significance level of the statistical test (metric).
         fdr_correction : bool, default=True
             Add p-value correction for false discovery rate.
+        return_df : bool, default=False
+            If True, the method returns a dataframe on which a plot is created.
 
         """
 
@@ -558,7 +566,7 @@ class ModelPartsExplanationArray(ExplanationArray):
                 _, flat_results = fdrcorrection(flat_results, significance_level)
                 q = 0
                 for i in range(len(results)):
-                    results[i] = flat_results[q:(q+res_lengths[i])]
+                    results[i] = flat_results[q:(q + res_lengths[i])]
                     q += res_lengths[i]
 
             if significance_level is None:
@@ -591,6 +599,9 @@ class ModelPartsExplanationArray(ExplanationArray):
             plt.title(
                 f'Summary of {self.explanation_type} for {self.name} with p-value significance level {significance_level}')
             plt.xlabel('Filter')
+
+        if return_df:
+            return results
 
     @staticmethod
     def __flatten(lst):
