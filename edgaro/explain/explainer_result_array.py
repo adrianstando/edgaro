@@ -113,7 +113,7 @@ class ModelProfileExplanationArray(ExplanationArray):
                                                                                     model_filter)
 
     def plot(self, variables: Optional[List[str]] = None, n_col: int = 3, figsize: Optional[Tuple[int, int]] = None,
-             model_filter: Optional[str] = None, index_base: Union[str, int] = -1, ):
+             model_filter: Optional[str] = None, index_base: Union[str, int] = -1, centered: bool = False):
         """
         The function plots the PDP/ALE curves for given variables using all available Curves in the object.
 
@@ -130,6 +130,9 @@ class ModelProfileExplanationArray(ExplanationArray):
             The size of a figure. If None, the figure size is calculates as (8 * n_col, 8 * n_rows).
         model_filter : str, optional, default=None
             A regex expression to filter the names of the ModelProfileExplanation objects for comparing.
+        centered : bool, default = False
+            If True, the plots will be centered to start at 0.
+
         """
         if variables is None:
             col_names = []
@@ -165,7 +168,8 @@ class ModelProfileExplanationArray(ExplanationArray):
                 add_plot=[results[j] for j in range(1, len(results))],
                 variable=variables[i],
                 ax=ax_to_pass,
-                show_legend=False
+                show_legend=False,
+                centered=centered
             )
 
         fig.tight_layout(rect=[0, 0.05, 1, 0.97])

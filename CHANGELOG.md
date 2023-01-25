@@ -24,6 +24,7 @@ It allows to perform all required computations for comparing and benchmarking ba
 - Variable Importance comparison metric based on Wilcoxon statistical test
 - FDR correction on the results of multiple Wilcoxon statistical tests
 - Variable Importance plots and summary plots
+- Centering the ModelProfile plots
 
 ### Changed
 

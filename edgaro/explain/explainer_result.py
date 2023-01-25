@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import warnings
 import numpy as np
 import pandas as pd
@@ -98,8 +99,8 @@ class ModelProfileExplanation(Explanation):
 
     def plot(self, variable: Optional[str] = None, figsize: Optional[Tuple[int, int]] = (8, 8),
              add_plot: Optional[List[ModelProfileExplanation]] = None, ax: Optional[Axes] = None,
-             show_legend: bool = True, y_lim: Optional[Tuple[float, float]] = None, metric_precision: int = 2
-             ) -> None:
+             show_legend: bool = True, y_lim: Optional[Tuple[float, float]] = None, metric_precision: int = 2,
+             centered: bool = False) -> None:
         """
         The function plots the PDP/ALE curve.
 
@@ -120,6 +121,8 @@ class ModelProfileExplanation(Explanation):
             The limits of 0Y axis.
         metric_precision : int, default=5
             Number of digits to round the value of `metric value*10^5`.
+        centered : bool, default = False
+            If True, the plots will be centered to start at 0.
 
         """
         if figsize is None and ax is None:
@@ -130,7 +133,7 @@ class ModelProfileExplanation(Explanation):
 
         if add_plot is None:
             ModelProfileExplanation.__plot_not_add(self.results, self.categorical_columns, self.explanation_type, self.name,
-                                                   variable, ax, figsize, show_legend, y_lim)
+                                                   variable, ax, figsize, show_legend, y_lim, centered)
         else:
             curve_base = self.results[variable]
             if curve_base is None:
@@ -143,15 +146,15 @@ class ModelProfileExplanation(Explanation):
             if len(curves_add) == 0:
                 warnings.warn(f'None of the added plots have variable called {variable}!')
                 ModelProfileExplanation.__plot_not_add(self.results, self.categorical_columns, self.explanation_type,
-                                                       self.name, variable, ax, figsize, show_legend, y_lim)
+                                                       self.name, variable, ax, figsize, show_legend, y_lim, centered)
             else:
                 self.__plot_add(variable, ax, figsize, curve_base, curves_add, add_plot, show_legend,
-                                y_lim, metric_precision)
+                                y_lim, metric_precision, centered)
         plt.ylabel(self.explanation_type)
 
     @staticmethod
     def __plot_not_add(results, categorical_columns, explanation_type, name, variable, ax, figsize, show_legend,
-                       y_lim) -> None:
+                       y_lim, centered) -> None:
         curve = results[variable]
         if curve is None:
             raise Exception('Variable is not available!')
@@ -161,10 +164,12 @@ class ModelProfileExplanation(Explanation):
         elif figsize is not None:
             plt.subplots(figsize=figsize)
 
+        x, y = ModelProfileExplanation.__get_x_y(curve, centered)
+
         if variable not in categorical_columns:
-            plt.plot(curve.x, curve.y)
+            plt.plot(x, y)
         else:
-            plt.bar(curve.x, curve.y)
+            plt.bar(x, y)
 
         if explanation_type == 'PDP':
             plt.title("PDP curve for variable: " + variable)
@@ -180,24 +185,38 @@ class ModelProfileExplanation(Explanation):
             plt.ylim(y_lim)
 
     @staticmethod
-    def __plot_add_continuous(ax, figsize, curve_base, curves_add) -> None:
+    def __get_x_y(curve, centered):
+        x = curve.x
+        y = copy.deepcopy(curve.y)
+        if centered:
+            y = y - y[0]
+        return x, y
+
+    @staticmethod
+    def __plot_add_continuous(ax, figsize, curve_base, curves_add, centered) -> None:
         if ax is not None:
             plt.sca(ax)
         elif figsize is not None:
             plt.subplots(figsize=figsize)
 
-        plt.plot(curve_base.x, curve_base.y)
+        x, y = ModelProfileExplanation.__get_x_y(curve_base, centered)
+        plt.plot(x, y)
         for curve in curves_add:
-            plt.plot(curve.x, curve.y)
+            x, y = ModelProfileExplanation.__get_x_y(curve, centered)
+            plt.plot(x, y)
 
     @staticmethod
-    def __plot_add_categorical(name, variable, ax, figsize, curve_base, curves_add, add_plot_names, title) -> None:
+    def __plot_add_categorical(name, variable, ax, figsize, curve_base, curves_add, add_plot_names, title, centered) -> None:
+        _, y = ModelProfileExplanation.__get_x_y(curve_base, centered)
+
         df = pd.DataFrame({
             'x': curves_add[0].x,
-            name: curve_base.y
+            name: y
         })
+
         for i in range(len(curves_add)):
-            df[add_plot_names[i]] = curves_add[i].y
+            _, y = ModelProfileExplanation.__get_x_y(curves_add[i], centered)
+            df[add_plot_names[i]] = y
 
         if ax is not None:
             df.plot(x='x', kind='bar', ax=ax, legend=False, xlabel=variable, title=title)
@@ -207,7 +226,7 @@ class ModelProfileExplanation(Explanation):
         plt.xticks(rotation=0)
 
     def __plot_add(self, variable, ax, figsize, curve_base, curves_add, add_plot, show_legend,
-                   y_lim, metric_precision) -> None:
+                   y_lim, metric_precision, centered) -> None:
         curves_add = [c for c in curves_add if c is not None]
         add_plot_names = [c.name for c in add_plot if c.results[variable] is not None]
 
@@ -218,12 +237,13 @@ class ModelProfileExplanation(Explanation):
                 p += 1
 
         if variable not in self.categorical_columns:
-            ModelProfileExplanation.__plot_add_continuous(ax, figsize, curve_base, curves_add)
+            ModelProfileExplanation.__plot_add_continuous(ax, figsize, curve_base, curves_add, centered)
             plt.title(f"{self.explanation_type} curve for variable: " + variable)
         else:
             ModelProfileExplanation.__plot_add_categorical(self.name, variable, ax, figsize,
                                                            curve_base, curves_add, add_plot_names,
-                                                           f"{self.explanation_type} curve for variable: " + variable)
+                                                           f"{self.explanation_type} curve for variable: " + variable,
+                                                           centered)
 
         if show_legend:
             plt.legend([self.name] + add_plot_names)
