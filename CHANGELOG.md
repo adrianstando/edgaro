@@ -13,6 +13,12 @@ This is the first official release of the package.
 
 It allows to perform all required computations for comparing and benchmarking balancing methods.
 
+## [0.5.0] - 2023-01-26
+
+### Added
+
+- Centering the ModelProfile plots
+
 ## [0.4.0] - 2023-01-18
 
 ### Added
@@ -24,7 +30,6 @@ It allows to perform all required computations for comparing and benchmarking ba
 - Variable Importance comparison metric based on Wilcoxon statistical test
 - FDR correction on the results of multiple Wilcoxon statistical tests
 - Variable Importance plots and summary plots
-- Centering the ModelProfile plots
 
 ### Changed
 
