@@ -41,6 +41,7 @@ jobs:
          python-version: '3.9'
      - name: Install dependencies
        run: |
+         sudo apt install pandoc
          pip install sphinx sphinx-rtd-theme docutils==0.17
          pip install myst-parser
          pip install nbsphinx
