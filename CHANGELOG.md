@@ -24,6 +24,10 @@ It allows to perform all required computations for comparing and benchmarking ba
 - `AutomaticTransformer` and `ExtensionAutomaticTransformer` contain smaller number of methods
 - `protein_homo` dataset removed from the benchmarking set
 
+### Fixed
+
+- Bug with plotting from `ModelProfileExplanationArray` only one variable in one column
+
 ## [0.4.0] - 2023-01-18
 
 ### Added

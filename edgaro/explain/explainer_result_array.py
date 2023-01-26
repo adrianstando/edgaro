@@ -161,8 +161,13 @@ class ModelProfileExplanationArray(ExplanationArray):
         fig, axes = plt.subplots(n_rows, n_col, figsize=figsize)
 
         for i in range(len(variables)):
-            ax_to_pass = axes[math.floor(i / n_col)][i - n_col * math.floor(i / n_col)] \
-                if n_rows > 1 else axes[math.floor(i / n_col)]
+            if n_rows > 1:
+                ax_to_pass = axes[math.floor(i / n_col)][i - n_col * math.floor(i / n_col)]
+            else:
+                if n_col > 1:
+                    ax_to_pass = axes[math.floor(i / n_col)]
+                else:
+                    ax_to_pass = axes
 
             results[0].plot(
                 add_plot=[results[j] for j in range(1, len(results))],
@@ -266,7 +271,7 @@ class ModelProfileExplanationArray(ExplanationArray):
             Variables for which the plot should be generated. If None, plots for all variables are generated if all the
             available ModelProfileExplanation objects have exactly the same set of column names.
         figsize : tuple(int, int), optional, default=None
-            The size of a figure. If None, the figure size is calculates as (8 * n_col, 8 * n_rows).
+            The size of a figure.
         model_filters : list[str], optional, default=None
             List of regex expressions to filter the names of the ModelProfileExplanation objects for comparing.
             Each element in the list creates a new boxplot. If None, one boxplot of all results is plotted.
