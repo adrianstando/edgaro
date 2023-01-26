@@ -19,6 +19,10 @@ It allows to perform all required computations for comparing and benchmarking ba
 
 - Centering the ModelProfile plots
 
+### Changed
+
+- `AutomaticTransformer` and `ExtensionAutomaticTransformer` contain smaller number of methods
+
 ## [0.4.0] - 2023-01-18
 
 ### Added

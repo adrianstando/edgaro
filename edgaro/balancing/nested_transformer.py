@@ -396,9 +396,8 @@ class ExtensionAutomaticTransformer(NestedAutomaticTransformer):
     """
     Create ExtensionAutomaticTransformer.
 
-    This object contains eight methods implemented in imblearn. There are methods used for oversampling
-    (BorderlineSMOTE, KMeansSMOTE, SVMSMOTE, ADASYN), undersampling (ClusterCentroids, NearMiss)
-    and there are also mixed methods (SMOTEENN, SMOTETomek).
+    This object contains three more complex methods implemented in imblearn. There are methods used for oversampling
+    (BorderlineSMOTE), undersampling (NearMiss) and there is also a hybrid method (SMOTETomek).
 
     This class can be used only for continuous (numerical) data.
 
@@ -427,23 +426,13 @@ class ExtensionAutomaticTransformer(NestedAutomaticTransformer):
 
         super().__init__(
             base_transformers=[
-                TransformerFromIMBLEARN(ClusterCentroids()),
                 TransformerFromIMBLEARN(NearMiss()),
                 TransformerFromIMBLEARN(BorderlineSMOTE()),
-                TransformerFromIMBLEARN(KMeansSMOTE()),
-                TransformerFromIMBLEARN(SVMSMOTE()),
-                TransformerFromIMBLEARN(ADASYN()),
-                TransformerFromIMBLEARN(SMOTEENN()),
                 TransformerFromIMBLEARN(SMOTETomek())
             ],
             base_transformers_names=[
-                'UNDERSAMPLING__Cluster_Centroids',
                 'UNDERSAMPLING__Near_Miss',
                 'OVERSAMPLING__Borderline_SMOTE',
-                'OVERSAMPLING__KMeans_SMOTE',
-                'OVERSAMPLING__SVM_SMOTE',
-                'OVERSAMPLING__ADASYN',
-                'COMBINED__SMOTE_ENN',
                 'COMBINED__SMOTE_Tomek'
             ],
             keep_original_dataset=keep_original_dataset, result_array_sufix=result_array_sufix,
@@ -466,9 +455,9 @@ class AutomaticTransformer(NestedAutomaticTransformer):
     """
     Create AutomaticTransformer.
 
-    This object contains eleven methods implemented in imblearn. There are methods used for oversampling
-    (RandomOverSampling, BorderlineSMOTE, KMeansSMOTE, SVMSMOTE, ADASYN), undersampling (RandomUnderSampling,
-    ClusterCentroids, NearMiss) and there are also mixed methods (SMOTEENN, SMOTETomek).
+    This object contains six methods implemented in imblearn. There are methods used for oversampling
+    (RandomOverSampling, BorderlineSMOTE), undersampling (RandomUnderSampling, NearMiss) and there is also a
+    hybrid method (SMOTETomek).
 
     This class can be used only for continuous (numerical) data.
 
@@ -498,28 +487,18 @@ class AutomaticTransformer(NestedAutomaticTransformer):
         super().__init__(
             base_transformers=[
                 RandomUnderSampler(),
-                TransformerFromIMBLEARN(ClusterCentroids()),
                 TransformerFromIMBLEARN(NearMiss()),
                 RandomOverSampler(),
                 SMOTE(),
                 TransformerFromIMBLEARN(BorderlineSMOTE()),
-                TransformerFromIMBLEARN(KMeansSMOTE()),
-                TransformerFromIMBLEARN(SVMSMOTE()),
-                TransformerFromIMBLEARN(ADASYN()),
-                TransformerFromIMBLEARN(SMOTEENN()),
                 TransformerFromIMBLEARN(SMOTETomek())
             ],
             base_transformers_names=[
                 'UNDERSAMPLING__Random',
-                'UNDERSAMPLING__Cluster_Centroids',
                 'UNDERSAMPLING__Near_Miss',
                 'OVERSAMPLING__Random',
                 'OVERSAMPLING__SMOTE',
                 'OVERSAMPLING__Borderline_SMOTE',
-                'OVERSAMPLING__KMeans_SMOTE',
-                'OVERSAMPLING__SVM_SMOTE',
-                'OVERSAMPLING__ADASYN',
-                'COMBINED__SMOTE_ENN',
                 'COMBINED__SMOTE_Tomek'
             ],
             keep_original_dataset=keep_original_dataset, result_array_sufix=result_array_sufix,
