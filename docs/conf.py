@@ -32,6 +32,7 @@ release = '0.4.0'
 # ones.
 extensions = [
     'sphinx.ext.napoleon',
+    'nbsphinx',
     'myst_parser'
 ]
 

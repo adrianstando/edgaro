@@ -43,6 +43,7 @@ jobs:
        run: |
          pip install sphinx sphinx-rtd-theme docutils==0.17
          pip install myst-parser
+         pip install nbsphinx
      - name: Sphinx build
        run: |
          sphinx-build docs _build

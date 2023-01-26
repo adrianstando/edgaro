@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to edgaro's documentation!
-==================================
+edgaro's documentation
+======================
 
 .. toctree::
    :hidden:
@@ -21,6 +21,13 @@ Welcome to edgaro's documentation!
    :caption: User manual:
 
    source/manual
+
+.. toctree::
+   :hidden:
+   :maxdepth: 2
+   :caption: Engineering Thesis:
+
+   files/Codes
 
 .. toctree::
    :hidden:
