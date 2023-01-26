@@ -18,6 +18,7 @@ It allows to perform all required computations for comparing and benchmarking ba
 ### Added
 
 - Centering the ModelProfile plots
+- Package description in README
 
 ### Changed
 

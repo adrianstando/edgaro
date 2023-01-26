@@ -63,7 +63,10 @@ datasets (inside the object) and removing ``None`` values.
    df_array.train_test_split(test_size=0.2)
 
 It is also possible to load an example ``DatasetArray``, which can be
-used for benchmarking.
+used for benchmarking. It contains selected datasets for benchmarking
+purposes from three main sources (*OpenML-100*, *OpenML-CC18* and
+*imbalanced-learn* library). The details concerning the benchmarking set
+are available https://github.com/adrianstando/imbalanced-benchmarking-set.
 
 ::
 
