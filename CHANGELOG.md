@@ -22,6 +22,7 @@ It allows to perform all required computations for comparing and benchmarking ba
 ### Changed
 
 - `AutomaticTransformer` and `ExtensionAutomaticTransformer` contain smaller number of methods
+- `protein_homo` dataset removed from the benchmarking set
 
 ## [0.4.0] - 2023-01-18
 

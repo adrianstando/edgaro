@@ -401,7 +401,7 @@ def load_benchmarking_set(apikey: Optional[str] = None, keep_categorical: bool =
         for col in list(d.select_dtypes(['uint8', 'int']).columns):
             convert_to_float(ds_array, dataset_name, col)
 
-    exclude_global = ['nomao', 'Internet-Advertisements', 'isolet', 'sylva_agnostic', 'webpage', 'scene']
+    exclude_global = ['nomao', 'Internet-Advertisements', 'isolet', 'sylva_agnostic', 'webpage', 'scene', 'protein_homo']
 
     # OpenML-CC18
     df_openml = DatasetArrayFromOpenMLSuite('OpenML-CC18', apikey=apikey)
@@ -518,11 +518,11 @@ def load_benchmarking_set(apikey: Optional[str] = None, keep_categorical: bool =
 
     # `protein_homo` dataset is very big and after balancing, for example to `IR=1`, it would have gigantic sizes
     # therefore, only subset of this dataset will be included in research
-    for df in df_tab:
-        if df.name == 'protein_homo':
-            X, _, y, _ = train_test_split(df.data, df.target, train_size=30000, stratify=df.target, random_state=42)
-            df.data = X
-            df.target = y
+    # for df in df_tab:
+    #     if df.name == 'protein_homo':
+    #         X, _, y, _ = train_test_split(df.data, df.target, train_size=30000, stratify=df.target, random_state=42)
+    #         df.data = X
+    #         df.target = y
 
     if not keep_categorical:
         for i in range(len(df_tab)):
