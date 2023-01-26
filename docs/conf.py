@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath('../'))
 # -- Project information -----------------------------------------------------
 
 project = 'edgaro'
-copyright = '2022, Adrian Stańdo'
+copyright = '2023, Adrian Stańdo'
 author = 'Adrian Stańdo'
 
 # The full version, including alpha/beta/rc tags
