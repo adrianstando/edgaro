@@ -450,7 +450,7 @@ class _TargetEncode(BaseEstimator, TransformerMixin):
                     names[ind]: 0
                 }
                 return self
-            elif (ind == 1 and counts[0] < counts[1]) or (ind == 0 and counts[1] < counts[0]):
+            elif (ind == 1 and counts[0] > counts[1]) or (ind == 0 and counts[1] > counts[0]):
                 raise Exception('Wrong majority class label!')
 
         if counts[0] < counts[1]:
