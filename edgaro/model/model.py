@@ -444,14 +444,18 @@ class _TargetEncode(BaseEstimator, TransformerMixin):
         elif self.majority_class_label is not None:
             names = names.tolist()
             ind = names.index(self.majority_class_label)
-            if counts[0] == counts[1]:
-                self.mapping = {
-                    names[0 if ind == 1 else 1]: 1,
-                    names[ind]: 0
+
+            if (ind == 1 and counts[0] > counts[1]) or (ind == 0 and counts[1] > counts[0]):
+                print('Majority class label may be wrong!')
+                print('It may be an error or a result of undersampling method ' +
+                      '(it might have happened that there is less observations in the initial majority class ' +
+                      'then in the initial minority class)!')
+
+            self.mapping = {
+                names[0 if ind == 1 else 1]: 1,
+                names[ind]: 0
                 }
-                return self
-            elif (ind == 1 and counts[0] > counts[1]) or (ind == 0 and counts[1] > counts[0]):
-                raise Exception('Wrong majority class label!')
+            return self
 
         if counts[0] < counts[1]:
             index_min = 0
