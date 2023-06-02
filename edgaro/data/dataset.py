@@ -225,9 +225,15 @@ class Dataset:
         """
         float : Imbalance Ratio of the Dataset; is the ratio of the majority class to the minority class
         """
-        if self.target is None:
+        if self.was_split:
+            y = self.train.target
+        else:
+            y = self.target
+
+        if y is None:
             return float(0)
-        names, counts = np.unique(self.target, return_counts=True)
+
+        names, counts = np.unique(y, return_counts=True)
         if len(names) == 1:
             return float(0)
         elif len(names) > 2:
