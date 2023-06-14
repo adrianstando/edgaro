@@ -6,7 +6,8 @@ import sys
 import os
 import multiprocessing
 
-from typing import List, Optional, Literal
+from typing import List, Optional, Literal, Callable
+from sklearn.metrics import balanced_accuracy_score
 
 from edgaro.data.dataset import Dataset
 from edgaro.model.model import Model
@@ -44,6 +45,10 @@ class Explainer:
         Random state seed.
     B : int, optional, default=10
         Number of permutation rounds to perform on each variable - applicable only if explanation_type='VI'.
+    performance_metric_name : str, default='balanced_accuracy'
+        Name of the performance metric.
+    performance_metric : callable, default=balanced_accuracy_score
+        Name of the performance metric.
 
     Attributes
     ----------
@@ -67,6 +72,10 @@ class Explainer:
         Random state seed
     B : int, optional
         Number of permutation rounds to perform on each variable - applicable only if explanation_type='VI'.
+    performance_metric_name : str
+        Name of the performance metric.
+    performance_metric : callable
+        Name of the performance metric.
 
     References
     ----------
@@ -77,7 +86,8 @@ class Explainer:
 
     def __init__(self, model: Model, N: Optional[int] = None, explanation_type: Literal['PDP', 'ALE', 'VI'] = 'PDP',
                  verbose: bool = False, processes: int = 1, random_state: Optional[int] = None,
-                 B: Optional[int] = 10) -> None:
+                 B: Optional[int] = 10, performance_metric_name: str = 'balanced_accuracy',
+                 performance_metric: Callable[[pd.Series, pd.Series], float] = balanced_accuracy_score) -> None:
         self.model = model
         self.explainer = None
         self.name = model.name
@@ -87,6 +97,8 @@ class Explainer:
         self.processes = processes
         self.random_state = random_state
         self.B = B
+        self.performance_metric_name = performance_metric_name
+        self.performance_metric = performance_metric
 
         if self.processes == -1:
             self.processes = multiprocessing.cpu_count()
@@ -134,6 +146,9 @@ class Explainer:
         -------
         Explanation
         """
+        performance = self.model.evaluate(metrics_output_class=[self.performance_metric])
+        performance = performance['value'].iloc[0]
+
         if self.explainer is None:
             raise Exception('Explainer was not fitted!')
         category_colnames_base = self.model.get_category_colnames()
@@ -156,7 +171,8 @@ class Explainer:
                 print_unbuffered(f'{self.explanation_type} was calculated calculated in {self.__repr__()} for '
                                  f'{self.model.get_test_dataset().name}')
 
-            return ModelProfileExplanation(dict_output, self.name, self.model.get_category_colnames())
+            return ModelProfileExplanation(dict_output, self.name, self.model.get_category_colnames(),
+                                           performance, self.performance_metric_name)
         elif self.explanation_type == 'VI':
             explanation_type = 'variable_importance'
             self.__transform_feature_importance(dict_output, variables, explanation_type)
@@ -165,7 +181,8 @@ class Explainer:
                 print_unbuffered(f'{self.explanation_type} was calculated calculated in {self.__repr__()} for '
                                  f'{self.model.get_test_dataset().name}')
 
-            return ModelPartsExplanation(dict_output, self.name)
+            return ModelPartsExplanation(dict_output, self.name,
+                                         performance, self.performance_metric_name)
         else:
             raise Exception('Wrong curve type!')
 

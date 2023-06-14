@@ -4,10 +4,14 @@ import math
 import re
 
 from abc import ABC, abstractmethod
+
+import matplotlib.axes
 import matplotlib.pyplot as plt
 import numpy as np
 
 from typing import List, Literal, Optional, Union, Tuple
+
+import pandas as pd
 from matplotlib.axes import Axes
 from statsmodels.stats.multitest import fdrcorrection
 
@@ -28,6 +32,10 @@ class ExplanationArray(ABC):
 
     @abstractmethod
     def plot_summary(self) -> None:
+        pass
+
+    @abstractmethod
+    def compare_performance(self) -> List[Union[float, List]]:
         pass
 
 
@@ -181,6 +189,67 @@ class ModelProfileExplanationArray(ExplanationArray):
         fig.legend([x.name for x in results], ncol=n_col, loc='lower center')
         plt.suptitle(f"{self.explanation_type} curves for {self.name}", fontsize=18)
 
+    def __filter_for_comparing(self, index_base, model_filter):
+        if isinstance(index_base, int) and index_base < 0:
+            index_base = self.results.index(self.results[index_base])
+
+        def filter_objects(obj):
+            if model_filter is not None and \
+                    re.search(model_filter, obj.name) is None:
+                return False
+            return True
+
+        def flatten(lst):
+            out = []
+            for i in range(len(lst)):
+                if not (isinstance(lst[i], list) or isinstance(lst[i], ModelProfileExplanationArray)):
+                    out.append(lst[i])
+                else:
+                    tmp = flatten(lst[i])
+                    out = out + tmp
+            return out
+
+        base_model = self[index_base]
+        if base_model is None:
+            raise Exception('Wrong index_base argument!')
+
+        res = flatten(self.results)
+        res.remove(self.results[index_base])
+
+        tab = [res[i] for i in range(len(res)) if filter_objects(res[i])]
+        return base_model, tab
+
+    def compare_performance(self, index_base: Union[str, int] = -1, model_filter: Optional[str] = None,
+                            percent: bool = False) -> List[Union[float, List]]:
+        """
+        The function returns the difference between performance metric values. index_base-object's value is subtracted
+        from others.
+
+        Parameters
+        ----------
+        index_base : int, str, default=-1
+                    Index of a curve to be a base for comparisons.
+        model_filter : str, optional, default=None
+            A regex expression to filter the names of the ModelProfileExplanation objects for comparing.
+        percent : bool, default=False
+            If True, the percentage change will we returned instead of difference.
+
+        Returns
+        ----------
+        list[float, list]
+        """
+
+        if isinstance(self.results[index_base], ModelProfileExplanation):
+            base_model, tab = self.__filter_for_comparing(index_base, model_filter)
+            return base_model.compare_performance(tab, percent=percent)
+        elif np.alltrue([isinstance(res, ModelProfileExplanationArray) for res in self.results]):
+            return [
+                res.compare_performance(index_base=index_base, model_filter=model_filter, percent=percent)
+                for res in self.results
+            ]
+        else:
+            raise Exception('Wrong result structure!')
+
     def compare(self, variable: Optional[Union[str, List[str]]] = None, index_base: Union[str, int] = -1,
                 return_raw: bool = True, return_raw_per_variable: bool = True, model_filter: Optional[str] = None) \
             -> List[Union[float, List]]:
@@ -208,38 +277,11 @@ class ModelProfileExplanationArray(ExplanationArray):
         """
 
         if isinstance(self.results[index_base], ModelProfileExplanation):
-            if isinstance(index_base, int) and index_base < 0:
-                index_base = self.results.index(self.results[index_base])
-
-            def filter_objects(obj):
-                if model_filter is not None and \
-                        re.search(model_filter, obj.name) is None:
-                    return False
-                return True
-
-            def flatten(lst):
-                out = []
-                for i in range(len(lst)):
-                    if not (isinstance(lst[i], list) or isinstance(lst[i], ModelProfileExplanationArray)):
-                        out.append(lst[i])
-                    else:
-                        tmp = flatten(lst[i])
-                        out = out + tmp
-                return out
-
-            base_model = self[index_base]
-            if base_model is None:
-                raise Exception('Wrong index_base argument!')
-
-            res = flatten(self.results)
-            res.remove(self.results[index_base])
+            base_model, res = self.__filter_for_comparing(index_base, model_filter)
 
             if return_raw:
                 out = []
                 for i in range(len(res)):
-                    if not filter_objects(res[i]):
-                        continue
-
                     if not return_raw_per_variable:
                         out.append(base_model.compare(res[i], variable=variable,
                                                       return_raw_per_variable=False)[0])
@@ -248,8 +290,7 @@ class ModelProfileExplanationArray(ExplanationArray):
                                                       return_raw_per_variable=True))
                 return out
             else:
-                tab = [res[i] for i in range(len(res)) if filter_objects(res[i])]
-                return base_model.compare(tab, variable=variable, return_raw_per_variable=return_raw_per_variable)
+                return base_model.compare(res, variable=variable, return_raw_per_variable=return_raw_per_variable)
         elif np.alltrue([isinstance(res, ModelProfileExplanationArray) for res in self.results]):
             return [
                 res.compare(variable=variable, index_base=index_base, return_raw=return_raw,
@@ -333,6 +374,102 @@ class ModelProfileExplanationArray(ExplanationArray):
 
         if return_df:
             return results
+
+    def plot_performance_gain_analysis(self, model_filters: Optional[List[str]] = None, filter_labels: [List[str]] = None,
+                                       variables: Optional[List[str]] = None, figsize: Optional[Tuple[int, int]] = None,
+                                       index_base: Union[str, int] = -1, return_df: bool = False, percent: bool = False,
+                                       ax: Optional[matplotlib.axes.Axes] = None):
+        """
+        The function plots performance gain analysis plot which compares ASDD values and
+        difference in performance metric values.
+
+        Parameters
+        ----------
+        variables : list[str], optional, default=None
+            Variables for which the plot should be generated. If None, plots for all variables are generated if all the
+            available ModelProfileExplanation objects have exactly the same set of column names.
+        figsize : tuple(int, int), optional, default=None
+            The size of a figure.
+        model_filters : list[str], optional, default=None
+            List of regex expressions to filter the names of the ModelProfileExplanation objects for comparing.
+            Each element in the list creates a new boxplot. If None, one boxplot of all results is plotted.
+        filter_labels : list[str], optional, default=None
+            Labels of model filters.
+        index_base : int, str, default=-1
+            Index of a curve to be a base for comparisons.
+        return_df : bool, default=False
+            If True, the method returns a dataframe on which a plot is created.
+        percent : bool, default=False
+            If True, the percentage change will be plotted instead of difference.
+        ax : matplotlib.axes.Axes, optional
+            ax to plot on
+        """
+        x = self.results
+        while not isinstance(x, ModelProfileExplanation):
+            x = x[0]
+        performance_metric_name = x.performance_metric_name
+
+        if ax is None:
+            fig, ax = plt.subplots(figsize=figsize)
+
+        plt.title(f'Performance gain analysis of {self.explanation_type}\nfor {self.name} with {performance_metric_name} metric')
+        plt.xlabel('Performance gain')
+        plt.ylabel(r'ASDD values [$10^{-3}$]')
+
+        def format_func(value, tick_number):
+            return str(int(value * 10 ** 3))
+
+        def flatten(lst):
+            out = []
+            for i in range(len(lst)):
+                if not isinstance(lst[i], list):
+                    out.append(lst[i])
+                else:
+                    tmp = flatten(lst[i])
+                    out = out + tmp
+            return out
+
+        ax.yaxis.set_major_formatter(plt.FuncFormatter(format_func))
+
+        if model_filters is None:
+            results = self.compare(variable=variables, index_base=index_base,
+                                   return_raw=True, return_raw_per_variable=False)
+            results = flatten(results)
+
+            performance = self.compare_performance(index_base=index_base, percent=percent)
+            performance = flatten(performance)
+
+            if filter_labels is not None and len(filter_labels) == 1:
+                plt.scatter(x=performance, y=results, label=filter_labels[0])
+                plt.legend()
+            else:
+                plt.scatter(x=performance, y=results)
+
+        else:
+            results = []
+            performance = []
+            for i in range(len(model_filters)):
+                f = model_filters[i]
+                tmp_res = self.compare(variable=variables, index_base=index_base, model_filter=f,
+                                       return_raw=True, return_raw_per_variable=False)
+                tmp_res = flatten(tmp_res)
+                results.append(tmp_res)
+
+                tmp_per = self.compare_performance(index_base=index_base, percent=percent, model_filter=f)
+                tmp_per = flatten(tmp_per)
+                performance.append(tmp_per)
+
+                if filter_labels is not None:
+                    if len(filter_labels) == len(model_filters):
+                        plt.scatter(x=tmp_per, y=tmp_res, label=filter_labels[i], c=i)
+                    else:
+                        raise Exception('Incorrect length of filter_labels!')
+                else:
+                    plt.scatter(x=tmp_per, y=tmp_res, c=i)
+            plt.legend()
+
+        if return_df:
+            return results, performance
 
     def __str__(self) -> str:
         return f"ModelProfileExplanationArray {self.name} for {len(self.results)} variables: {list(self.results)} with {self.explanation_type} curve type"
@@ -429,6 +566,57 @@ class ModelPartsExplanationArray(ExplanationArray):
         base.plot(variable=variable, figsize=figsize, max_variables=max_variables,
                   add_plot=plots, ax=ax, show_legend=show_legend, x_lim=x_lim, metric_precision=metric_precision)
 
+    def __filter_for_comparing(self, index_base, model_filter):
+        if isinstance(index_base, int) and index_base < 0:
+            index_base = self.results.index(self.results[index_base])
+
+        def filter_objects(obj):
+            if model_filter is not None and \
+                    re.search(model_filter, obj.name) is None:
+                return False
+            return True
+
+        base_model = self[index_base]
+        if base_model is None:
+            raise Exception('Wrong index_base argument!')
+
+        res = ModelPartsExplanationArray.__flatten(self.results)
+        res.remove(self.results[index_base])
+
+        tab = [res[i] for i in range(len(res)) if filter_objects(res[i])]
+        return base_model, tab
+
+    def compare_performance(self, index_base: Union[str, int] = -1, model_filter: Optional[str] = None,
+                            percent: bool = False) -> List[Union[float, List]]:
+        """
+        The function returns the difference between performance metric values. index_base-object's value is subtracted
+        from others.
+
+        Parameters
+        ----------
+        index_base : int, str, default=-1
+                    Index of a curve to be a base for comparisons.
+        model_filter : str, optional, default=None
+            A regex expression to filter the names of the ModelProfileExplanation objects for comparing.
+        percent : bool, default=False
+            If True, the percentage change will we returned instead of difference.
+
+        Returns
+        ----------
+        list[float, list]
+        """
+
+        if isinstance(self.results[index_base], ModelProfileExplanation):
+            base_model, tab = self.__filter_for_comparing(index_base, model_filter)
+            return base_model.compare_performance(tab, percent=percent)
+        elif np.alltrue([isinstance(res, ModelProfileExplanationArray) for res in self.results]):
+            return [
+                res.compare_performance(index_base=index_base, model_filter=model_filter, percent=percent)
+                for res in self.results
+            ]
+        else:
+            raise Exception('Wrong result structure!')
+
     def compare(self, variable: Optional[Union[str, List[str]]] = None, max_variables: Optional[int] = None,
                 return_raw: bool = True, index_base: Union[str, int] = -1, model_filter: Optional[str] = None) \
             -> List[Union[float, list]]:
@@ -456,23 +644,7 @@ class ModelPartsExplanationArray(ExplanationArray):
         """
 
         if isinstance(self.results[index_base], ModelPartsExplanation):
-            if isinstance(index_base, int) and index_base < 0:
-                index_base = self.results.index(self.results[index_base])
-
-            def filter_objects(obj):
-                if model_filter is not None and \
-                        re.search(model_filter, obj.name) is None:
-                    return False
-                return True
-
-            base_model = self[index_base]
-            if base_model is None:
-                raise Exception('Wrong index_base argument!')
-
-            res = ModelPartsExplanationArray.__flatten(self.results)
-            res.remove(self.results[index_base])
-
-            res_filtered = [res[i] for i in range(len(res)) if filter_objects(res[i])]
+            base_model, res_filtered = self.__filter_for_comparing(index_base, model_filter)
             return base_model.compare(other=res_filtered, variable=variable, max_variables=max_variables,
                                       return_raw=return_raw)
         elif np.alltrue([isinstance(res, ModelPartsExplanationArray) for res in self.results]):

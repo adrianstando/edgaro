@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import multiprocessing
+import pandas as pd
 
-from typing import Union, Optional, Literal
+from typing import Union, Optional, Literal, Callable
+from sklearn.metrics import balanced_accuracy_score
 
 from edgaro.model.model import Model
 from edgaro.model.model_array import ModelArray
@@ -35,6 +37,10 @@ class ExplainerArray:
         Random state seed.
     B : int, optional, default=10
         Number of permutation rounds to perform on each variable - applicable only if explanation_type='VI'.
+    performance_metric_name : str
+        Name of the performance metric.
+    performance_metric : callable
+        Name of the performance metric.
 
     Attributes
     ----------
@@ -58,12 +64,18 @@ class ExplainerArray:
         Random state seed
     B : int, optional
         Number of permutation rounds to perform on each variable - applicable only if explanation_type='VI'.
+    performance_metric_name : str
+        Name of the performance metric.
+    performance_metric : callable
+        Name of the performance metric.
 
     """
 
     def __init__(self, models: Union[Model, ModelArray], N: Optional[int] = None,
                  explanation_type: Literal['PDP', 'ALE', 'VI'] = 'PDP', verbose: bool = False, processes: int = 1,
-                 random_state: Optional[int] = None, B: Optional[int] = 10) -> None:
+                 random_state: Optional[int] = None, B: Optional[int] = 10,
+                 performance_metric_name: str = 'balanced_accuracy',
+                 performance_metric: Callable[[pd.Series, pd.Series], float] = balanced_accuracy_score) -> None:
         self.models = models
         self.sub_calculators = None
         self.name = models.name
@@ -74,6 +86,9 @@ class ExplainerArray:
         self.processes = processes
         self.random_state = random_state
         self.B = B
+
+        self.performance_metric_name = performance_metric_name
+        self.performance_metric = performance_metric
 
         if self.processes == -1:
             self.processes = multiprocessing.cpu_count()
@@ -86,11 +101,14 @@ class ExplainerArray:
         def create_sub_calculator(model: Union[Model, ModelArray]):
             if isinstance(model, Model):
                 calc = Explainer(model=model, N=self.N, explanation_type=self.explanation_type, verbose=self.verbose,
-                                 processes=self.processes, random_state=self.random_state, B=self.B)
+                                 processes=self.processes, random_state=self.random_state, B=self.B,
+                                 performance_metric_name=self.performance_metric_name,
+                                 performance_metric=self.performance_metric)
             else:
                 calc = ExplainerArray(models=model, N=self.N, explanation_type=self.explanation_type,
                                       verbose=self.verbose, processes=self.processes, random_state=self.random_state,
-                                      B=self.B)
+                                      B=self.B, performance_metric_name=self.performance_metric_name,
+                                      performance_metric=self.performance_metric)
 
             calc.fit()
             return calc

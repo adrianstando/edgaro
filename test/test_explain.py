@@ -1,4 +1,5 @@
 import pytest
+import copy
 
 from imblearn.under_sampling import RandomUnderSampler
 from sklearn.metrics import accuracy_score
@@ -331,6 +332,22 @@ def test_array_of_arrays_plot_summary_regex(model_array2):
     column = rf.get_models()[0].get_train_dataset().data.columns[0]
     try:
         t[2].plot_summary(variables=column, model_filters=[f"^{name_1}", f"^{name_2}"])
+    except (Exception,):
+        assert False
+
+
+def test_array_of_arrays_plot_performance_gain(model_array2):
+    rf, t = model_array2
+
+    # simulate more results
+    t = copy.deepcopy(t)
+    t = t[[0, 1]]
+    t.results[1] = t[0]
+    t.results.append(t[0])
+    t.results.append(t[0])
+
+    try:
+        t.plot_performance_gain_analysis()
     except (Exception,):
         assert False
 

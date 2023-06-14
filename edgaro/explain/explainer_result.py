@@ -52,7 +52,11 @@ class Explanation(ABC):
         pass
 
     @abstractmethod
-    def compare(self, other: List[Explanation]) -> List[Union[float, list]]:
+    def compare(self, other: List[Explanation]) -> List[Union[float, List]]:
+        pass
+
+    @abstractmethod
+    def compare_performance(self, other: List[Explanation], percent: bool = False) -> List[float]:
         pass
 
 
@@ -70,6 +74,10 @@ class ModelProfileExplanation(Explanation):
         List of categorical variables.
     explanation_type : {'PDP', 'ALE'}, default='PDP'
         A curve type.
+    performance_metric_value : float
+        Value of the performance metric.
+    performance_metric_name : str
+        Name of the performance metric.
 
     Attributes
     ----------
@@ -81,15 +89,22 @@ class ModelProfileExplanation(Explanation):
         List of categorical variables.
     explanation_type : {'PDP', 'ALE'}
         A curve type.
+    performance_metric_value : float, optional
+        Value of the performance metric.
+    performance_metric_name : str, optional
+        Name of the performance metric.
 
     """
 
     def __init__(self, results: Dict[str, Curve], name: str, categorical_columns: List[str],
+                 performance_metric_value: float, performance_metric_name: str,
                  explanation_type: Literal['PDP', 'ALE'] = 'PDP') -> None:
         self.results = results
         self.name = name
         self.categorical_columns = categorical_columns
         self.explanation_type = explanation_type
+        self.performance_metric_value = performance_metric_value
+        self.performance_metric_name = performance_metric_name
 
     def __getitem__(self, key: str) -> Optional[Curve]:
         if key in self.results.keys():
@@ -285,6 +300,30 @@ class ModelProfileExplanation(Explanation):
                 for inp_i in inp.results:
                     ModelProfileExplanation.__retrieve_explainer_results(inp_i, explain_results_in)
 
+    def compare_performance(self, other: List[ModelProfileExplanation], percent: bool = False) -> List[float]:
+        """
+        The function returns the difference between performance metric values. This object's value is subtracted
+        from other.
+
+        Parameters
+        ----------
+        other : list[ModelProfileExplanation]
+            List of ModelProfileExplanation objects to compare against.
+        percent : bool, default=False
+            If True, the percentage change will be returned instead of difference.
+
+        Returns
+        ----------
+        list[float]
+        """
+
+        tab = [elem.performance_metric_value - self.performance_metric_value for elem in other]
+
+        if percent:
+            tab = [tab[i] / self.performance_metric_value for i in range(len(tab))]
+
+        return tab
+
     def compare(self, other: List[ModelProfileExplanation], variable: Optional[Union[str, List[str]]] = None,
                 return_raw_per_variable: bool = False) -> List[Union[float, list]]:
         """
@@ -389,6 +428,10 @@ class ModelPartsExplanation(Explanation):
         The name of ModelProfileExplanation. It is best if it is a Model name.
     explanation_type : {'VI'}, default='VI'
         An explanation type.
+    performance_metric_value : float
+        Value of the performance metric.
+    performance_metric_name : str
+        Name of the performance metric.
 
     Attributes
     ----------
@@ -398,12 +441,20 @@ class ModelPartsExplanation(Explanation):
         The name of ModelProfileExplanation. It is best if it is a Model name.
     explanation_type : {'VI'}, default='VI'
         An explanation type.
+    performance_metric_value : float
+        Value of the performance metric.
+    performance_metric_name : str
+        Name of the performance metric.
+
     """
 
-    def __init__(self, results: Dict[str, float], name: str, explanation_type: Literal['VI'] = 'VI') -> None:
+    def __init__(self, results: Dict[str, float], name: str, performance_metric_value: float,
+                 performance_metric_name: str, explanation_type: Literal['VI'] = 'VI') -> None:
         self.results = results
         self.name = name
         self.explanation_type = explanation_type
+        self.performance_metric_value = performance_metric_value
+        self.performance_metric_name = performance_metric_name
 
     def __getitem__(self, key: str) -> Optional[float]:
         if key in self.results.keys():
@@ -528,6 +579,30 @@ class ModelPartsExplanation(Explanation):
                         text,
                         fontsize='medium'
                     )
+
+    def compare_performance(self, other: List[ModelPartsExplanation], percent: bool = False) -> List[float]:
+        """
+        The function returns the difference between performance metric values. This object's value is subtracted
+        from other.
+
+        Parameters
+        ----------
+        other : list[ModelPartsExplanation]
+            List of ModelPartsExplanation objects to compare against.
+        percent : bool, default=False
+            If True, the percentage change will be returned instead of difference.
+
+        Returns
+        ----------
+        list[float]
+        """
+
+        tab = [elem.performance_metric_value - self.performance_metric_value for elem in other]
+
+        if percent:
+            tab = [tab[i] / self.performance_metric_value for i in range(len(tab))]
+
+        return tab
 
     def compare(self, other: List[ModelPartsExplanation], variable: Optional[Union[str, List[str]]] = None,
                 max_variables: Optional[int] = None, return_raw: bool = True) -> List[Union[float, list]]:
