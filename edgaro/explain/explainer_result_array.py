@@ -461,11 +461,11 @@ class ModelProfileExplanationArray(ExplanationArray):
 
                 if filter_labels is not None:
                     if len(filter_labels) == len(model_filters):
-                        plt.scatter(x=tmp_per, y=tmp_res, label=filter_labels[i], c=i)
+                        plt.scatter(x=tmp_per, y=tmp_res, label=filter_labels[i])
                     else:
                         raise Exception('Incorrect length of filter_labels!')
                 else:
-                    plt.scatter(x=tmp_per, y=tmp_res, c=i)
+                    plt.scatter(x=tmp_per, y=tmp_res)
             plt.legend()
 
         if return_df:
