@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>edgaro.explain package &mdash; edgaro 1.0.2.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5a922741"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Changelog" href="changelog.html" />
+    <link rel="prev" title="edgaro.model package" href="edgaro.model.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            edgaro
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">edgaro’s documentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User manual:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="manual.html">User manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Engineering Thesis:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../files/Codes.html">Codes for the Engineering Thesis experiments</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Class documentation:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="edgaro.data.html">edgaro.data package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edgaro.balancing.html">edgaro.balancing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edgaro.model.html">edgaro.model package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">edgaro.explain package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-edgaro.explain.explainer">edgaro.explain.explainer module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.explain.explainer.Explainer"><code class="docutils literal notranslate"><span class="pre">Explainer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.explain.explainer.Explainer.fit"><code class="docutils literal notranslate"><span class="pre">Explainer.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.explain.explainer.Explainer.transform"><code class="docutils literal notranslate"><span class="pre">Explainer.transform()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-edgaro.explain.explainer_array">edgaro.explain.explainer_array module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.explain.explainer_array.ExplainerArray"><code class="docutils literal notranslate"><span class="pre">ExplainerArray</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.explain.explainer_array.ExplainerArray.fit"><code class="docutils literal notranslate"><span class="pre">ExplainerArray.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.explain.explainer_array.ExplainerArray.transform"><code class="docutils literal notranslate"><span class="pre">ExplainerArray.transform()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-edgaro.explain.explainer_result">edgaro.explain.explainer_result module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.explain.explainer_result.Curve"><code class="docutils literal notranslate"><span class="pre">Curve</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.explain.explainer_result.Explanation"><code class="docutils literal notranslate"><span class="pre">Explanation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.explain.explainer_result.Explanation.plot"><code class="docutils literal notranslate"><span class="pre">Explanation.plot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.explain.explainer_result.Explanation.compare"><code class="docutils literal notranslate"><span class="pre">Explanation.compare()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.explain.explainer_result.Explanation.compare_performance"><code class="docutils literal notranslate"><span class="pre">Explanation.compare_performance()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.explain.explainer_result.ModelProfileExplanation"><code class="docutils literal notranslate"><span class="pre">ModelProfileExplanation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.explain.explainer_result.ModelProfileExplanation.plot"><code class="docutils literal notranslate"><span class="pre">ModelProfileExplanation.plot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.explain.explainer_result.ModelProfileExplanation.compare_performance"><code class="docutils literal notranslate"><span class="pre">ModelProfileExplanation.compare_performance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.explain.explainer_result.ModelProfileExplanation.compare"><code class="docutils literal notranslate"><span class="pre">ModelProfileExplanation.compare()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.explain.explainer_result.ModelPartsExplanation"><code class="docutils literal notranslate"><span class="pre">ModelPartsExplanation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.explain.explainer_result.ModelPartsExplanation.plot"><code class="docutils literal notranslate"><span class="pre">ModelPartsExplanation.plot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.explain.explainer_result.ModelPartsExplanation.compare_performance"><code class="docutils literal notranslate"><span class="pre">ModelPartsExplanation.compare_performance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.explain.explainer_result.ModelPartsExplanation.compare"><code class="docutils literal notranslate"><span class="pre">ModelPartsExplanation.compare()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-edgaro.explain.explainer_result_array">edgaro.explain.explainer_result_array module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.explain.explainer_result_array.ExplanationArray"><code class="docutils literal notranslate"><span class="pre">ExplanationArray</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.explain.explainer_result_array.ExplanationArray.plot"><code class="docutils literal notranslate"><span class="pre">ExplanationArray.plot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.explain.explainer_result_array.ExplanationArray.compare"><code class="docutils literal notranslate"><span class="pre">ExplanationArray.compare()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.explain.explainer_result_array.ExplanationArray.plot_summary"><code class="docutils literal notranslate"><span class="pre">ExplanationArray.plot_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.explain.explainer_result_array.ExplanationArray.compare_performance"><code class="docutils literal notranslate"><span class="pre">ExplanationArray.compare_performance()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.explain.explainer_result_array.ModelProfileExplanationArray"><code class="docutils literal notranslate"><span class="pre">ModelProfileExplanationArray</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.explain.explainer_result_array.ModelProfileExplanationArray.plot"><code class="docutils literal notranslate"><span class="pre">ModelProfileExplanationArray.plot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.explain.explainer_result_array.ModelProfileExplanationArray.compare_performance"><code class="docutils literal notranslate"><span class="pre">ModelProfileExplanationArray.compare_performance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.explain.explainer_result_array.ModelProfileExplanationArray.compare"><code class="docutils literal notranslate"><span class="pre">ModelProfileExplanationArray.compare()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.explain.explainer_result_array.ModelProfileExplanationArray.plot_summary"><code class="docutils literal notranslate"><span class="pre">ModelProfileExplanationArray.plot_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.explain.explainer_result_array.ModelProfileExplanationArray.plot_performance_gain_analysis"><code class="docutils literal notranslate"><span class="pre">ModelProfileExplanationArray.plot_performance_gain_analysis()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.explain.explainer_result_array.ModelPartsExplanationArray"><code class="docutils literal notranslate"><span class="pre">ModelPartsExplanationArray</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.explain.explainer_result_array.ModelPartsExplanationArray.plot"><code class="docutils literal notranslate"><span class="pre">ModelPartsExplanationArray.plot()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.explain.explainer_result_array.ModelPartsExplanationArray.compare_performance"><code class="docutils literal notranslate"><span class="pre">ModelPartsExplanationArray.compare_performance()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.explain.explainer_result_array.ModelPartsExplanationArray.compare"><code class="docutils literal notranslate"><span class="pre">ModelPartsExplanationArray.compare()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.explain.explainer_result_array.ModelPartsExplanationArray.plot_summary"><code class="docutils literal notranslate"><span class="pre">ModelPartsExplanationArray.plot_summary()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Package changelog:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">edgaro</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">edgaro.explain package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/source/edgaro.explain.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="edgaro-explain-package">
+<h1>edgaro.explain package<a class="headerlink" href="#edgaro-explain-package" title="Link to this heading"></a></h1>
+<section id="module-edgaro.explain.explainer">
+<span id="edgaro-explain-explainer-module"></span><h2>edgaro.explain.explainer module<a class="headerlink" href="#module-edgaro.explain.explainer" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.explain.explainer.Explainer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.explain.explainer.</span></span><span class="sig-name descname"><span class="pre">Explainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">model:</span> <span class="pre">~edgaro.model.model.Model,</span> <span class="pre">N:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">explanation_type:</span> <span class="pre">~typing.Literal['PDP',</span> <span class="pre">'ALE',</span> <span class="pre">'VI']</span> <span class="pre">=</span> <span class="pre">'PDP',</span> <span class="pre">verbose:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">processes:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1,</span> <span class="pre">random_state:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">B:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">10,</span> <span class="pre">performance_metric_name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'balanced_accuracy',</span> <span class="pre">performance_metric:</span> <span class="pre">~typing.Callable[[~pandas.core.series.Series,</span> <span class="pre">~pandas.core.series.Series],</span> <span class="pre">float]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">balanced_accuracy_score&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.explain.explainer.Explainer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The class defines Explainer for a Model object - it allows to calculate PDP <a class="footnote-reference brackets" href="#id3" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> or ALE <a class="footnote-reference brackets" href="#id4" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> curves.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>Model</em>) – A Model object to calculate explanations on.</p></li>
+<li><p><strong>N</strong> (<em>int, optional, default=None</em>) – Number of observations that will be sampled from the test Dataset before the calculation of profiles
+(PDP/ALE curves). None means all data.</p></li>
+<li><p><strong>explanation_type</strong> (<em>{‘PDP’, ‘ALE’, ‘VI’}, default=’PDP’</em>) – An explanation type to be calculated (<cite>PDP</cite> - Partial Dependence Profile, <cite>ALE</cite> - Accumulated Local Effects,
+<cite>VI</cite> - Variable Importance)</p></li>
+<li><p><strong>verbose</strong> (<em>bool, default=False</em>) – Print messages during calculations.</p></li>
+<li><p><strong>processes</strong> (<em>int, default=1</em>) – Number of processes for the calculation of explanations.
+If -1, it is replaced with the number of available CPU cores.</p></li>
+<li><p><strong>random_state</strong> (<em>int, optional, default=None</em>) – Random state seed.</p></li>
+<li><p><strong>B</strong> (<em>int, optional, default=10</em>) – Number of permutation rounds to perform on each variable - applicable only if explanation_type=’VI’.</p></li>
+<li><p><strong>performance_metric_name</strong> (<em>str, default=’balanced_accuracy’</em>) – Name of the performance metric.</p></li>
+<li><p><strong>performance_metric</strong> (<em>callable, default=balanced_accuracy_score</em>) – Name of the performance metric.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>model</strong> (<a class="reference internal" href="edgaro.model.html#edgaro.model.model.Model" title="edgaro.model.model.Model"><em>Model</em></a>) – A Model object to calculate explanations on.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – A name of the Explainer, by default it is a Model name.</p></li>
+<li><p><strong>N</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default=None</em>) – Number of observations that will be sampled from the test Dataset before the calculation of profiles
+(PDP/ALE curves). None means all data.</p></li>
+<li><p><strong>explanation_type</strong> (<em>{'PDP'</em><em>, </em><em>'ALE'</em><em>, </em><em>'VI'}</em>) – An explanation type to be calculated.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – Print messages during calculations.</p></li>
+<li><p><strong>explainer</strong> (<em>dx.Explainer</em><em>, </em><em>optional</em>) – An explainer object from <cite>dalex</cite> package.</p></li>
+<li><p><strong>processes</strong> (<em>int</em>) – Number of processes for the calculation of explanations.
+If -1, it is replaced with the number of available CPU cores.</p></li>
+<li><p><strong>random_state</strong> (<em>int</em><em>, </em><em>optional</em>) – Random state seed</p></li>
+<li><p><strong>B</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of permutation rounds to perform on each variable - applicable only if explanation_type=’VI’.</p></li>
+<li><p><strong>performance_metric_name</strong> (<em>str</em>) – Name of the performance metric.</p></li>
+<li><p><strong>performance_metric</strong> (<em>callable</em>) – Name of the performance metric.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id3" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id5">2</a>)</span>
+<p><a class="reference external" href="https://ema.drwhy.ai/partialDependenceProfiles.html">https://ema.drwhy.ai/partialDependenceProfiles.html</a></p>
+</aside>
+<aside class="footnote brackets" id="id4" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id2">1</a>,<a role="doc-backlink" href="#id6">2</a>)</span>
+<p><a class="reference external" href="https://ema.drwhy.ai/accumulatedLocalProfiles.html">https://ema.drwhy.ai/accumulatedLocalProfiles.html</a></p>
+</aside>
+</aside>
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.explain.explainer.Explainer.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.explain.explainer.Explainer.fit" title="Link to this definition"></a></dt>
+<dd><p>Fit the Explainer object and create an explainer attribute.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.explain.explainer.Explainer.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#edgaro.explain.explainer_result.Explanation" title="edgaro.explain.explainer_result.Explanation"><span class="pre">Explanation</span></a></span></span><a class="headerlink" href="#edgaro.explain.explainer.Explainer.transform" title="Link to this definition"></a></dt>
+<dd><p>Calculate the explanation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>variables</strong> (<em>list[str], optional</em>) – List of variables for which the explanation should be calculated.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#edgaro.explain.explainer_result.Explanation" title="edgaro.explain.explainer_result.Explanation">Explanation</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-edgaro.explain.explainer_array">
+<span id="edgaro-explain-explainer-array-module"></span><h2>edgaro.explain.explainer_array module<a class="headerlink" href="#module-edgaro.explain.explainer_array" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_array.ExplainerArray">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.explain.explainer_array.</span></span><span class="sig-name descname"><span class="pre">ExplainerArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">models:</span> <span class="pre">~edgaro.model.model.Model</span> <span class="pre">|</span> <span class="pre">~edgaro.model.model_array.ModelArray,</span> <span class="pre">N:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">explanation_type:</span> <span class="pre">~typing.Literal['PDP',</span> <span class="pre">'ALE',</span> <span class="pre">'VI']</span> <span class="pre">=</span> <span class="pre">'PDP',</span> <span class="pre">verbose:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">processes:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1,</span> <span class="pre">random_state:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">B:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">10,</span> <span class="pre">performance_metric_name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'balanced_accuracy',</span> <span class="pre">performance_metric:</span> <span class="pre">~typing.Callable[[~pandas.core.series.Series,</span> <span class="pre">~pandas.core.series.Series],</span> <span class="pre">float]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">balanced_accuracy_score&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.explain.explainer_array.ExplainerArray" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Create a class to calculate PDP <a class="footnote-reference brackets" href="#id3" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>, ALE <a class="footnote-reference brackets" href="#id4" id="id6" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> curves or Variable Importance for Model and ModelArray objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>models</strong> (<em>Model, ModelArray</em>) – A Model/ModelArray object to calculate the curves on.</p></li>
+<li><p><strong>N</strong> (<em>int, optional, default=None</em>) – Number of observations that will be sampled from the test Dataset before the calculation of profiles
+(PDP/ALE curves). None means all data.</p></li>
+<li><p><strong>explanation_type</strong> (<em>{‘PDP’, ‘ALE’, ‘VI’}, default=’PDP’</em>) – An explanation type to be calculated (<cite>PDP</cite> - Partial Dependence Profile, <cite>ALE</cite> - Accumulated Local Effects,
+<cite>VI</cite> - Variable Importance)</p></li>
+<li><p><strong>verbose</strong> (<em>bool, default=False</em>) – Print messages during calculations.</p></li>
+<li><p><strong>processes</strong> (<em>int, default=1</em>) – Number of processes for the calculation of explanations.
+If -1, it is replaced with the number of available CPU cores.</p></li>
+<li><p><strong>random_state</strong> (<em>int, optional, default=None</em>) – Random state seed.</p></li>
+<li><p><strong>B</strong> (<em>int, optional, default=10</em>) – Number of permutation rounds to perform on each variable - applicable only if explanation_type=’VI’.</p></li>
+<li><p><strong>performance_metric_name</strong> (<em>str</em>) – Name of the performance metric.</p></li>
+<li><p><strong>performance_metric</strong> (<em>callable</em>) – Name of the performance metric.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>models</strong> (<a class="reference internal" href="edgaro.model.html#edgaro.model.model.Model" title="edgaro.model.model.Model"><em>Model</em></a><em>, </em><a class="reference internal" href="edgaro.model.html#edgaro.model.model_array.ModelArray" title="edgaro.model.model_array.ModelArray"><em>ModelArray</em></a>) – A Model/ModelArray object to calculate the curves for.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – A name of the ExplainerArray, by default it is a Model/ModelArray name.</p></li>
+<li><p><strong>sub_calculators</strong> (<em>list</em><em>[</em><a class="reference internal" href="#edgaro.explain.explainer.Explainer" title="edgaro.explain.explainer.Explainer"><em>Explainer</em></a><em>, </em><a class="reference internal" href="#edgaro.explain.explainer_array.ExplainerArray" title="edgaro.explain.explainer_array.ExplainerArray"><em>ExplainerArray</em></a><em>]</em><em>, </em><em>optional</em>) – A list of calculators for nested Datasets/DatasetArrays.</p></li>
+<li><p><strong>N</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of observations that will be sampled from the test Dataset before the calculation of profiles
+(PDP/ALE curves). None means all data.</p></li>
+<li><p><strong>explanation_type</strong> (<em>{'PDP'</em><em>, </em><em>'ALE'</em><em>, </em><em>'VI'}</em><em>, </em><em>default='PDP'</em>) – An explanation type to be calculated.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – Print messages during calculations.</p></li>
+<li><p><strong>processes</strong> (<em>int</em>) – Number of processes for the calculation of explanations.
+If -1, it is replaced with the number of available CPU cores.</p></li>
+<li><p><strong>random_state</strong> (<em>int</em><em>, </em><em>optional</em>) – Random state seed</p></li>
+<li><p><strong>B</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of permutation rounds to perform on each variable - applicable only if explanation_type=’VI’.</p></li>
+<li><p><strong>performance_metric_name</strong> (<em>str</em>) – Name of the performance metric.</p></li>
+<li><p><strong>performance_metric</strong> (<em>callable</em>) – Name of the performance metric.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_array.ExplainerArray.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.explain.explainer_array.ExplainerArray.fit" title="Link to this definition"></a></dt>
+<dd><p>Fit the ExplainerArray object and create an explainer attribute.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_array.ExplainerArray.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#edgaro.explain.explainer_result_array.ExplanationArray" title="edgaro.explain.explainer_result_array.ExplanationArray"><span class="pre">ExplanationArray</span></a></span></span><a class="headerlink" href="#edgaro.explain.explainer_array.ExplainerArray.transform" title="Link to this definition"></a></dt>
+<dd><p>Calculate the explanation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>variables</strong> (<em>list[str], optional</em>) – List of variables for which the explanation should be calculated.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#edgaro.explain.explainer_result_array.ExplanationArray" title="edgaro.explain.explainer_result_array.ExplanationArray">ExplanationArray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-edgaro.explain.explainer_result">
+<span id="edgaro-explain-explainer-result-module"></span><h2>edgaro.explain.explainer_result module<a class="headerlink" href="#module-edgaro.explain.explainer_result" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result.Curve">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.explain.explainer_result.</span></span><span class="sig-name descname"><span class="pre">Curve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pd.Series</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">pd.Series</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.explain.explainer_result.Curve" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The class which represents the PDP/ALE curve for one variable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – Points on 0X axis.</p></li>
+<li><p><strong>y</strong> (<em>np.ndarray</em>) – Points on 0Y axis.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – Points on 0X axis.</p></li>
+<li><p><strong>y</strong> (<em>np.ndarray</em>) – Points on 0Y axis.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result.Explanation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.explain.explainer_result.</span></span><span class="sig-name descname"><span class="pre">Explanation</span></span><a class="headerlink" href="#edgaro.explain.explainer_result.Explanation" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result.Explanation.plot">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.explain.explainer_result.Explanation.plot" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result.Explanation.compare">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#edgaro.explain.explainer_result.Explanation" title="edgaro.explain.explainer_result.Explanation"><span class="pre">Explanation</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#edgaro.explain.explainer_result.Explanation.compare" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result.Explanation.compare_performance">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compare_performance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#edgaro.explain.explainer_result.Explanation" title="edgaro.explain.explainer_result.Explanation"><span class="pre">Explanation</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#edgaro.explain.explainer_result.Explanation.compare_performance" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result.ModelProfileExplanation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.explain.explainer_result.</span></span><span class="sig-name descname"><span class="pre">ModelProfileExplanation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#edgaro.explain.explainer_result.Curve" title="edgaro.explain.explainer_result.Curve"><span class="pre">Curve</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categorical_columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">performance_metric_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">performance_metric_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explanation_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'PDP'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'ALE'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'PDP'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.explain.explainer_result.ModelProfileExplanation" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#edgaro.explain.explainer_result.Explanation" title="edgaro.explain.explainer_result.Explanation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Explanation</span></code></a></p>
+<p>The class which represent the PDP/ALE curves for all variables in one Model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> (<em>Dict[str, Curve]</em>) – A dictionary of pairs (column name, Curve object), which represents curves for all variables in one Model.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – The name of ModelProfileExplanation. It is best if it is a Model name.</p></li>
+<li><p><strong>categorical_columns</strong> (<em>list[str]</em>) – List of categorical variables.</p></li>
+<li><p><strong>explanation_type</strong> (<em>{‘PDP’, ‘ALE’}, default=’PDP’</em>) – A curve type.</p></li>
+<li><p><strong>performance_metric_value</strong> (<em>float</em>) – Value of the performance metric.</p></li>
+<li><p><strong>performance_metric_name</strong> (<em>str</em>) – Name of the performance metric.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>results</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><a class="reference internal" href="#edgaro.explain.explainer_result.Curve" title="edgaro.explain.explainer_result.Curve"><em>Curve</em></a><em>]</em>) – A dictionary of pairs (column name, Curve object), which represents curves for all variables in one Model.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – The name of ModelProfileExplanation. It is best if it is a Model name.</p></li>
+<li><p><strong>categorical_columns</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – List of categorical variables.</p></li>
+<li><p><strong>explanation_type</strong> (<em>{'PDP'</em><em>, </em><em>'ALE'}</em>) – A curve type.</p></li>
+<li><p><strong>performance_metric_value</strong> (<em>float</em><em>, </em><em>optional</em>) – Value of the performance metric.</p></li>
+<li><p><strong>performance_metric_name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the performance metric.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result.ModelProfileExplanation.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(8,</span> <span class="pre">8)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_plot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#edgaro.explain.explainer_result.ModelProfileExplanation" title="edgaro.explain.explainer_result.ModelProfileExplanation"><span class="pre">ModelProfileExplanation</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_legend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_lim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centered</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.explain.explainer_result.ModelProfileExplanation.plot" title="Link to this definition"></a></dt>
+<dd><p>The function plots the PDP/ALE curve.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>variable</strong> (<em>str, optional, default=None</em>) – Variable for which the plot should be generated. If None, the first column is plotted.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple(int, int), optional, default=(8, 8)</em>) – Size of a figure.</p></li>
+<li><p><strong>add_plot</strong> (<em>list[ModelProfileExplanation], optional, default=None</em>) – List of other ModelProfileExplanation objects that also contain the <cite>variable</cite> and should be plotted.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes, optional, default=None</em>) – The parameter should be passed if the plot is to be created in a certain Axis. In that situation, <cite>figsize</cite>
+parameter is ignored.</p></li>
+<li><p><strong>show_legend</strong> (<em>bool, default=True</em>) – The parameter indicates whether the legend should be plotted.</p></li>
+<li><p><strong>y_lim</strong> (<em>tuple(float, float), optional, default=None</em>) – The limits of 0Y axis.</p></li>
+<li><p><strong>metric_precision</strong> (<em>int, default=5</em>) – Number of digits to round the value of <cite>metric value*10^5</cite>.</p></li>
+<li><p><strong>centered</strong> (<em>bool, default = False</em>) – If True, the plots will be centered to start at 0.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result.ModelProfileExplanation.compare_performance">
+<span class="sig-name descname"><span class="pre">compare_performance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#edgaro.explain.explainer_result.ModelProfileExplanation" title="edgaro.explain.explainer_result.ModelProfileExplanation"><span class="pre">ModelProfileExplanation</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#edgaro.explain.explainer_result.ModelProfileExplanation.compare_performance" title="Link to this definition"></a></dt>
+<dd><p>The function returns the difference between performance metric values. This object’s value is subtracted
+from other.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> (<em>list[ModelProfileExplanation]</em>) – List of ModelProfileExplanation objects to compare against.</p></li>
+<li><p><strong>percent</strong> (<em>bool, default=False</em>) – If True, the percentage change will be returned instead of difference.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result.ModelProfileExplanation.compare">
+<span class="sig-name descname"><span class="pre">compare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#edgaro.explain.explainer_result.ModelProfileExplanation" title="edgaro.explain.explainer_result.ModelProfileExplanation"><span class="pre">ModelProfileExplanation</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_raw_per_variable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#edgaro.explain.explainer_result.ModelProfileExplanation.compare" title="Link to this definition"></a></dt>
+<dd><p>The function calculates the metric to compare the curves for a given variable(s).</p>
+<p>Currently, there is only one comparison metric called <cite>SDD</cite> (Standard Deviation of Distances). It is the variance of
+the distances between curve in this object and curves in <cite>other</cite> in intermediate points.
+If there is more than one <cite>other</cite> object and <cite>return_raw_per_variable=False</cite>, the mean variance
+is returned (<cite>ASDD</cite> - Averaged SDD).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> (<em>list[ModelProfileExplanation]</em>) – List of ModelProfileExplanation objects to compare the curve against.</p></li>
+<li><p><strong>variable</strong> (<em>str, list[str], optional, default=None</em>) – List of variable names to calculate the metric distances. If None, the metrics are calculated for
+all the columns in this object.</p></li>
+<li><p><strong>return_raw_per_variable</strong> (<em>bool, default=False</em>) – If True, raw values for each variable are returned.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[float, list]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result.ModelPartsExplanation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.explain.explainer_result.</span></span><span class="sig-name descname"><span class="pre">ModelPartsExplanation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">performance_metric_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">performance_metric_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explanation_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'VI'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'VI'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.explain.explainer_result.ModelPartsExplanation" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#edgaro.explain.explainer_result.Explanation" title="edgaro.explain.explainer_result.Explanation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Explanation</span></code></a></p>
+<p>The class represents the Variable Importance for all variables in one Model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> (<em>Dict[str, float]</em>) – A dictionary of pairs (column name, value), which represents Variable Importance for all variables in one Model.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – The name of ModelProfileExplanation. It is best if it is a Model name.</p></li>
+<li><p><strong>explanation_type</strong> (<em>{‘VI’}, default=’VI’</em>) – An explanation type.</p></li>
+<li><p><strong>performance_metric_value</strong> (<em>float</em>) – Value of the performance metric.</p></li>
+<li><p><strong>performance_metric_name</strong> (<em>str</em>) – Name of the performance metric.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>results</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>float</em><em>]</em>) – A dictionary of pairs (column name, value), which represents Variable Importance for all variables in one Model.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – The name of ModelProfileExplanation. It is best if it is a Model name.</p></li>
+<li><p><strong>explanation_type</strong> (<em>{'VI'}</em><em>, </em><em>default='VI'</em>) – An explanation type.</p></li>
+<li><p><strong>performance_metric_value</strong> (<em>float</em>) – Value of the performance metric.</p></li>
+<li><p><strong>performance_metric_name</strong> (<em>str</em>) – Name of the performance metric.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result.ModelPartsExplanation.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_plot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#edgaro.explain.explainer_result.ModelPartsExplanation" title="edgaro.explain.explainer_result.ModelPartsExplanation"><span class="pre">ModelPartsExplanation</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(8,</span> <span class="pre">8)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_legend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_lim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.explain.explainer_result.ModelPartsExplanation.plot" title="Link to this definition"></a></dt>
+<dd><p>The function plots the Variable Importance profile.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>variable</strong> (<em>str, list[str], optional, default=None</em>) – Variable for which the VI should be plotted. If None, the all columns is plotted.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple(int, int), optional, default=(8, 8)</em>) – Size of a figure.</p></li>
+<li><p><strong>add_plot</strong> (<em>list[ModelPartsExplanation], optional, default=None</em>) – List of other ModelPartsExplanation objects that also contain the <cite>variable</cite> and should be plotted.</p></li>
+<li><p><strong>max_variables</strong> (<em>int, optional, default=None</em>) – Maximal number of variables from the current object to be taken into account.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes, optional, default=None</em>) – The parameter should be passed if the plot is to be created in a certain Axis. In that situation, <cite>figsize</cite>
+parameter is ignored.</p></li>
+<li><p><strong>show_legend</strong> (<em>bool, default=True</em>) – The parameter indicates whether the legend should be plotted.</p></li>
+<li><p><strong>x_lim</strong> (<em>tuple(float, float), optional, default=None</em>) – The limits of 0X axis.</p></li>
+<li><p><strong>metric_precision</strong> (<em>int, default=5</em>) – Number of digits to round the value of the metric value.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result.ModelPartsExplanation.compare_performance">
+<span class="sig-name descname"><span class="pre">compare_performance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#edgaro.explain.explainer_result.ModelPartsExplanation" title="edgaro.explain.explainer_result.ModelPartsExplanation"><span class="pre">ModelPartsExplanation</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#edgaro.explain.explainer_result.ModelPartsExplanation.compare_performance" title="Link to this definition"></a></dt>
+<dd><p>The function returns the difference between performance metric values. This object’s value is subtracted
+from other.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> (<em>list[ModelPartsExplanation]</em>) – List of ModelPartsExplanation objects to compare against.</p></li>
+<li><p><strong>percent</strong> (<em>bool, default=False</em>) – If True, the percentage change will be returned instead of difference.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result.ModelPartsExplanation.compare">
+<span class="sig-name descname"><span class="pre">compare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#edgaro.explain.explainer_result.ModelPartsExplanation" title="edgaro.explain.explainer_result.ModelPartsExplanation"><span class="pre">ModelPartsExplanation</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_raw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#edgaro.explain.explainer_result.ModelPartsExplanation.compare" title="Link to this definition"></a></dt>
+<dd><p>The function calculates the metric to compare model parts of two or more models.</p>
+<p>Currently, there is only one metric based on the Wilcoxon statistical test <a class="footnote-reference brackets" href="#id9" id="id7" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>. The metric value is the
+p-value of this test, where the inputs are variable importance values.
+The idea is based on the approach presented in the article <a class="footnote-reference brackets" href="#id10" id="id8" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>other</strong> (<em>list[ModelPartsExplanation]</em>) – List of ModelPartsExplanation objects to compare the curve against.</p></li>
+<li><p><strong>variable</strong> (<em>str, list[str], optional, default=None</em>) – List of variable names to calculate the metric distances. If None, the metrics are calculated for
+all the columns in this object.</p></li>
+<li><p><strong>max_variables</strong> (<em>int, optional, default=None</em>) – Maximal number of variables from the current object to be taken into account.</p></li>
+<li><p><strong>return_raw</strong> (<em>bool, default=True</em>) – If True, the p-values are returned for each model. Otherwise, the mean value is returned.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[float, list]</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id9" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id7">3</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.wilcoxon.html">https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.wilcoxon.html</a></p>
+</aside>
+<aside class="footnote brackets" id="id10" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id8">4</a><span class="fn-bracket">]</span></span>
+<p><a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S2666764922000145">https://www.sciencedirect.com/science/article/pii/S2666764922000145</a></p>
+</aside>
+</aside>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-edgaro.explain.explainer_result_array">
+<span id="edgaro-explain-explainer-result-array-module"></span><h2>edgaro.explain.explainer_result_array module<a class="headerlink" href="#module-edgaro.explain.explainer_result_array" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result_array.ExplanationArray">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.explain.explainer_result_array.</span></span><span class="sig-name descname"><span class="pre">ExplanationArray</span></span><a class="headerlink" href="#edgaro.explain.explainer_result_array.ExplanationArray" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result_array.ExplanationArray.plot">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.explain.explainer_result_array.ExplanationArray.plot" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result_array.ExplanationArray.compare">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compare</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#edgaro.explain.explainer_result_array.ExplanationArray.compare" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result_array.ExplanationArray.plot_summary">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">plot_summary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.explain.explainer_result_array.ExplanationArray.plot_summary" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result_array.ExplanationArray.compare_performance">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compare_performance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#edgaro.explain.explainer_result_array.ExplanationArray.compare_performance" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result_array.ModelProfileExplanationArray">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.explain.explainer_result_array.</span></span><span class="sig-name descname"><span class="pre">ModelProfileExplanationArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#edgaro.explain.explainer_result.ModelProfileExplanation" title="edgaro.explain.explainer_result.ModelProfileExplanation"><span class="pre">ModelProfileExplanation</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#edgaro.explain.explainer_result_array.ModelProfileExplanationArray" title="edgaro.explain.explainer_result_array.ModelProfileExplanationArray"><span class="pre">ModelProfileExplanationArray</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explanation_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'PDP'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'ALE'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'PDP'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.explain.explainer_result_array.ModelProfileExplanationArray" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#edgaro.explain.explainer_result_array.ExplanationArray" title="edgaro.explain.explainer_result_array.ExplanationArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExplanationArray</span></code></a></p>
+<p>The class which represent the PDP/ALE curves for all variables in Model/ModelArray object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> (<em>list[ModelProfileExplanation, ModelProfileExplanationArray]</em>) – A list of ModelProfileExplanation/ModelProfileExplanationArray with results.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – The name of ModelProfileExplanationArray. It is best if it is a Model/ModelArray name.</p></li>
+<li><p><strong>explanation_type</strong> (<em>{‘PDP’, ‘ALE’}, default=’PDP’</em>) – A curve type.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>results</strong> (<em>list</em><em>[</em><a class="reference internal" href="#edgaro.explain.explainer_result.ModelProfileExplanation" title="edgaro.explain.explainer_result.ModelProfileExplanation"><em>ModelProfileExplanation</em></a><em>, </em><a class="reference internal" href="#edgaro.explain.explainer_result_array.ModelProfileExplanationArray" title="edgaro.explain.explainer_result_array.ModelProfileExplanationArray"><em>ModelProfileExplanationArray</em></a><em>]</em>) – A list of ModelProfileExplanation/ModelProfileExplanationArray with results.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – The name of ModelProfileExplanationArray. It is best if it is a Model/ModelArray name.</p></li>
+<li><p><strong>explanation_type</strong> (<em>{'PDP'</em><em>, </em><em>'ALE'}</em>) – A curve type.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result_array.ModelProfileExplanationArray.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centered</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.explain.explainer_result_array.ModelProfileExplanationArray.plot" title="Link to this definition"></a></dt>
+<dd><p>The function plots the PDP/ALE curves for given variables using all available Curves in the object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index_base</strong> (<em>int, str, default=-1</em>) – Index of a curve to be a base for comparisons.</p></li>
+<li><p><strong>variables</strong> (<em>list[str], optional, default=None</em>) – Variables for which the plot should be generated. If None, plots for all variables are generated if all the
+available ModelProfileExplanation objects have exactly the same set of column names.</p></li>
+<li><p><strong>n_col</strong> (<em>int, default=3</em>) – Number of columns in the final plot.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple(int, int), optional, default=None</em>) – The size of a figure. If None, the figure size is calculates as (8 * n_col, 8 * n_rows).</p></li>
+<li><p><strong>model_filter</strong> (<em>str, optional, default=None</em>) – A regex expression to filter the names of the ModelProfileExplanation objects for comparing.</p></li>
+<li><p><strong>centered</strong> (<em>bool, default = False</em>) – If True, the plots will be centered to start at 0.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result_array.ModelProfileExplanationArray.compare_performance">
+<span class="sig-name descname"><span class="pre">compare_performance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index_base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#edgaro.explain.explainer_result_array.ModelProfileExplanationArray.compare_performance" title="Link to this definition"></a></dt>
+<dd><p>The function returns the difference between performance metric values. index_base-object’s value is subtracted
+from others.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index_base</strong> (<em>int, str, default=-1</em>) – Index of a curve to be a base for comparisons.</p></li>
+<li><p><strong>model_filter</strong> (<em>str, optional, default=None</em>) – A regex expression to filter the names of the ModelProfileExplanation objects for comparing.</p></li>
+<li><p><strong>percent</strong> (<em>bool, default=False</em>) – If True, the percentage change will we returned instead of difference.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[float, list]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result_array.ModelProfileExplanationArray.compare">
+<span class="sig-name descname"><span class="pre">compare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_raw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_raw_per_variable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#edgaro.explain.explainer_result_array.ModelProfileExplanationArray.compare" title="Link to this definition"></a></dt>
+<dd><p>The function compares the curves in the array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>variable</strong> (<em>list[str], optional, default=None</em>) – List of variable names to calculate the metric distances. If None, the metrics are calculated for
+all the columns in this object.</p></li>
+<li><p><strong>index_base</strong> (<em>int, str, default=-1</em>) – Index of a curve to be a base for comparisons.</p></li>
+<li><p><strong>return_raw</strong> (<em>bool, default=True</em>) – If True, the metrics for each of the model are returned. Otherwise, the mean of the values is returned.</p></li>
+<li><p><strong>return_raw_per_variable</strong> (<em>bool, default=True</em>) – If True, the metrics for each of the variables are returned. Otherwise, the mean of the values is returned.</p></li>
+<li><p><strong>model_filter</strong> (<em>str, optional, default=None</em>) – A regex expression to filter the names of the ModelProfileExplanation objects for comparing.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[float, list]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result_array.ModelProfileExplanationArray.plot_summary">
+<span class="sig-name descname"><span class="pre">plot_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_filters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.explain.explainer_result_array.ModelProfileExplanationArray.plot_summary" title="Link to this definition"></a></dt>
+<dd><p>The function plots boxplots of comparison metrics of curves in the object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>variables</strong> (<em>list[str], optional, default=None</em>) – Variables for which the plot should be generated. If None, plots for all variables are generated if all the
+available ModelProfileExplanation objects have exactly the same set of column names.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple(int, int), optional, default=None</em>) – The size of a figure.</p></li>
+<li><p><strong>model_filters</strong> (<em>list[str], optional, default=None</em>) – List of regex expressions to filter the names of the ModelProfileExplanation objects for comparing.
+Each element in the list creates a new boxplot. If None, one boxplot of all results is plotted.</p></li>
+<li><p><strong>filter_labels</strong> (<em>list[str], optional, default=None</em>) – Labels of model filters.</p></li>
+<li><p><strong>index_base</strong> (<em>int, str, default=-1</em>) – Index of a curve to be a base for comparisons.</p></li>
+<li><p><strong>return_df</strong> (<em>bool, default=False</em>) – If True, the method returns a dataframe on which a plot is created.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result_array.ModelProfileExplanationArray.plot_performance_gain_analysis">
+<span class="sig-name descname"><span class="pre">plot_performance_gain_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_filters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">matplotlib.axes.Axes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.explain.explainer_result_array.ModelProfileExplanationArray.plot_performance_gain_analysis" title="Link to this definition"></a></dt>
+<dd><p>The function plots performance gain analysis plot which compares ASDD values and
+difference in performance metric values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>variables</strong> (<em>list[str], optional, default=None</em>) – Variables for which the plot should be generated. If None, plots for all variables are generated if all the
+available ModelProfileExplanation objects have exactly the same set of column names.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple(int, int), optional, default=None</em>) – The size of a figure.</p></li>
+<li><p><strong>model_filters</strong> (<em>list[str], optional, default=None</em>) – List of regex expressions to filter the names of the ModelProfileExplanation objects for comparing.
+Each element in the list creates a new boxplot. If None, one boxplot of all results is plotted.</p></li>
+<li><p><strong>filter_labels</strong> (<em>list[str], optional, default=None</em>) – Labels of model filters.</p></li>
+<li><p><strong>index_base</strong> (<em>int, str, default=-1</em>) – Index of a curve to be a base for comparisons.</p></li>
+<li><p><strong>return_df</strong> (<em>bool, default=False</em>) – If True, the method returns a dataframe on which a plot is created.</p></li>
+<li><p><strong>percent</strong> (<em>bool, default=False</em>) – If True, the percentage change will be plotted instead of difference.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes, optional</em>) – ax to plot on</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result_array.ModelPartsExplanationArray">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.explain.explainer_result_array.</span></span><span class="sig-name descname"><span class="pre">ModelPartsExplanationArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#edgaro.explain.explainer_result.ModelPartsExplanation" title="edgaro.explain.explainer_result.ModelPartsExplanation"><span class="pre">ModelPartsExplanation</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#edgaro.explain.explainer_result_array.ModelPartsExplanationArray" title="edgaro.explain.explainer_result_array.ModelPartsExplanationArray"><span class="pre">ModelPartsExplanationArray</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">explanation_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'VI'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'VI'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.explain.explainer_result_array.ModelPartsExplanationArray" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#edgaro.explain.explainer_result_array.ExplanationArray" title="edgaro.explain.explainer_result_array.ExplanationArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExplanationArray</span></code></a></p>
+<p>The class which represent the Variable Importance for all variables in Model/ModelArray object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> (<em>list[ModelPartsExplanation, ModelPartsExplanationArray]</em>) – A list of ModelPartsExplanation/ModelPartsExplanationArray with results.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – The name of ModelPartsExplanationArray. It is best if it is a Model/ModelArray name.</p></li>
+<li><p><strong>explanation_type</strong> (<em>{‘VI’}, default=’VI’</em>) – An explanation type.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>results</strong> (<em>list</em><em>[</em><a class="reference internal" href="#edgaro.explain.explainer_result.ModelPartsExplanation" title="edgaro.explain.explainer_result.ModelPartsExplanation"><em>ModelPartsExplanation</em></a><em>, </em><a class="reference internal" href="#edgaro.explain.explainer_result_array.ModelPartsExplanationArray" title="edgaro.explain.explainer_result_array.ModelPartsExplanationArray"><em>ModelPartsExplanationArray</em></a><em>]</em>) – A list of ModelPartsExplanation/ModelPartsExplanationArray with results.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – The name of ModelPartsExplanationArray. It is best if it is a Model/ModelArray name.</p></li>
+<li><p><strong>explanation_type</strong> (<em>{'VI'}</em><em>, </em><em>default='VI'</em>) – An explanation type.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result_array.ModelPartsExplanationArray.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(8,</span> <span class="pre">8)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_legend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_lim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.explain.explainer_result_array.ModelPartsExplanationArray.plot" title="Link to this definition"></a></dt>
+<dd><p>The function plots the Variable Importance profile using all ModelPartsExplanation objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>variable</strong> (<em>str, list[str], optional, default=None</em>) – Variable for which the VI should be plotted. If None, the all columns is plotted.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple(int, int), optional, default=(8, 8)</em>) – Size of a figure.</p></li>
+<li><p><strong>max_variables</strong> (<em>int, optional, default=None</em>) – Maximal number of variables from the current object to be taken into account.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes, optional, default=None</em>) – The parameter should be passed if the plot is to be created in a certain Axis. In that situation, <cite>figsize</cite>
+parameter is ignored.</p></li>
+<li><p><strong>show_legend</strong> (<em>bool, default=True</em>) – The parameter indicates whether the legend should be plotted.</p></li>
+<li><p><strong>x_lim</strong> (<em>tuple(float, float), optional, default=None</em>) – The limits of 0X axis.</p></li>
+<li><p><strong>metric_precision</strong> (<em>int, default=5</em>) – Number of digits to round the value of the metric value.</p></li>
+<li><p><strong>index_base</strong> (<em>int, str, default=-1</em>) – Index of an explanation to be a base for comparisons.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result_array.ModelPartsExplanationArray.compare_performance">
+<span class="sig-name descname"><span class="pre">compare_performance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index_base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#edgaro.explain.explainer_result_array.ModelPartsExplanationArray.compare_performance" title="Link to this definition"></a></dt>
+<dd><p>The function returns the difference between performance metric values. index_base-object’s value is subtracted
+from others.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>index_base</strong> (<em>int, str, default=-1</em>) – Index of a curve to be a base for comparisons.</p></li>
+<li><p><strong>model_filter</strong> (<em>str, optional, default=None</em>) – A regex expression to filter the names of the ModelProfileExplanation objects for comparing.</p></li>
+<li><p><strong>percent</strong> (<em>bool, default=False</em>) – If True, the percentage change will we returned instead of difference.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[float, list]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result_array.ModelPartsExplanationArray.compare">
+<span class="sig-name descname"><span class="pre">compare</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variable</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_raw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#edgaro.explain.explainer_result_array.ModelPartsExplanationArray.compare" title="Link to this definition"></a></dt>
+<dd><p>The function compares variable importance in the array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>variable</strong> (<em>str, list[str], optional, default=None</em>) – List of variable names to calculate the metric distances. If None, the metrics are calculated for
+all the columns in this object.</p></li>
+<li><p><strong>max_variables</strong> (<em>int, optional, default=None</em>) – Maximal number of variables from the current object to be taken into account.</p></li>
+<li><p><strong>return_raw</strong> (<em>bool, default=True</em>) – If True, the p-values are returned for each model. Otherwise, the mean value is returned.</p></li>
+<li><p><strong>index_base</strong> (<em>int, str, default=-1</em>) – Index of an explanation to be a base for comparisons.</p></li>
+<li><p><strong>model_filter</strong> (<em>str, optional, default=None</em>) – A regex expression to filter the names of the ModelPartsExplanation objects for comparing.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[float, list]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.explain.explainer_result_array.ModelPartsExplanationArray.plot_summary">
+<span class="sig-name descname"><span class="pre">plot_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_filters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_labels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_base</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">significance_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fdr_correction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.explain.explainer_result_array.ModelPartsExplanationArray.plot_summary" title="Link to this definition"></a></dt>
+<dd><p>The function plots boxplots of comparison metrics of VI in the object if significance_level is provided.
+Otherwise, the results of the statistical test are plotted as barplots according to the significance_level.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>variables</strong> (<em>str, list[str], optional, default=None</em>) – Variable for which the VI should be plotted. If None, the all columns is plotted.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple(int, int), optional, default=(8, 8)</em>) – Size of a figure.</p></li>
+<li><p><strong>model_filters</strong> (<em>list[str], optional, default=None</em>) – List of regex expressions to filter the names of the ModelPartsExplanation objects for comparing.
+Each element in the list creates a new boxplot. If None, one boxplot / barplot of all results is plotted.</p></li>
+<li><p><strong>filter_labels</strong> (<em>list[str], optional, default=None</em>) – Labels of model filters.</p></li>
+<li><p><strong>index_base</strong> (<em>int, str, default=-1</em>) – Index of an explanation to be a base for comparisons.</p></li>
+<li><p><strong>max_variables</strong> (<em>int, optional, default=None</em>) – Maximal number of variables from the current object to be taken into account.</p></li>
+<li><p><strong>significance_level</strong> (<em>float, optional, default=None</em>) – A significance level of the statistical test (metric).</p></li>
+<li><p><strong>fdr_correction</strong> (<em>bool, default=True</em>) – Add p-value correction for false discovery rate. Note that it is used only if significance_level is not None.</p></li>
+<li><p><strong>return_df</strong> (<em>bool, default=False</em>) – If True, the method returns a dataframe on which a plot is created.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="edgaro.model.html" class="btn btn-neutral float-left" title="edgaro.model package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="changelog.html" class="btn btn-neutral float-right" title="Changelog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Adrian Stańdo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

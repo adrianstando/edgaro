@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User manual &mdash; edgaro 1.0.2.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5a922741"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Codes for the Engineering Thesis experiments" href="../files/Codes.html" />
+    <link rel="prev" title="edgaro’s documentation" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            edgaro
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">edgaro’s documentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User manual:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">User manual</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#defining-a-dataset">Defining a dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#balancing-datasets">Balancing datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#training-a-model">Training a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#explaining-and-comparing-explanations">Explaining and comparing explanations</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Engineering Thesis:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../files/Codes.html">Codes for the Engineering Thesis experiments</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Class documentation:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="edgaro.data.html">edgaro.data package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edgaro.balancing.html">edgaro.balancing package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edgaro.model.html">edgaro.model package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edgaro.explain.html">edgaro.explain package</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Package changelog:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">edgaro</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">User manual</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/source/manual.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="user-manual">
+<h1>User manual<a class="headerlink" href="#user-manual" title="Link to this heading"></a></h1>
+<p>This manual covers the most important use cases of the package. For
+details and additional input parameters, see the full documentation.</p>
+<section id="defining-a-dataset">
+<h2>Defining a dataset<a class="headerlink" href="#defining-a-dataset" title="Link to this heading"></a></h2>
+<p>To start working with the package, you can use an example dataset. You
+can load it using the code below.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.data.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_mammography</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">load_mammography</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>It is also possible to create a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> object from a
+<code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> object in your Python session:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># X - your dataframe with features, pd.DataFrame</span>
+<span class="c1"># y - your target variable, pd.Series</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.data.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Apart from that, you can create a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> object from a <em>*.csv</em>
+file or from a dataset defined in OpenML:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.data.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatasetFromCSV</span><span class="p">,</span> <span class="n">DatasetFromOpenML</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">DatasetFromCSV</span><span class="p">(</span><span class="s1">&#39;your_path&#39;</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">DatasetFromOpenML</span><span class="p">(</span><span class="n">task_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> object offers many handy functionalities, for example
+splitting into train and test datasets (inside the object), removing
+<code class="docutils literal notranslate"><span class="pre">None</span></code> values and calculating the Imbalance Ratio.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">remove_nans</span><span class="p">()</span>
+<span class="n">df</span><span class="o">.</span><span class="n">train_test_split</span><span class="p">(</span><span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">imbalance_ratio</span>
+</pre></div>
+</div>
+<p>To represent an array of the <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> objects, <code class="docutils literal notranslate"><span class="pre">DatasetArray</span></code> is
+used. It is composed of a list of <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>s. The object offers
+vectorized functions described above, like splitting into train and test
+datasets (inside the object) and removing <code class="docutils literal notranslate"><span class="pre">None</span></code> values.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.data.dataset_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatasetArray</span>
+
+<span class="n">df_array</span> <span class="o">=</span> <span class="n">DatasetArray</span><span class="p">([</span><span class="n">df1</span><span class="p">,</span> <span class="n">df2</span><span class="p">,</span> <span class="n">df3</span><span class="p">])</span>
+<span class="n">df_array</span><span class="o">.</span><span class="n">remove_nans</span><span class="p">()</span>
+<span class="n">df_array</span><span class="o">.</span><span class="n">train_test_split</span><span class="p">(</span><span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>It is also possible to load an example <code class="docutils literal notranslate"><span class="pre">DatasetArray</span></code>, which can be
+used for benchmarking. It contains selected datasets for benchmarking
+purposes from three main sources (<em>OpenML-100</em>, <em>OpenML-CC18</em> and
+<em>imbalanced-learn</em> library). The details concerning the benchmarking set
+are available <a class="reference external" href="https://github.com/adrianstando/imbalanced-benchmarking-set">https://github.com/adrianstando/imbalanced-benchmarking-set</a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.data.dataset_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_benchmarking_set</span>
+
+<span class="n">df_array</span> <span class="o">=</span> <span class="n">load_benchmarking_set</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>It is also possible to load a benchmark suite from OpenML to
+<code class="docutils literal notranslate"><span class="pre">DatasetArray</span></code> object.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.data.dataset_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatasetArrayFromOpenMLSuite</span>
+
+<span class="n">df_array</span> <span class="o">=</span> <span class="n">DatasetArrayFromOpenMLSuite</span><span class="p">(</span><span class="n">suite_name</span><span class="o">=</span><span class="s1">&#39;OpenML100&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="balancing-datasets">
+<h2>Balancing datasets<a class="headerlink" href="#balancing-datasets" title="Link to this heading"></a></h2>
+<p>To balance a dataset, a <code class="docutils literal notranslate"><span class="pre">Transformer</span></code> abstract class is defined. It is
+possible to create custom balancing methods (by extending this class) or
+you can use methods implemented in <code class="docutils literal notranslate"><span class="pre">imblearn</span></code> library. Firstly, a
+transformer has to be fitted with a dataset, and then by calling
+<em>transform</em> method it can be balanced.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.balancing.transformer</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransformerFromIMBLEARN</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">imblearn.under_sampling</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomUnderSampler</span>
+
+<span class="n">transformer</span> <span class="o">=</span> <span class="n">TransformerFromIMBLEARN</span><span class="p">(</span>
+    <span class="n">RandomUnderSampler</span><span class="p">(</span><span class="n">sampling_strategy</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">transformer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+<span class="n">dataset_transformed</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can also define a custom suffix that will be added to balanced
+<code class="docutils literal notranslate"><span class="pre">Dataset</span></code>’s name.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.balancing.transformer</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransformerFromIMBLEARN</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">imblearn.under_sampling</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomUnderSampler</span>
+
+<span class="n">transformer</span> <span class="o">=</span> <span class="n">TransformerFromIMBLEARN</span><span class="p">(</span>
+    <span class="n">RandomUnderSampler</span><span class="p">(</span><span class="n">sampling_strategy</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">),</span>
+    <span class="n">name_sufix</span><span class="o">=</span><span class="s1">&#39;_new_sufix123&#39;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>There is one extension worth mentioning - it is
+<code class="docutils literal notranslate"><span class="pre">NestedAutomaticTransformer</span></code>. It behaves like a <code class="docutils literal notranslate"><span class="pre">Transformer</span></code>
+object, but it wraps inside a few balancing methods. Moreover, that
+object, based on <code class="docutils literal notranslate"><span class="pre">n_per_method</span></code> argument, automatically set an
+intermediate Imbalance Ratio (to investigate how the future models
+change with changing IR). For example, let an original dataset have
+<span class="math notranslate nohighlight">\(IR=10\)</span> and <span class="math notranslate nohighlight">\(n\_per\_method=3\)</span>. Then, the IR will be set to
+<span class="math notranslate nohighlight">\([7, 4, 1]\)</span>. If you set <em>keep_original_dataset</em> to <code class="docutils literal notranslate"><span class="pre">True</span></code>, the
+original will be preserved in the result <code class="docutils literal notranslate"><span class="pre">DatasetArray</span></code> object.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">BasicAutomaticTransformer</span></code> class contains three most popular
+balancing techniques (Random UnderSampling, Random OverSampling, SMOTE).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.balancing.nested_transformer</span><span class="w"> </span><span class="kn">import</span> <span class="n">BasicAutomaticTransformer</span>
+
+<span class="n">transformer</span> <span class="o">=</span> <span class="n">BasicAutomaticTransformer</span><span class="p">()</span>
+<span class="n">transformer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+<span class="n">dataset_transformed</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">balancing</span></code> submodule also offers the interface of an array. If
+your input is a <code class="docutils literal notranslate"><span class="pre">DatasetArray</span></code> object or you want to balance input
+with different parameters (in that case both <code class="docutils literal notranslate"><span class="pre">DatasetArray</span></code> and
+<code class="docutils literal notranslate"><span class="pre">Dataset</span></code> is correct) you should use this class.</p>
+<p>To apply the same balancing technique to a <code class="docutils literal notranslate"><span class="pre">DatasetArray</span></code> you have to
+use <code class="docutils literal notranslate"><span class="pre">TransformerArray</span></code> class:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.balancing.transformer_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransformerArray</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.balancing.transformer</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransformerFromIMBLEARN</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">imblearn.under_sampling</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomUnderSampler</span>
+
+<span class="n">transformer</span> <span class="o">=</span> <span class="n">TransformerArray</span><span class="p">(</span><span class="n">TransformerFromIMBLEARN</span><span class="p">(</span>
+    <span class="n">RandomUnderSampler</span><span class="p">(</span><span class="n">sampling_strategy</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="p">))</span>
+<span class="n">transformer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset_array</span><span class="p">)</span>
+<span class="n">dataset_array_transformed</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset_array</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can set, as in the <code class="docutils literal notranslate"><span class="pre">Transformer</span></code> class, the suffixes:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.balancing.transformer_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransformerArray</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.balancing.transformer</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransformerFromIMBLEARN</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">imblearn.under_sampling</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomUnderSampler</span>
+
+<span class="n">transformer</span> <span class="o">=</span> <span class="n">TransformerArray</span><span class="p">(</span><span class="n">TransformerFromIMBLEARN</span><span class="p">(</span>
+    <span class="n">RandomUnderSampler</span><span class="p">(</span><span class="n">sampling_strategy</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">),</span>
+    <span class="n">dataset_suffixes</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;_suffix1&#39;</span><span class="p">,</span> <span class="s1">&#39;_suffix2&#39;</span><span class="p">]</span>
+<span class="p">))</span>
+</pre></div>
+</div>
+<p>You can also set parameters - their nested structure should match the
+<code class="docutils literal notranslate"><span class="pre">DatasetArray</span></code> structure.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.balancing.transformer_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransformerArray</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.balancing.transformer</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransformerFromIMBLEARN</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">imblearn.under_sampling</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomUnderSampler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.data.dataset_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatasetArray</span>
+
+<span class="n">dataset_array</span> <span class="o">=</span> <span class="n">DatasetArray</span><span class="p">([</span><span class="n">dataset1</span><span class="p">,</span> <span class="n">dataset2</span><span class="p">])</span>
+
+<span class="n">transformer</span> <span class="o">=</span> <span class="n">TransformerArray</span><span class="p">(</span><span class="n">TransformerFromIMBLEARN</span><span class="p">(</span>
+    <span class="n">RandomUnderSampler</span><span class="p">(),</span>
+    <span class="n">parameters</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">[</span>
+            <span class="p">{</span><span class="s1">&#39;sampling_strategy&#39;</span><span class="p">:</span> <span class="mf">0.98</span><span class="p">},</span>
+            <span class="p">{</span><span class="s1">&#39;sampling_strategy&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+            <span class="p">{</span><span class="s1">&#39;sampling_strategy&#39;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span> <span class="s1">&#39;random_state&#39;</span><span class="p">:</span> <span class="mi">42</span><span class="p">}</span>
+        <span class="p">]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="p">]</span>
+<span class="p">))</span>
+<span class="n">transformer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset_array</span><span class="p">)</span>
+<span class="n">dataset_array_transformed</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset_array</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note: if a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> object was train-test-split, the balancing
+methods are applied only on the training datasets and the test datasets
+remain untouched.</p>
+</section>
+<section id="training-a-model">
+<h2>Training a model<a class="headerlink" href="#training-a-model" title="Link to this heading"></a></h2>
+<p>The classes in <code class="docutils literal notranslate"><span class="pre">model</span></code> module have a similar interface to those in
+<code class="docutils literal notranslate"><span class="pre">balancing</span></code> module. There is a <em>Model</em> class which is an abstract
+class and can be extended with any ML model implementation. One possible
+solution is to use <em>scikit-learn</em> models, which can be used by using
+<code class="docutils literal notranslate"><span class="pre">ModelFromSKLEARN</span></code> class.</p>
+<p>In this module, there is also a <code class="docutils literal notranslate"><span class="pre">ModelArray</span></code> class, which behaves very
+similarly to the <code class="docutils literal notranslate"><span class="pre">TransformerArray</span></code> class. However, instead of
+transforming a <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>, the class predictions are made or
+probabilities are returned. The returned objects are also <code class="docutils literal notranslate"><span class="pre">Dataset</span></code>
+objects.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.model.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelFromSKLEARN</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.ensemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomForestClassifier</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">ModelFromSKLEARN</span><span class="p">(</span><span class="n">RandomForestClassifier</span><span class="p">())</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+<span class="n">predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+<span class="n">predictions_probability</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>An example of using <code class="docutils literal notranslate"><span class="pre">ModelArray</span></code> - that means the situation when the
+input is <code class="docutils literal notranslate"><span class="pre">DatasetArray</span></code> object.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.model.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelFromSKLEARN</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.model.model_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelArray</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.ensemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomForestClassifier</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">ModelArray</span><span class="p">(</span><span class="n">ModelFromSKLEARN</span><span class="p">(</span><span class="n">RandomForestClassifier</span><span class="p">()))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset_array</span><span class="p">)</span>
+<span class="n">predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dataset_array</span><span class="p">)</span>
+<span class="n">predictions_probability</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">dataset_array</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>There is also a function to evaluate the model. If the input parameter
+is not provided and the object was train-test-split, the evaluation is
+made on the test dataset.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.model.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelFromSKLEARN</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.model.model_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelArray</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.ensemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomForestClassifier</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">ModelArray</span><span class="p">(</span><span class="n">ModelFromSKLEARN</span><span class="p">(</span><span class="n">RandomForestClassifier</span><span class="p">()))</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset_array</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">ModelFromSKLEARN</span><span class="p">(</span><span class="n">RandomForestClassifier</span><span class="p">())</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="explaining-and-comparing-explanations">
+<h2>Explaining and comparing explanations<a class="headerlink" href="#explaining-and-comparing-explanations" title="Link to this heading"></a></h2>
+<p>To create explanations (PDP / ALE curves), the <code class="docutils literal notranslate"><span class="pre">Explainer</span></code> and
+<code class="docutils literal notranslate"><span class="pre">ExplainerArray</span></code> classes are provided. The first one should be used
+when you only have one <code class="docutils literal notranslate"><span class="pre">Model</span></code> object and the latter when you have
+<code class="docutils literal notranslate"><span class="pre">ModelArray</span></code>. The interface in <code class="docutils literal notranslate"><span class="pre">explain</span></code> module is similar to that
+in <code class="docutils literal notranslate"><span class="pre">model</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.explain.explainer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Explainer</span>
+
+<span class="n">exp</span> <span class="o">=</span> <span class="n">Explainer</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="n">exp</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="n">explanation</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">transform</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>In case of input <code class="docutils literal notranslate"><span class="pre">ModelArray</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.explain.explainer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Explainer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.explain.explainer_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExplainerArray</span>
+
+<span class="n">exp</span> <span class="o">=</span> <span class="n">ExplainerArray</span><span class="p">(</span><span class="n">model_array</span><span class="p">)</span>
+<span class="n">exp</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="n">explanation</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">transform</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>These functions return <code class="docutils literal notranslate"><span class="pre">ModelProfileExplanation</span></code> and <code class="docutils literal notranslate"><span class="pre">ModelProfileExplanationArray</span></code>
+objects that make it possible to compare explanations and visualise
+them.</p>
+<p>In case of a single <code class="docutils literal notranslate"><span class="pre">Model</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.explain.explainer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Explainer</span>
+
+<span class="n">exp</span> <span class="o">=</span> <span class="n">Explainer</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="n">exp</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="n">explanation</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">transform</span><span class="p">()</span>
+<span class="n">explanation</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">variable</span><span class="o">=</span><span class="s1">&#39;Col1&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In case of a <code class="docutils literal notranslate"><span class="pre">ModelArray</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.explain.explainer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Explainer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.explain.explainer_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExplainerArray</span>
+
+<span class="n">exp</span> <span class="o">=</span> <span class="n">ExplainerArray</span><span class="p">(</span><span class="n">model_array</span><span class="p">)</span>
+<span class="n">exp</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="n">explanation</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">transform</span><span class="p">()</span>
+<span class="n">explanation</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Col1&#39;</span><span class="p">,</span> <span class="s1">&#39;Col2&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>In order to calculate the distance between the curves:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.explain.explainer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Explainer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.explain.explainer_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExplainerArray</span>
+
+<span class="n">exp</span> <span class="o">=</span> <span class="n">ExplainerArray</span><span class="p">(</span><span class="n">model_array</span><span class="p">)</span>
+<span class="n">exp</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="n">explanation</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">transform</span><span class="p">()</span>
+<span class="n">explanation</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="n">explanation</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">variable</span><span class="o">=</span><span class="s1">&#39;Col1&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To create benchmarking summary plots, use for example the code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.explain.explainer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Explainer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.explain.explainer_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExplainerArray</span>
+
+<span class="n">exp</span> <span class="o">=</span> <span class="n">ExplainerArray</span><span class="p">(</span><span class="n">model_array</span><span class="p">)</span>
+<span class="n">exp</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="n">explanation</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">transform</span><span class="p">()</span>
+<span class="n">explanation</span><span class="o">.</span><span class="n">plot_aggregate</span><span class="p">([</span><span class="s1">&#39;SMOTE &#39;</span><span class="p">,</span> <span class="s1">&#39;RandomOversample &#39;</span><span class="p">,</span> <span class="s1">&#39;RandomUndersample &#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The elements of the list in the function <em>plot_aggregate()</em> are regular
+expressions to match and group explanations matching the. In this case,
+the output will be a boxplot with three boxes - one per method.</p>
+<p>Note: if the input data objects were train-test-split, the explanations
+are calculated on the test dataset.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="edgaro’s documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../files/Codes.html" class="btn btn-neutral float-right" title="Codes for the Engineering Thesis experiments" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Adrian Stańdo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

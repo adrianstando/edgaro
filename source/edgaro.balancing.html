@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>edgaro.balancing package &mdash; edgaro 1.0.2.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5a922741"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="edgaro.model package" href="edgaro.model.html" />
+    <link rel="prev" title="edgaro.data package" href="edgaro.data.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            edgaro
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">edgaro’s documentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User manual:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="manual.html">User manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Engineering Thesis:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../files/Codes.html">Codes for the Engineering Thesis experiments</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Class documentation:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="edgaro.data.html">edgaro.data package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">edgaro.balancing package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-edgaro.balancing.transformer">edgaro.balancing.transformer module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.balancing.transformer.Transformer"><code class="docutils literal notranslate"><span class="pre">Transformer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.transformer.Transformer.fit"><code class="docutils literal notranslate"><span class="pre">Transformer.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.transformer.Transformer.was_fitted"><code class="docutils literal notranslate"><span class="pre">Transformer.was_fitted</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.transformer.Transformer.transform"><code class="docutils literal notranslate"><span class="pre">Transformer.transform()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.transformer.Transformer.set_params"><code class="docutils literal notranslate"><span class="pre">Transformer.set_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.transformer.Transformer.get_params"><code class="docutils literal notranslate"><span class="pre">Transformer.get_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.transformer.Transformer.set_dataset_suffixes"><code class="docutils literal notranslate"><span class="pre">Transformer.set_dataset_suffixes()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.balancing.transformer.ImblearnProtocol"><code class="docutils literal notranslate"><span class="pre">ImblearnProtocol</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.transformer.ImblearnProtocol.fit"><code class="docutils literal notranslate"><span class="pre">ImblearnProtocol.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.transformer.ImblearnProtocol.fit_resample"><code class="docutils literal notranslate"><span class="pre">ImblearnProtocol.fit_resample()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.transformer.ImblearnProtocol.get_params"><code class="docutils literal notranslate"><span class="pre">ImblearnProtocol.get_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.transformer.ImblearnProtocol.set_params"><code class="docutils literal notranslate"><span class="pre">ImblearnProtocol.set_params()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.balancing.transformer.TransformerFromIMBLEARN"><code class="docutils literal notranslate"><span class="pre">TransformerFromIMBLEARN</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.transformer.TransformerFromIMBLEARN.transform"><code class="docutils literal notranslate"><span class="pre">TransformerFromIMBLEARN.transform()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.transformer.TransformerFromIMBLEARN.get_imblearn_transformer"><code class="docutils literal notranslate"><span class="pre">TransformerFromIMBLEARN.get_imblearn_transformer()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.transformer.TransformerFromIMBLEARN.set_params"><code class="docutils literal notranslate"><span class="pre">TransformerFromIMBLEARN.set_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.transformer.TransformerFromIMBLEARN.get_params"><code class="docutils literal notranslate"><span class="pre">TransformerFromIMBLEARN.get_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.transformer.TransformerFromIMBLEARN.set_dataset_suffixes"><code class="docutils literal notranslate"><span class="pre">TransformerFromIMBLEARN.set_dataset_suffixes()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.balancing.transformer.RandomUnderSampler"><code class="docutils literal notranslate"><span class="pre">RandomUnderSampler</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.transformer.RandomUnderSampler.set_params"><code class="docutils literal notranslate"><span class="pre">RandomUnderSampler.set_params()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.balancing.transformer.RandomOverSampler"><code class="docutils literal notranslate"><span class="pre">RandomOverSampler</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.transformer.RandomOverSampler.set_params"><code class="docutils literal notranslate"><span class="pre">RandomOverSampler.set_params()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.balancing.transformer.SMOTE"><code class="docutils literal notranslate"><span class="pre">SMOTE</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.transformer.SMOTE.set_params"><code class="docutils literal notranslate"><span class="pre">SMOTE.set_params()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-edgaro.balancing.transformer_array">edgaro.balancing.transformer_array module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.balancing.transformer_array.TransformerArray"><code class="docutils literal notranslate"><span class="pre">TransformerArray</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.transformer_array.TransformerArray.set_dataset_suffixes"><code class="docutils literal notranslate"><span class="pre">TransformerArray.set_dataset_suffixes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.transformer_array.TransformerArray.get_dataset_suffixes"><code class="docutils literal notranslate"><span class="pre">TransformerArray.get_dataset_suffixes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.transformer_array.TransformerArray.set_params"><code class="docutils literal notranslate"><span class="pre">TransformerArray.set_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.transformer_array.TransformerArray.fit"><code class="docutils literal notranslate"><span class="pre">TransformerArray.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.transformer_array.TransformerArray.transform"><code class="docutils literal notranslate"><span class="pre">TransformerArray.transform()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.transformer_array.TransformerArray.transformers"><code class="docutils literal notranslate"><span class="pre">TransformerArray.transformers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.transformer_array.TransformerArray.base_transformer"><code class="docutils literal notranslate"><span class="pre">TransformerArray.base_transformer</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-edgaro.balancing.nested_transformer">edgaro.balancing.nested_transformer module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.balancing.nested_transformer.NestedAutomaticTransformer"><code class="docutils literal notranslate"><span class="pre">NestedAutomaticTransformer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.nested_transformer.NestedAutomaticTransformer.fit"><code class="docutils literal notranslate"><span class="pre">NestedAutomaticTransformer.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.nested_transformer.NestedAutomaticTransformer.transform"><code class="docutils literal notranslate"><span class="pre">NestedAutomaticTransformer.transform()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.nested_transformer.NestedAutomaticTransformer.set_dataset_suffixes"><code class="docutils literal notranslate"><span class="pre">NestedAutomaticTransformer.set_dataset_suffixes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.nested_transformer.NestedAutomaticTransformer.get_dataset_suffixes"><code class="docutils literal notranslate"><span class="pre">NestedAutomaticTransformer.get_dataset_suffixes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.nested_transformer.NestedAutomaticTransformer.set_params"><code class="docutils literal notranslate"><span class="pre">NestedAutomaticTransformer.set_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.nested_transformer.NestedAutomaticTransformer.get_params"><code class="docutils literal notranslate"><span class="pre">NestedAutomaticTransformer.get_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.nested_transformer.NestedAutomaticTransformer.was_fitted"><code class="docutils literal notranslate"><span class="pre">NestedAutomaticTransformer.was_fitted</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.nested_transformer.NestedAutomaticTransformer.transformers"><code class="docutils literal notranslate"><span class="pre">NestedAutomaticTransformer.transformers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.balancing.nested_transformer.NestedAutomaticTransformer.base_transformer"><code class="docutils literal notranslate"><span class="pre">NestedAutomaticTransformer.base_transformer</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.balancing.nested_transformer.BasicAutomaticTransformer"><code class="docutils literal notranslate"><span class="pre">BasicAutomaticTransformer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.balancing.nested_transformer.ExtensionAutomaticTransformer"><code class="docutils literal notranslate"><span class="pre">ExtensionAutomaticTransformer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.balancing.nested_transformer.AutomaticTransformer"><code class="docutils literal notranslate"><span class="pre">AutomaticTransformer</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="edgaro.model.html">edgaro.model package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edgaro.explain.html">edgaro.explain package</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Package changelog:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">edgaro</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">edgaro.balancing package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/source/edgaro.balancing.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="edgaro-balancing-package">
+<h1>edgaro.balancing package<a class="headerlink" href="#edgaro-balancing-package" title="Link to this heading"></a></h1>
+<section id="module-edgaro.balancing.transformer">
+<span id="edgaro-balancing-transformer-module"></span><h2>edgaro.balancing.transformer module<a class="headerlink" href="#module-edgaro.balancing.transformer" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer.Transformer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.balancing.transformer.</span></span><span class="sig-name descname"><span class="pre">Transformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name_sufix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'_transformed'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.balancing.transformer.Transformer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseTransformer</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>The abstract class to define balancing transformations for a single Dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name_sufix</strong> (<em>str, default=’_transformed’</em>) – Sufix to be set to a transformed Dataset.</p></li>
+<li><p><strong>verbose</strong> (<em>bool, default=False</em>) – Print messages during calculations.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>name_sufix</strong> (<em>str</em>) – Sufix to be set to a transformed Dataset.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – Print messages during calculations.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer.Transformer.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.balancing.transformer.Transformer.fit" title="Link to this definition"></a></dt>
+<dd><p>Fit the transformer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dataset</strong> (<em>Dataset</em>) – The object to fit Transformer on.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer.Transformer.was_fitted">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">was_fitted</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#edgaro.balancing.transformer.Transformer.was_fitted" title="Link to this definition"></a></dt>
+<dd><p>The information whether the Transformer was fitted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer.Transformer.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset_array.DatasetArray" title="edgaro.data.dataset_array.DatasetArray"><span class="pre">DatasetArray</span></a></span></span><a class="headerlink" href="#edgaro.balancing.transformer.Transformer.transform" title="Link to this definition"></a></dt>
+<dd><p>Transform the object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dataset</strong> (<em>Dataset</em>) – The object to be transformed.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The transformed object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset">Dataset</a>, <a class="reference internal" href="edgaro.data.html#edgaro.data.dataset_array.DatasetArray" title="edgaro.data.dataset_array.DatasetArray">DatasetArray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer.Transformer.set_params">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.balancing.transformer.Transformer.set_params" title="Link to this definition"></a></dt>
+<dd><p>Set params for Transformer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>dict</em>) – The parameters to be set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer.Transformer.get_params">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span></span></span><a class="headerlink" href="#edgaro.balancing.transformer.Transformer.get_params" title="Link to this definition"></a></dt>
+<dd><p>Get parameters of Transformer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The parameters.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict, list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer.Transformer.set_dataset_suffixes">
+<span class="sig-name descname"><span class="pre">set_dataset_suffixes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name_sufix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.balancing.transformer.Transformer.set_dataset_suffixes" title="Link to this definition"></a></dt>
+<dd><p>Set sufix to be set to transformed Dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name_sufix</strong> (<em>str, list</em>) – Sufix to be set to a transformed Dataset.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer.ImblearnProtocol">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.balancing.transformer.</span></span><span class="sig-name descname"><span class="pre">ImblearnProtocol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.balancing.transformer.ImblearnProtocol" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>A Protocol to define the expected structure of a Transformer from <cite>imblearn</cite> library.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer.ImblearnProtocol.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#edgaro.balancing.transformer.ImblearnProtocol.fit" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer.ImblearnProtocol.fit_resample">
+<span class="sig-name descname"><span class="pre">fit_resample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Series</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#edgaro.balancing.transformer.ImblearnProtocol.fit_resample" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer.ImblearnProtocol.get_params">
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="headerlink" href="#edgaro.balancing.transformer.ImblearnProtocol.get_params" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer.ImblearnProtocol.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#edgaro.balancing.transformer.ImblearnProtocol.set_params" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer.TransformerFromIMBLEARN">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.balancing.transformer.</span></span><span class="sig-name descname"><span class="pre">TransformerFromIMBLEARN</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transformer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#edgaro.balancing.transformer.ImblearnProtocol" title="edgaro.balancing.transformer.ImblearnProtocol"><span class="pre">ImblearnProtocol</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_sufix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'_transformed'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.balancing.transformer.TransformerFromIMBLEARN" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#edgaro.balancing.transformer.Transformer" title="edgaro.balancing.transformer.Transformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Transformer</span></code></a></p>
+<p>Create balancing Transformer from Transformer implemented in <cite>imblearn</cite> library.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>transformer</strong> (<em>ImblearnProtocol</em>) – Transformer from imblearn` library.</p></li>
+<li><p><strong>name_sufix</strong> (<em>str, default=’_transformed’</em>) – Sufix to be set to a transformed Dataset.</p></li>
+<li><p><strong>verbose</strong> (<em>bool, default=False</em>) – Print messages during calculations.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">test.resources.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">imblearn.under_sampling</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomUnderSampler</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">name_1</span><span class="p">,</span> <span class="n">df_1</span><span class="p">,</span> <span class="n">target_1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transformator</span> <span class="o">=</span> <span class="n">TransformerFromIMBLEARN</span><span class="p">(</span><span class="n">RandomUnderSampler</span><span class="p">(</span><span class="n">sampling_strategy</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transformator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transformator</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer.TransformerFromIMBLEARN.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a></span></span><a class="headerlink" href="#edgaro.balancing.transformer.TransformerFromIMBLEARN.transform" title="Link to this definition"></a></dt>
+<dd><p>Transform the object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dataset</strong> (<em>Dataset</em>) – The object to be transformed.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The transformed object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset">Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer.TransformerFromIMBLEARN.get_imblearn_transformer">
+<span class="sig-name descname"><span class="pre">get_imblearn_transformer</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#edgaro.balancing.transformer.ImblearnProtocol" title="edgaro.balancing.transformer.ImblearnProtocol"><span class="pre">ImblearnProtocol</span></a></span></span><a class="headerlink" href="#edgaro.balancing.transformer.TransformerFromIMBLEARN.get_imblearn_transformer" title="Link to this definition"></a></dt>
+<dd><p>Get the base transformer object from <cite>imblearn</cite> library.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#edgaro.balancing.transformer.ImblearnProtocol" title="edgaro.balancing.transformer.ImblearnProtocol">ImblearnProtocol</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer.TransformerFromIMBLEARN.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.balancing.transformer.TransformerFromIMBLEARN.set_params" title="Link to this definition"></a></dt>
+<dd><p>Set params for Transformer.</p>
+<p>The function allows using <cite>imbalance_ratio</cite> and <cite>IR</cite> parameters, which are transformed to <cite>sampling_strategy</cite>
+parameter in <cite>imblearn</cite> Transformer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>dict</em>) – The parameters to be set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer.TransformerFromIMBLEARN.get_params">
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="headerlink" href="#edgaro.balancing.transformer.TransformerFromIMBLEARN.get_params" title="Link to this definition"></a></dt>
+<dd><p>Get parameters of Transformer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The parameters.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict, list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer.TransformerFromIMBLEARN.set_dataset_suffixes">
+<span class="sig-name descname"><span class="pre">set_dataset_suffixes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name_sufix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.balancing.transformer.TransformerFromIMBLEARN.set_dataset_suffixes" title="Link to this definition"></a></dt>
+<dd><p>Set sufix to be set to transformed Dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name_sufix</strong> (<em>str</em>) – Sufix to be set to a transformed Dataset.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer.RandomUnderSampler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.balancing.transformer.</span></span><span class="sig-name descname"><span class="pre">RandomUnderSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imbalance_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_sufix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'_transformed'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.balancing.transformer.RandomUnderSampler" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#edgaro.balancing.transformer.TransformerFromIMBLEARN" title="edgaro.balancing.transformer.TransformerFromIMBLEARN"><code class="xref py py-class docutils literal notranslate"><span class="pre">TransformerFromIMBLEARN</span></code></a></p>
+<p>Create Random Under Sampling transformer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>imbalance_ratio</strong> (<em>float, default=1</em>) – Imbalance Ratio after transformations.</p></li>
+<li><p><strong>name_sufix</strong> (<em>str, default=’_transformed’</em>) – Sufix to be set to a transformed Dataset.</p></li>
+<li><p><strong>verbose</strong> (<em>bool, default=False</em>) – Print messages during calculations.</p></li>
+<li><p><strong>random_state</strong> (<em>int, optional</em>) – Random state seed.</p></li>
+<li><p><strong>*args</strong> (<em>tuple, optional</em>) – Additional parameter for Random Under Sampling transformer from <cite>imblearn</cite>.</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict, optional</em>) – Additional parameter for Random Under Sampling transformer from <cite>imblearn</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer.RandomUnderSampler.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.balancing.transformer.RandomUnderSampler.set_params" title="Link to this definition"></a></dt>
+<dd><p>Set params for Transformer.</p>
+<p>The function allows using <cite>imbalance_ratio</cite> and <cite>IR</cite> parameters, which are transformed to <cite>sampling_strategy</cite>
+parameter in <cite>imblearn</cite> Transformer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>dict</em>) – The parameters to be set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer.RandomOverSampler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.balancing.transformer.</span></span><span class="sig-name descname"><span class="pre">RandomOverSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imbalance_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_sufix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'_transformed'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.balancing.transformer.RandomOverSampler" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#edgaro.balancing.transformer.TransformerFromIMBLEARN" title="edgaro.balancing.transformer.TransformerFromIMBLEARN"><code class="xref py py-class docutils literal notranslate"><span class="pre">TransformerFromIMBLEARN</span></code></a></p>
+<p>Create Random Over Sampling transformer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>imbalance_ratio</strong> (<em>float, default=1</em>) – Imbalance Ratio after transformations.</p></li>
+<li><p><strong>name_sufix</strong> (<em>str, default=’_transformed’</em>) – Sufix to be set to a transformed Dataset.</p></li>
+<li><p><strong>verbose</strong> (<em>bool, default=False</em>) – Print messages during calculations.</p></li>
+<li><p><strong>random_state</strong> (<em>int, optional</em>) – Random state seed.</p></li>
+<li><p><strong>*args</strong> (<em>tuple, optional</em>) – Additional parameter for Random Over Sampling transformer from <cite>imblearn</cite>.</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict, optional</em>) – Additional parameter for Random Over Sampling transformer from <cite>imblearn</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer.RandomOverSampler.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.balancing.transformer.RandomOverSampler.set_params" title="Link to this definition"></a></dt>
+<dd><p>Set params for Transformer.</p>
+<p>The function allows using <cite>imbalance_ratio</cite> and <cite>IR</cite> parameters, which are transformed to <cite>sampling_strategy</cite>
+parameter in <cite>imblearn</cite> Transformer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>dict</em>) – The parameters to be set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer.SMOTE">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.balancing.transformer.</span></span><span class="sig-name descname"><span class="pre">SMOTE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imbalance_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_sufix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'_transformed'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns_categorical</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.balancing.transformer.SMOTE" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#edgaro.balancing.transformer.TransformerFromIMBLEARN" title="edgaro.balancing.transformer.TransformerFromIMBLEARN"><code class="xref py py-class docutils literal notranslate"><span class="pre">TransformerFromIMBLEARN</span></code></a></p>
+<p>Create SMOTE/SMOTENC/SMOTEN transformer.</p>
+<p>The method works also with categorical variables. The method guesses that columns of types ‘category’, ‘object’,
+‘int’ are always categorical. Keep that in mind before using this Transformer!</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>imbalance_ratio</strong> (<em>float, default=1</em>) – Imbalance Ratio after transformations.</p></li>
+<li><p><strong>name_sufix</strong> (<em>str, default=’_transformed’</em>) – Sufix to be set to a transformed Dataset.</p></li>
+<li><p><strong>verbose</strong> (<em>bool, default=False</em>) – Print messages during calculations.</p></li>
+<li><p><strong>random_state</strong> (<em>int, optional</em>) – Random state seed.</p></li>
+<li><p><strong>*args</strong> (<em>tuple, optional</em>) – Additional parameter for SMOTE/SMOTENC/SMOTEN transformer from <cite>imblearn</cite>.</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict, optional</em>) – Additional parameter for SMOTE/SMOTENC/SMOTEN transformer from <cite>imblearn</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer.SMOTE.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.balancing.transformer.SMOTE.set_params" title="Link to this definition"></a></dt>
+<dd><p>Set params for Transformer.</p>
+<p>The function allows using <cite>imbalance_ratio</cite> and <cite>IR</cite> parameters, which are transformed to <cite>sampling_strategy</cite>
+parameter in <cite>imblearn</cite> Transformer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>dict</em>) – The parameters to be set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-edgaro.balancing.transformer_array">
+<span id="edgaro-balancing-transformer-array-module"></span><h2>edgaro.balancing.transformer_array module<a class="headerlink" href="#module-edgaro.balancing.transformer_array" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer_array.TransformerArray">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.balancing.transformer_array.</span></span><span class="sig-name descname"><span class="pre">TransformerArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_transformer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#edgaro.balancing.transformer.Transformer" title="edgaro.balancing.transformer.Transformer"><span class="pre">Transformer</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_original_dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_suffixes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'_transformed'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_array_sufix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'_transformed_array'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_dataset_array_sufix_change</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_suffixes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.balancing.transformer_array.TransformerArray" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseTransformerArray</span></code></p>
+<p>Create a class to apply Transformer transformation with more than one set of parameters and/or
+to each of the Dataset objects in DatasetArray.</p>
+<p>Note: If you use NestedAutomaticTransformer (or children class) as a parameter to TransformerArray, it is advisable
+to pass parameter <cite>set_suffixes=False</cite> in TransformerArray object. Otherwise, the suffixes will be distorted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_transformer</strong> (<em>Transformer</em>) – The object defining the transformation procedure.</p></li>
+<li><p><strong>parameters</strong> (<em>list[list, Dict[str, Any]]], optional</em>) – The list of parameters for base_transformer. If the object is used for a DatasetArray object,
+the parameter list should be nested. For details, see Examples section.</p></li>
+<li><p><strong>keep_original_dataset</strong> (<em>bool, default=False</em>) – Keep the original Dataset after transformations or not.</p></li>
+<li><p><strong>dataset_suffixes</strong> (<em>list, str, default=’_transformed’</em>) – Suffixes to be set to a transformed objects.</p></li>
+<li><p><strong>result_array_sufix</strong> (<em>str, default=’_transformed_array’</em>) – Suffix of the main transformed DatasetArray object.</p></li>
+<li><p><strong>allow_dataset_array_sufix_change</strong> (<em>bool, default=True</em>) – Allow changing passed value of <cite>result_array_sufix</cite> according to <cite>dataset_suffixes</cite>.</p></li>
+<li><p><strong>verbose</strong> (<em>bool, default=False</em>) – Print messages during calculations.</p></li>
+<li><p><strong>set_suffixes</strong> (<em>str, default=True</em>) – Information whether suffixes for sub-Transformers should be set.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Example 1</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">test.resources.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.data.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.data.dataset_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatasetArray</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.balancing.transformer</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomUnderSampler</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.balancing.transformer_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransformerArray</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">name_1</span><span class="p">,</span> <span class="n">df_1</span><span class="p">,</span> <span class="n">target_1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">params</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;sampling_strategy&#39;</span><span class="p">:</span> <span class="mf">0.98</span><span class="p">},</span> <span class="p">{</span><span class="s1">&#39;sampling_strategy&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transformer</span> <span class="o">=</span> <span class="n">RandomUnderSampler</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">array</span> <span class="o">=</span> <span class="n">TransformerArray</span><span class="p">(</span><span class="n">transformer</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">array</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">array</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Example 2</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">test.resources.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.data.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.data.dataset_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatasetArray</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.balancing.transformer</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomUnderSampler</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.balancing.transformer_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransformerArray</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">DatasetArray</span><span class="p">([</span><span class="n">Dataset</span><span class="p">(</span><span class="n">name_2</span><span class="p">,</span> <span class="n">df_1</span><span class="p">,</span> <span class="n">target_1</span><span class="p">),</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">name_1</span><span class="p">,</span> <span class="n">df_1</span><span class="p">,</span> <span class="n">target_1</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">params</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[{</span><span class="s1">&#39;sampling_strategy&#39;</span><span class="p">:</span> <span class="mf">0.98</span><span class="p">},</span> <span class="p">{</span><span class="s1">&#39;sampling_strategy&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))</span> <span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">transformer</span> <span class="o">=</span> <span class="n">RandomUnderSampler</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">array</span> <span class="o">=</span> <span class="n">TransformerArray</span><span class="p">(</span><span class="n">transformer</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">array</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">array</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer_array.TransformerArray.set_dataset_suffixes">
+<span class="sig-name descname"><span class="pre">set_dataset_suffixes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name_sufix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.balancing.transformer_array.TransformerArray.set_dataset_suffixes" title="Link to this definition"></a></dt>
+<dd><p>Set suffixes to be set to transformed Dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name_sufix</strong> (<em>str, list</em>) – Suffixes to be set to a transformed Dataset.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer_array.TransformerArray.get_dataset_suffixes">
+<span class="sig-name descname"><span class="pre">get_dataset_suffixes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.balancing.transformer_array.TransformerArray.get_dataset_suffixes" title="Link to this definition"></a></dt>
+<dd><p>Get suffixes for transformed Dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Suffixes for a transformed Dataset.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str, list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer_array.TransformerArray.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.balancing.transformer_array.TransformerArray.set_params" title="Link to this definition"></a></dt>
+<dd><p>Set params for Transformer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>dict</em>) – The parameters to be set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer_array.TransformerArray.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset_array.DatasetArray" title="edgaro.data.dataset_array.DatasetArray"><span class="pre">DatasetArray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.balancing.transformer_array.TransformerArray.fit" title="Link to this definition"></a></dt>
+<dd><p>Fit the transformer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dataset</strong> (<em>Dataset, DatasetArray</em>) – The object to fit Transformer on.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer_array.TransformerArray.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset_array.DatasetArray" title="edgaro.data.dataset_array.DatasetArray"><span class="pre">DatasetArray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset_array.DatasetArray" title="edgaro.data.dataset_array.DatasetArray"><span class="pre">DatasetArray</span></a></span></span><a class="headerlink" href="#edgaro.balancing.transformer_array.TransformerArray.transform" title="Link to this definition"></a></dt>
+<dd><p>Transform the object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dataset</strong> (<em>Dataset, DatasetArray</em>) – The object to be transformed.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The transformed object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset">Dataset</a>, <a class="reference internal" href="edgaro.data.html#edgaro.data.dataset_array.DatasetArray" title="edgaro.data.dataset_array.DatasetArray">DatasetArray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer_array.TransformerArray.transformers">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">transformers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#edgaro.balancing.transformer.Transformer" title="edgaro.balancing.transformer.Transformer"><span class="pre">Transformer</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#edgaro.balancing.transformer_array.TransformerArray" title="edgaro.balancing.transformer_array.TransformerArray"><span class="pre">TransformerArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#edgaro.balancing.transformer_array.TransformerArray.transformers" title="Link to this definition"></a></dt>
+<dd><p>All the Transformer objects used by this object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="#edgaro.balancing.transformer.Transformer" title="edgaro.balancing.transformer.Transformer">Transformer</a>, <a class="reference internal" href="#edgaro.balancing.transformer_array.TransformerArray" title="edgaro.balancing.transformer_array.TransformerArray">TransformerArray</a>, list]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edgaro.balancing.transformer_array.TransformerArray.base_transformer">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">base_transformer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#edgaro.balancing.transformer.Transformer" title="edgaro.balancing.transformer.Transformer"><span class="pre">Transformer</span></a></em><a class="headerlink" href="#edgaro.balancing.transformer_array.TransformerArray.base_transformer" title="Link to this definition"></a></dt>
+<dd><p>Base transformers for creation of this object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#edgaro.balancing.transformer.Transformer" title="edgaro.balancing.transformer.Transformer">Transformer</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-edgaro.balancing.nested_transformer">
+<span id="edgaro-balancing-nested-transformer-module"></span><h2>edgaro.balancing.nested_transformer module<a class="headerlink" href="#module-edgaro.balancing.nested_transformer" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.balancing.nested_transformer.NestedAutomaticTransformer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.balancing.nested_transformer.</span></span><span class="sig-name descname"><span class="pre">NestedAutomaticTransformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_transformers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#edgaro.balancing.transformer.Transformer" title="edgaro.balancing.transformer.Transformer"><span class="pre">Transformer</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_transformers_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_original_dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_array_sufix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'_automatic_transformed_array'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_per_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IR_round_precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_samples_to_modify</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.balancing.nested_transformer.NestedAutomaticTransformer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#edgaro.balancing.transformer.Transformer" title="edgaro.balancing.transformer.Transformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Transformer</span></code></a></p>
+<p>Create NestedAutomaticTransformer.</p>
+<p>This object creates an object that behaves like a Transformer, but transforms a single Dataset using not only one,
+but more methods. Moreover, you do not specify Imbalance Ratio values, but they are automatically calculated. You
+pass only an argument <cite>n_per_method</cite> and the class will balance the Dataset
+with that number of Imbalance Raio values.</p>
+<p>Note: If you use NestedAutomaticTransformer (or children class) as a parameter to TransformerArray, it is advisable
+to pass parameter <cite>set_suffixes=False</cite> in TransformerArray object. Otherwise, the suffixes will be distorted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_transformers</strong> (<em>list(Transformer)</em>) – List of base transformers.</p></li>
+<li><p><strong>base_transformers_names</strong> (<em>list(str)</em>) – List of names of base_transformers.</p></li>
+<li><p><strong>keep_original_dataset</strong> (<em>bool, default=False</em>) – Keep the original Dataset after transformations or not.</p></li>
+<li><p><strong>result_array_sufix str, default=’_automatic_transformed_array’</strong> – Suffix of the transformed DatasetArray.</p></li>
+<li><p><strong>n_per_method</strong> (<em>int, default=5</em>) – Number of intermediate Imbalance Ratio values.</p></li>
+<li><p><strong>random_state</strong> (<em>int, optional, default=None,</em>) – Random state seed.</p></li>
+<li><p><strong>IR_round_precision</strong> (<em>int, default=2</em>) – Round precision of Imbalance Ratio when printing.</p></li>
+<li><p><strong>min_samples_to_modify</strong> (<em>int, optional, default=None</em>) – Minimal number of samples to modify to create an intermediate Imbalance Ratio. If the number of modified
+observations is less than this number, the <cite>n_per_method</cite> parameter will be modified.</p></li>
+<li><p><strong>verbose</strong> (<em>bool, default=False</em>) – Print messages during calculations.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>keep_original_dataset</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Keep the original Dataset after transformations or not.</p></li>
+<li><p><strong>n_per_method</strong> (<em>int</em><em>, </em><em>default=5</em>) – Number of intermediate Imbalance Ratio values.</p></li>
+<li><p><strong>random_state</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default=None</em><em>,</em>) – Random state seed.</p></li>
+<li><p><strong>default='_automatic_transformed_array'</strong> (<em>result_array_sufix str</em><em>,</em>) – Suffix of the transformed DatasetArray.</p></li>
+<li><p><strong>IR_round_precision</strong> (<em>int</em><em>, </em><em>default=2</em>) – Round precision of Imbalance Ratio when printing.</p></li>
+<li><p><strong>min_samples_to_modify</strong> (<em>int</em><em>, </em><em>optional</em><em>, </em><em>default=None</em>) – Minimal number of samples to modify to create an intermediate Imbalance Ratio. If the number of modified
+observations is less than this number, the <cite>n_per_method</cite> parameter will be modified.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Print messages during calculations.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.nested_transformer.NestedAutomaticTransformer.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.balancing.nested_transformer.NestedAutomaticTransformer.fit" title="Link to this definition"></a></dt>
+<dd><p>Fit the transformer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dataset</strong> (<em>Dataset</em>) – The object to fit Transformer on.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.nested_transformer.NestedAutomaticTransformer.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset_array.DatasetArray" title="edgaro.data.dataset_array.DatasetArray"><span class="pre">DatasetArray</span></a></span></span><a class="headerlink" href="#edgaro.balancing.nested_transformer.NestedAutomaticTransformer.transform" title="Link to this definition"></a></dt>
+<dd><p>Transform the object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dataset</strong> (<em>Dataset</em>) – The object to be transformed.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The transformed object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset_array.DatasetArray" title="edgaro.data.dataset_array.DatasetArray">DatasetArray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.nested_transformer.NestedAutomaticTransformer.set_dataset_suffixes">
+<span class="sig-name descname"><span class="pre">set_dataset_suffixes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name_sufix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.balancing.nested_transformer.NestedAutomaticTransformer.set_dataset_suffixes" title="Link to this definition"></a></dt>
+<dd><p>Set suffixes to be set to transformed Dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name_sufix</strong> (<em>str, list</em>) – Suffixes to be set to a transformed Dataset.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.nested_transformer.NestedAutomaticTransformer.get_dataset_suffixes">
+<span class="sig-name descname"><span class="pre">get_dataset_suffixes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.balancing.nested_transformer.NestedAutomaticTransformer.get_dataset_suffixes" title="Link to this definition"></a></dt>
+<dd><p>Get suffixes for transformed Dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Suffixes for a transformed Dataset.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str, list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.nested_transformer.NestedAutomaticTransformer.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.balancing.nested_transformer.NestedAutomaticTransformer.set_params" title="Link to this definition"></a></dt>
+<dd><p>Set params for Transformer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>dict</em>) – The parameters to be set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.balancing.nested_transformer.NestedAutomaticTransformer.get_params">
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#edgaro.balancing.nested_transformer.NestedAutomaticTransformer.get_params" title="Link to this definition"></a></dt>
+<dd><p>Get parameters of Transformer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The parameters.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict, list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edgaro.balancing.nested_transformer.NestedAutomaticTransformer.was_fitted">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">was_fitted</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#edgaro.balancing.nested_transformer.NestedAutomaticTransformer.was_fitted" title="Link to this definition"></a></dt>
+<dd><p>The information whether the Transformer was fitted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edgaro.balancing.nested_transformer.NestedAutomaticTransformer.transformers">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">transformers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#edgaro.balancing.transformer.Transformer" title="edgaro.balancing.transformer.Transformer"><span class="pre">Transformer</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#edgaro.balancing.transformer_array.TransformerArray" title="edgaro.balancing.transformer_array.TransformerArray"><span class="pre">TransformerArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#edgaro.balancing.nested_transformer.NestedAutomaticTransformer.transformers" title="Link to this definition"></a></dt>
+<dd><p>All the Transformer objects used by this object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="#edgaro.balancing.transformer.Transformer" title="edgaro.balancing.transformer.Transformer">Transformer</a>, <a class="reference internal" href="#edgaro.balancing.transformer_array.TransformerArray" title="edgaro.balancing.transformer_array.TransformerArray">TransformerArray</a>, list]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edgaro.balancing.nested_transformer.NestedAutomaticTransformer.base_transformer">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">base_transformer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#edgaro.balancing.transformer.Transformer" title="edgaro.balancing.transformer.Transformer"><span class="pre">Transformer</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#edgaro.balancing.transformer_array.TransformerArray" title="edgaro.balancing.transformer_array.TransformerArray"><span class="pre">TransformerArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span></em><a class="headerlink" href="#edgaro.balancing.nested_transformer.NestedAutomaticTransformer.base_transformer" title="Link to this definition"></a></dt>
+<dd><p>Base transformers for creation of this object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="#edgaro.balancing.transformer.Transformer" title="edgaro.balancing.transformer.Transformer">Transformer</a>, <a class="reference internal" href="#edgaro.balancing.transformer_array.TransformerArray" title="edgaro.balancing.transformer_array.TransformerArray">TransformerArray</a>, list]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.balancing.nested_transformer.BasicAutomaticTransformer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.balancing.nested_transformer.</span></span><span class="sig-name descname"><span class="pre">BasicAutomaticTransformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keep_original_dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_array_sufix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'_automatic_transformed_array'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_per_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IR_round_precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_samples_to_modify</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.balancing.nested_transformer.BasicAutomaticTransformer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#edgaro.balancing.nested_transformer.NestedAutomaticTransformer" title="edgaro.balancing.nested_transformer.NestedAutomaticTransformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">NestedAutomaticTransformer</span></code></a></p>
+<p>Create BasicAutomaticTransformer.</p>
+<p>This object contains three most popular methods - Random Under Sampler, Random Over Sampler and SMOTE.</p>
+<p>This class can be used for both continuous (numerical) and categorical data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>keep_original_dataset</strong> (<em>bool, default=False</em>) – Keep the original Dataset after transformations or not.</p></li>
+<li><p><strong>result_array_sufix str, default=’_automatic_transformed_array’</strong> – Suffix of the transformed DatasetArray.</p></li>
+<li><p><strong>n_per_method</strong> (<em>int, default=5</em>) – Number of intermediate Imbalance Ratio values.</p></li>
+<li><p><strong>random_state</strong> (<em>int, optional, default=None,</em>) – Random state seed.</p></li>
+<li><p><strong>IR_round_precision</strong> (<em>int, default=2</em>) – Round precision of Imbalance Ratio when printing.</p></li>
+<li><p><strong>min_samples_to_modify</strong> (<em>int, optional, default=None</em>) – Minimal number of samples to modify to create an intermediate Imbalance Ratio. If the number of modified
+observations is less than this number, the <cite>n_per_method</cite> parameter will be modified.</p></li>
+<li><p><strong>verbose</strong> (<em>bool, default=False</em>) – Print messages during calculations.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.balancing.nested_transformer.ExtensionAutomaticTransformer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.balancing.nested_transformer.</span></span><span class="sig-name descname"><span class="pre">ExtensionAutomaticTransformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keep_original_dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_array_sufix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'_automatic_transformed_array'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_per_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IR_round_precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_samples_to_modify</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.balancing.nested_transformer.ExtensionAutomaticTransformer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#edgaro.balancing.nested_transformer.NestedAutomaticTransformer" title="edgaro.balancing.nested_transformer.NestedAutomaticTransformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">NestedAutomaticTransformer</span></code></a></p>
+<p>Create ExtensionAutomaticTransformer.</p>
+<p>This object contains three more complex methods implemented in imblearn. There are methods used for oversampling
+(BorderlineSMOTE), undersampling (NearMiss) and there is also a hybrid method (SMOTETomek).</p>
+<p>This class can be used only for continuous (numerical) data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>keep_original_dataset</strong> (<em>bool, default=False</em>) – Keep the original Dataset after transformations or not.</p></li>
+<li><p><strong>result_array_sufix str, default=’_automatic_transformed_array’</strong> – Suffix of the transformed DatasetArray.</p></li>
+<li><p><strong>n_per_method</strong> (<em>int, default=5</em>) – Number of intermediate Imbalance Ratio values.</p></li>
+<li><p><strong>random_state</strong> (<em>int, optional, default=None,</em>) – Random state seed.</p></li>
+<li><p><strong>IR_round_precision</strong> (<em>int, default=2</em>) – Round precision of Imbalance Ratio when printing.</p></li>
+<li><p><strong>min_samples_to_modify</strong> (<em>int, optional, default=None</em>) – Minimal number of samples to modify to create an intermediate Imbalance Ratio. If the number of modified
+observations is less than this number, the <cite>n_per_method</cite> parameter will be modified.</p></li>
+<li><p><strong>verbose</strong> (<em>bool, default=False</em>) – Print messages during calculations.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.balancing.nested_transformer.AutomaticTransformer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.balancing.nested_transformer.</span></span><span class="sig-name descname"><span class="pre">AutomaticTransformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keep_original_dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_array_sufix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'_automatic_transformed_array'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_per_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IR_round_precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_samples_to_modify</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.balancing.nested_transformer.AutomaticTransformer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#edgaro.balancing.nested_transformer.NestedAutomaticTransformer" title="edgaro.balancing.nested_transformer.NestedAutomaticTransformer"><code class="xref py py-class docutils literal notranslate"><span class="pre">NestedAutomaticTransformer</span></code></a></p>
+<p>Create AutomaticTransformer.</p>
+<p>This object contains six methods implemented in imblearn. There are methods used for oversampling
+(RandomOverSampling, BorderlineSMOTE), undersampling (RandomUnderSampling, NearMiss) and there is also a
+hybrid method (SMOTETomek).</p>
+<p>This class can be used only for continuous (numerical) data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>keep_original_dataset</strong> (<em>bool, default=False</em>) – Keep the original Dataset after transformations or not.</p></li>
+<li><p><strong>result_array_sufix str, default=’_automatic_transformed_array’</strong> – Suffix of the transformed DatasetArray.</p></li>
+<li><p><strong>n_per_method</strong> (<em>int, default=5</em>) – Number of intermediate Imbalance Ratio values.</p></li>
+<li><p><strong>random_state</strong> (<em>int, optional, default=None,</em>) – Random state seed.</p></li>
+<li><p><strong>IR_round_precision</strong> (<em>int, default=2</em>) – Round precision of Imbalance Ratio when printing.</p></li>
+<li><p><strong>min_samples_to_modify</strong> (<em>int, optional, default=None</em>) – Minimal number of samples to modify to create an intermediate Imbalance Ratio. If the number of modified
+observations is less than this number, the <cite>n_per_method</cite> parameter will be modified.</p></li>
+<li><p><strong>verbose</strong> (<em>bool, default=False</em>) – Print messages during calculations.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="edgaro.data.html" class="btn btn-neutral float-left" title="edgaro.data package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="edgaro.model.html" class="btn btn-neutral float-right" title="edgaro.model package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Adrian Stańdo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

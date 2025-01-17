@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>edgaro.model package &mdash; edgaro 1.0.2.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5a922741"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="edgaro.explain package" href="edgaro.explain.html" />
+    <link rel="prev" title="edgaro.balancing package" href="edgaro.balancing.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            edgaro
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">edgaro’s documentation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User manual:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="manual.html">User manual</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Engineering Thesis:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../files/Codes.html">Codes for the Engineering Thesis experiments</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Class documentation:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="edgaro.data.html">edgaro.data package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edgaro.balancing.html">edgaro.balancing package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">edgaro.model package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-edgaro.model.model">edgaro.model.model module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.model.model.Model"><code class="docutils literal notranslate"><span class="pre">Model</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model.Model.fit"><code class="docutils literal notranslate"><span class="pre">Model.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model.Model.was_fitted"><code class="docutils literal notranslate"><span class="pre">Model.was_fitted</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model.Model.transform_data"><code class="docutils literal notranslate"><span class="pre">Model.transform_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model.Model.transform_target"><code class="docutils literal notranslate"><span class="pre">Model.transform_target()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model.Model.predict"><code class="docutils literal notranslate"><span class="pre">Model.predict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model.Model.predict_proba"><code class="docutils literal notranslate"><span class="pre">Model.predict_proba()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model.Model.set_params"><code class="docutils literal notranslate"><span class="pre">Model.set_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model.Model.get_params"><code class="docutils literal notranslate"><span class="pre">Model.get_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model.Model.transform"><code class="docutils literal notranslate"><span class="pre">Model.transform()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model.Model.set_transform_to_probabilities"><code class="docutils literal notranslate"><span class="pre">Model.set_transform_to_probabilities()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model.Model.set_transform_to_classes"><code class="docutils literal notranslate"><span class="pre">Model.set_transform_to_classes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model.Model.get_train_dataset"><code class="docutils literal notranslate"><span class="pre">Model.get_train_dataset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model.Model.get_test_dataset"><code class="docutils literal notranslate"><span class="pre">Model.get_test_dataset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model.Model.get_category_colnames"><code class="docutils literal notranslate"><span class="pre">Model.get_category_colnames()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model.Model.evaluate"><code class="docutils literal notranslate"><span class="pre">Model.evaluate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.model.model.SKLEARNModelProtocol"><code class="docutils literal notranslate"><span class="pre">SKLEARNModelProtocol</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model.SKLEARNModelProtocol.fit"><code class="docutils literal notranslate"><span class="pre">SKLEARNModelProtocol.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model.SKLEARNModelProtocol.predict"><code class="docutils literal notranslate"><span class="pre">SKLEARNModelProtocol.predict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model.SKLEARNModelProtocol.predict_proba"><code class="docutils literal notranslate"><span class="pre">SKLEARNModelProtocol.predict_proba()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model.SKLEARNModelProtocol.get_params"><code class="docutils literal notranslate"><span class="pre">SKLEARNModelProtocol.get_params()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model.SKLEARNModelProtocol.set_params"><code class="docutils literal notranslate"><span class="pre">SKLEARNModelProtocol.set_params()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.model.model.ModelFromSKLEARN"><code class="docutils literal notranslate"><span class="pre">ModelFromSKLEARN</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model.ModelFromSKLEARN.was_fitted"><code class="docutils literal notranslate"><span class="pre">ModelFromSKLEARN.was_fitted</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model.ModelFromSKLEARN.get_params"><code class="docutils literal notranslate"><span class="pre">ModelFromSKLEARN.get_params()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.model.model.RandomForest"><code class="docutils literal notranslate"><span class="pre">RandomForest</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.model.model.XGBoost"><code class="docutils literal notranslate"><span class="pre">XGBoost</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.model.model.RandomSearchCV"><code class="docutils literal notranslate"><span class="pre">RandomSearchCV</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.model.model.GridSearchCV"><code class="docutils literal notranslate"><span class="pre">GridSearchCV</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-edgaro.model.model_array">edgaro.model.model_array module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#edgaro.model.model_array.ModelArray"><code class="docutils literal notranslate"><span class="pre">ModelArray</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model_array.ModelArray.fit"><code class="docutils literal notranslate"><span class="pre">ModelArray.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model_array.ModelArray.predict"><code class="docutils literal notranslate"><span class="pre">ModelArray.predict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model_array.ModelArray.predict_proba"><code class="docutils literal notranslate"><span class="pre">ModelArray.predict_proba()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model_array.ModelArray.get_models"><code class="docutils literal notranslate"><span class="pre">ModelArray.get_models()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model_array.ModelArray.set_transform_to_probabilities"><code class="docutils literal notranslate"><span class="pre">ModelArray.set_transform_to_probabilities()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model_array.ModelArray.set_transform_to_classes"><code class="docutils literal notranslate"><span class="pre">ModelArray.set_transform_to_classes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model_array.ModelArray.evaluate"><code class="docutils literal notranslate"><span class="pre">ModelArray.evaluate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model_array.ModelArray.transformers"><code class="docutils literal notranslate"><span class="pre">ModelArray.transformers</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#edgaro.model.model_array.ModelArray.base_transformer"><code class="docutils literal notranslate"><span class="pre">ModelArray.base_transformer</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="edgaro.explain.html">edgaro.explain package</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Package changelog:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">edgaro</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">edgaro.model package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/source/edgaro.model.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="edgaro-model-package">
+<h1>edgaro.model package<a class="headerlink" href="#edgaro-model-package" title="Link to this heading"></a></h1>
+<section id="module-edgaro.model.model">
+<span id="edgaro-model-model-module"></span><h2>edgaro.model.model module<a class="headerlink" href="#module-edgaro.model.model" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.model.model.Model">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.model.model.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">majority_class_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.model.model.Model" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseTransformer</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>The abstract class to define a Machine Learning model for a single Dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – A name of the Model.</p></li>
+<li><p><strong>test_size</strong> (<em>float, optional, default=None</em>) – Test size for a Dataset object in case it was not train-test-split. If a Dataset object was not train-test-split
+and the parameter has value None, the training will be done on the all data.</p></li>
+<li><p><strong>random_state</strong> (<em>int, optional, default=None</em>) – Random state seed.</p></li>
+<li><p><strong>verbose</strong> (<em>bool, default=False</em>) – Print messages during calculations.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – A name of the Model.</p></li>
+<li><p><strong>test_size</strong> (<em>float</em><em>, </em><em>optional</em>) – Test size for a Dataset object in case it was not train-test-split. If a Dataset object was not train-test-split
+and the parameter has value None, the training will be done on the all data.</p></li>
+<li><p><strong>random_state</strong> (<em>int</em><em>, </em><em>optional</em>) – Random state seed.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – Print messages during calculations.</p></li>
+<li><p><strong>majority_class_label</strong> (<em>str</em><em>, </em><em>optional</em><em>, </em><em>default=None</em>) – The label of the majority class. It is recommended to pass this argument; otherwise, it will be guessed.
+The guess may be wrong if the dataset is balanced - consequently, experiment results may be wrong. If None,
+it will be tried to extract the information from the majority_class_label attribute of the Dataset object.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model.Model.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_scores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.model.model.Model.fit" title="Link to this definition"></a></dt>
+<dd><p>Fit the Model.</p>
+<p>The fitting process includes encoding the categorical variables with OrdinalEncoder (from scikit-learn library)
+and target encoding (custom encoding, the minority class is encoded as 1, the majority class as 0).</p>
+<p>The method assumes that categorical variables, which has to be encoded,
+are one of the types: ‘category’, ‘object’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<em>Dataset</em>) – The object to fit Model on.</p></li>
+<li><p><strong>print_scores</strong> (<em>bool, default=False</em>) – Indicates whether model evaluation on a test dataset should be printed at the end of fitting.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edgaro.model.model.Model.was_fitted">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">was_fitted</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#edgaro.model.model.Model.was_fitted" title="Link to this definition"></a></dt>
+<dd><p>The information whether the Model was fitted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model.Model.transform_data">
+<span class="sig-name descname"><span class="pre">transform_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a></span></span><a class="headerlink" href="#edgaro.model.model.Model.transform_data" title="Link to this definition"></a></dt>
+<dd><p>Encode dataset.data with the rules generated after fitting this object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dataset</strong> (<em>Dataset</em>) – A Dataset object, where <cite>.data</cite> attribute will be encoded. The method returns a new object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset">Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model.Model.transform_target">
+<span class="sig-name descname"><span class="pre">transform_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a></span></span><a class="headerlink" href="#edgaro.model.model.Model.transform_target" title="Link to this definition"></a></dt>
+<dd><p>Encode dataset.target with the rules generated after fitting this object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dataset</strong> (<em>Dataset</em>) – A Dataset object, where <cite>.target</cite> attribute will be encoded. The method returns a new object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset">Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model.Model.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a></span></span><a class="headerlink" href="#edgaro.model.model.Model.predict" title="Link to this definition"></a></dt>
+<dd><p>Predict the class for a Dataset object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dataset</strong> (<em>Dataset</em>) – A Dataset object to make predictions on.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset">Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model.Model.predict_proba">
+<span class="sig-name descname"><span class="pre">predict_proba</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a></span></span><a class="headerlink" href="#edgaro.model.model.Model.predict_proba" title="Link to this definition"></a></dt>
+<dd><p>Predict the probability of class <cite>1</cite> for a Dataset object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dataset</strong> (<em>Dataset</em>) – A Dataset object to make predictions on.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset">Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model.Model.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.model.model.Model.set_params" title="Link to this definition"></a></dt>
+<dd><p>Set params for Model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>params</strong> (<em>dict</em>) – The parameters to be set.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model.Model.get_params">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="headerlink" href="#edgaro.model.model.Model.get_params" title="Link to this definition"></a></dt>
+<dd><p>Get parameters of Model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The parameters.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict, list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model.Model.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a></span></span><a class="headerlink" href="#edgaro.model.model.Model.transform" title="Link to this definition"></a></dt>
+<dd><p>A function to make the Model compatible with BaseTransformer.</p>
+<p>It can either return predicted classes or predicted probabilities - it can be set using
+<cite>set_transform_to_probabilities</cite> and <cite>set_transform_to_classes</cite> functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dataset</strong> (<em>Dataset</em>) – A Dataset object to be transformed.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset">Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model.Model.set_transform_to_probabilities">
+<span class="sig-name descname"><span class="pre">set_transform_to_probabilities</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.model.model.Model.set_transform_to_probabilities" title="Link to this definition"></a></dt>
+<dd><p>Make <cite>transform</cite> function return probabilities.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model.Model.set_transform_to_classes">
+<span class="sig-name descname"><span class="pre">set_transform_to_classes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.model.model.Model.set_transform_to_classes" title="Link to this definition"></a></dt>
+<dd><p>Make <cite>transform</cite> function return classes..</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model.Model.get_train_dataset">
+<span class="sig-name descname"><span class="pre">get_train_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.model.model.Model.get_train_dataset" title="Link to this definition"></a></dt>
+<dd><p>Get a Dataset used for a training process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset">Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model.Model.get_test_dataset">
+<span class="sig-name descname"><span class="pre">get_test_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.model.model.Model.get_test_dataset" title="Link to this definition"></a></dt>
+<dd><p>Get a Dataset used for a test process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset">Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model.Model.get_category_colnames">
+<span class="sig-name descname"><span class="pre">get_category_colnames</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#edgaro.model.model.Model.get_category_colnames" title="Link to this definition"></a></dt>
+<dd><p>Get category column names, which were encoded during the fitting process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list(str)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model.Model.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics_output_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Series</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Series</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics_output_probabilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Series</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Series</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#edgaro.model.model.Model.evaluate" title="Link to this definition"></a></dt>
+<dd><p>Evaluate model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>metrics_output_class</strong> (<em>list[Callable[[pd.Series, pd.Series], float]], optional, default=None</em>) – List of functions to calculate metrics on predicted classes. If None is passed, accuracy, balanced accuracy,
+precision, recall, specificity, f1, f1_weighted, geometric mean score are used.</p></li>
+<li><p><strong>metrics_output_probabilities</strong> (<em>list[Callable[[pd.Series, pd.Series], float]], optional, default=None</em>) – List of functions to calculate metrics on predicted probabilities. If None is passed, ROC AUC is used.</p></li>
+<li><p><strong>ds</strong> (<em>Dataset, optional, default=None</em>) – A Dataset object to calculate metric on. If None is passed, test Dataset from fitting is used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.model.model.SKLEARNModelProtocol">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.model.model.</span></span><span class="sig-name descname"><span class="pre">SKLEARNModelProtocol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.model.model.SKLEARNModelProtocol" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>A Protocol to define the expected structure of a Model from <cite>scikit-learn</cite> library.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model.SKLEARNModelProtocol.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#edgaro.model.model.SKLEARNModelProtocol.fit" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model.SKLEARNModelProtocol.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#edgaro.model.model.SKLEARNModelProtocol.predict" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model.SKLEARNModelProtocol.predict_proba">
+<span class="sig-name descname"><span class="pre">predict_proba</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#edgaro.model.model.SKLEARNModelProtocol.predict_proba" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model.SKLEARNModelProtocol.get_params">
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="headerlink" href="#edgaro.model.model.SKLEARNModelProtocol.get_params" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model.SKLEARNModelProtocol.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">params</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#edgaro.model.model.SKLEARNModelProtocol.set_params" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.model.model.ModelFromSKLEARN">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.model.model.</span></span><span class="sig-name descname"><span class="pre">ModelFromSKLEARN</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#edgaro.model.model.SKLEARNModelProtocol" title="edgaro.model.model.SKLEARNModelProtocol"><span class="pre">SKLEARNModelProtocol</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.model.model.ModelFromSKLEARN" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#edgaro.model.model.Model" title="edgaro.model.model.Model"><code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></a></p>
+<p>Create Model from a model in <cite>scikit-learn</cite> library.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_model</strong> (<em>SKLEARNModelProtocol</em>) – A model from <cite>scikit-learn</cite> library. Note: this object has to be clean (not fitted).</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – A name of the Model.</p></li>
+<li><p><strong>test_size</strong> (<em>float, optional, default=None</em>) – Test size for a Dataset object in case it was not train-test-split. If a Dataset object was not train-test-split
+and the parameter has value None, the training will be done on the all data.</p></li>
+<li><p><strong>random_state</strong> (<em>int, optional, default=None</em>) – Random state seed.</p></li>
+<li><p><strong>verbose</strong> (<em>bool, default=False</em>) – Print messages during calculations.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="edgaro.model.model.ModelFromSKLEARN.was_fitted">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">was_fitted</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#edgaro.model.model.ModelFromSKLEARN.was_fitted" title="Link to this definition"></a></dt>
+<dd><p>The information whether the Model was fitted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model.ModelFromSKLEARN.get_params">
+<span class="sig-name descname"><span class="pre">get_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="headerlink" href="#edgaro.model.model.ModelFromSKLEARN.get_params" title="Link to this definition"></a></dt>
+<dd><p>Get parameters of Model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The parameters.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict, list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.model.model.RandomForest">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.model.model.</span></span><span class="sig-name descname"><span class="pre">RandomForest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.model.model.RandomForest" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#edgaro.model.model.ModelFromSKLEARN" title="edgaro.model.model.ModelFromSKLEARN"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelFromSKLEARN</span></code></a></p>
+<p>Create RandomForest Model from a RandomForestClassifier implementation in <cite>scikit-learn</cite> library.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – A name of the Model.</p></li>
+<li><p><strong>test_size</strong> (<em>float, optional, default=None</em>) – Test size for a Dataset object in case it was not train-test-split. If a Dataset object was not train-test-split
+and the parameter has value None, the training will be done on the all data.</p></li>
+<li><p><strong>random_state</strong> (<em>int, optional, default=None</em>) – Random state seed.</p></li>
+<li><p><strong>verbose</strong> (<em>bool, default=False</em>) – Print messages during calculations.</p></li>
+<li><p><strong>*args</strong> (<em>tuple, optional</em>) – Additional parameters for RandomForestClassifier from <cite>scikit-learn</cite> library.</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict, optional</em>) – Additional parameters for RandomForestClassifier from <cite>scikit-learn</cite> library.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.model.model.XGBoost">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.model.model.</span></span><span class="sig-name descname"><span class="pre">XGBoost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.model.model.XGBoost" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#edgaro.model.model.ModelFromSKLEARN" title="edgaro.model.model.ModelFromSKLEARN"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelFromSKLEARN</span></code></a></p>
+<p>Create XGBoost Model from a XGBClassifier implementation in <cite>xgboost</cite> library.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – A name of the Model.</p></li>
+<li><p><strong>test_size</strong> (<em>float, optional, default=None</em>) – Test size for a Dataset object in case it was not train-test-split. If a Dataset object was not train-test-split
+and the parameter has value None, the training will be done on the all data.</p></li>
+<li><p><strong>random_state</strong> (<em>int, optional, default=None</em>) – Random state seed.</p></li>
+<li><p><strong>verbose</strong> (<em>bool, default=False</em>) – Print messages during calculations.</p></li>
+<li><p><strong>*args</strong> (<em>tuple, optional</em>) – Additional parameters for XGBClassifier from <cite>xgboost</cite> library.</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict, optional</em>) – Additional parameters for XGBClassifier from <cite>xgboost</cite> library.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.model.model.RandomSearchCV">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.model.model.</span></span><span class="sig-name descname"><span class="pre">RandomSearchCV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#edgaro.model.model.ModelFromSKLEARN" title="edgaro.model.model.ModelFromSKLEARN"><span class="pre">ModelFromSKLEARN</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scoring</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'balanced_accuracy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.model.model.RandomSearchCV" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#edgaro.model.model.ModelFromSKLEARN" title="edgaro.model.model.ModelFromSKLEARN"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelFromSKLEARN</span></code></a></p>
+<p>Create Model to perform Random Search on any of the model implementation matching SKLEARNModelProtocol.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_model</strong> (<em>SKLEARNModelProtocol</em>) – A model from <cite>scikit-learn</cite> library. Note: this object has to be clean (not fitted).</p></li>
+<li><p><strong>param_grid</strong> (<em>Dict</em>) – A parameter grid for searching.</p></li>
+<li><p><strong>n_iter</strong> (<em>int</em>) – Number of iterations to be performed.</p></li>
+<li><p><strong>cv</strong> (<em>int</em>) – Number of cross-validation folds.</p></li>
+<li><p><strong>scoring</strong> (<em>str</em>) – Name of a function to be used to choose the best model.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – A name of the Model.</p></li>
+<li><p><strong>test_size</strong> (<em>float, optional, default=None</em>) – Test size for a Dataset object in case it was not train-test-split. If a Dataset object was not train-test-split
+and the parameter has value None, the training will be done on the all data.</p></li>
+<li><p><strong>random_state</strong> (<em>int, optional, default=None</em>) – Random state seed.</p></li>
+<li><p><strong>verbose</strong> (<em>bool, default=False</em>) – Print messages during calculations.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.model.model.GridSearchCV">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.model.model.</span></span><span class="sig-name descname"><span class="pre">GridSearchCV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#edgaro.model.model.ModelFromSKLEARN" title="edgaro.model.model.ModelFromSKLEARN"><span class="pre">ModelFromSKLEARN</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scoring</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'balanced_accuracy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.model.model.GridSearchCV" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#edgaro.model.model.ModelFromSKLEARN" title="edgaro.model.model.ModelFromSKLEARN"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelFromSKLEARN</span></code></a></p>
+<p>Create Model to perform Grid Search on any of the model implementation matching SKLEARNModelProtocol.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_model</strong> (<em>SKLEARNModelProtocol</em>) – A model from <cite>scikit-learn</cite> library. Note: this object has to be clean (not fitted).</p></li>
+<li><p><strong>param_grid</strong> (<em>Dict</em>) – A parameter grid for searching.</p></li>
+<li><p><strong>cv</strong> (<em>int</em>) – Number of cross-validation folds.</p></li>
+<li><p><strong>scoring</strong> (<em>str</em>) – Name of a function to be used to choose the best model.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – A name of the Model.</p></li>
+<li><p><strong>test_size</strong> (<em>float, optional, default=None</em>) – Test size for a Dataset object in case it was not train-test-split. If a Dataset object was not train-test-split
+and the parameter has value None, the training will be done on the all data.</p></li>
+<li><p><strong>random_state</strong> (<em>int, optional, default=None</em>) – Random state seed.</p></li>
+<li><p><strong>verbose</strong> (<em>bool, default=False</em>) – Print messages during calculations.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-edgaro.model.model_array">
+<span id="edgaro-model-model-array-module"></span><h2>edgaro.model.model_array module<a class="headerlink" href="#module-edgaro.model.model_array" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="edgaro.model.model_array.ModelArray">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">edgaro.model.model_array.</span></span><span class="sig-name descname"><span class="pre">ModelArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#edgaro.model.model.Model" title="edgaro.model.model.Model"><span class="pre">Model</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#edgaro.model.model_array.ModelArray" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseTransformerArray</span></code></p>
+<p>Create a class to train Models for each of the Dataset in DatasetArray.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base_model</strong> (<em>Model</em>) – The object defining the basic Model training procedure.
+The base_model object has to be clean - it cannot be fitted earlier.</p></li>
+<li><p><strong>parameters</strong> (<em>list[list, Dict[str, Any]]], optional</em>) – The list of parameters for base_model. If the object is used for a DatasetArray object,
+the parameter list should be nested. For details, see Examples section.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – A name of the ModelArray.</p></li>
+<li><p><strong>verbose</strong> (<em>bool, default=False</em>) – Print messages during calculations.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Variables<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – A name of the ModelArray.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – Print messages during calculations.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Example 1</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">test.resources.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.data.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.data.dataset_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatasetArray</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.model.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomForest</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.model.model_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelArray</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">name_1</span><span class="p">,</span> <span class="n">df_1</span><span class="p">,</span> <span class="n">target_1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">params</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;n_estimators&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">}]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">RandomForest</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">array</span> <span class="o">=</span> <span class="n">ModelArray</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">array</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">array</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Example 2</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">test.resources.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.data.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.data.dataset_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatasetArray</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.model.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomForest</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.model.model_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelArray</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">DatasetArray</span><span class="p">([</span><span class="n">Dataset</span><span class="p">(</span><span class="n">name_2</span><span class="p">,</span> <span class="n">df_1</span><span class="p">,</span> <span class="n">target_1</span><span class="p">),</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">name_1</span><span class="p">,</span> <span class="n">df_1</span><span class="p">,</span> <span class="n">target_1</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">params</span> <span class="o">=</span> <span class="p">[[{</span><span class="s1">&#39;n_estimators&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">}]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))</span> <span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">RandomForest</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">array</span> <span class="o">=</span> <span class="n">ModelArray</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">array</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">array</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Example 3</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">test.resources.objects</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.data.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.data.dataset_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatasetArray</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.model.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomForest</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">edgaro.model.model_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelArray</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">DatasetArray</span><span class="p">([</span>
+<span class="gp">... </span>        <span class="n">Dataset</span><span class="p">(</span><span class="n">name_2</span><span class="p">,</span> <span class="n">df_1</span><span class="p">,</span> <span class="n">target_1</span><span class="p">),</span>
+<span class="gp">... </span>        <span class="n">DatasetArray</span><span class="p">([</span><span class="n">Dataset</span><span class="p">(</span><span class="n">name_2</span><span class="p">,</span> <span class="n">df_1</span><span class="p">,</span> <span class="n">target_1</span><span class="p">),</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">name_1</span><span class="p">,</span> <span class="n">df_1</span><span class="p">,</span> <span class="n">target_1</span><span class="p">)])</span>
+<span class="gp">... </span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">params</span> <span class="o">=</span> <span class="p">[[{</span><span class="s1">&#39;n_estimators&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">}],</span> <span class="p">[{</span><span class="s1">&#39;n_estimators&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span> <span class="p">{</span><span class="s1">&#39;n_estimators&#39;</span><span class="p">:</span> <span class="mi">30</span><span class="p">}]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">RandomForest</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">array</span> <span class="o">=</span> <span class="n">ModelArray</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">array</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">array</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model_array.ModelArray.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset_array.DatasetArray" title="edgaro.data.dataset_array.DatasetArray"><span class="pre">DatasetArray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.model.model_array.ModelArray.fit" title="Link to this definition"></a></dt>
+<dd><p>Fit the ModelArray.</p>
+<p>The fitting process includes encoding the categorical variables with OrdinalEncoder (from scikit-learn library)
+and target encoding (custom encoding, the minority class is encoded as 1, the majority class as 0).</p>
+<p>The method assumes that categorical variables, which has to be encoded,
+are one of the types: ‘category’, ‘object’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dataset</strong> (<em>Dataset, DatasetArray</em>) – The object to fit Model on.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model_array.ModelArray.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset_array.DatasetArray" title="edgaro.data.dataset_array.DatasetArray"><span class="pre">DatasetArray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset_array.DatasetArray" title="edgaro.data.dataset_array.DatasetArray"><span class="pre">DatasetArray</span></a></span></span><a class="headerlink" href="#edgaro.model.model_array.ModelArray.predict" title="Link to this definition"></a></dt>
+<dd><p>Predict the class for a Dataset/DatasetArray object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dataset</strong> (<em>Dataset, DatasetArray</em>) – A Dataset/DatasetArray object to make predictions on.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset">Dataset</a>, <a class="reference internal" href="edgaro.data.html#edgaro.data.dataset_array.DatasetArray" title="edgaro.data.dataset_array.DatasetArray">DatasetArray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model_array.ModelArray.predict_proba">
+<span class="sig-name descname"><span class="pre">predict_proba</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset_array.DatasetArray" title="edgaro.data.dataset_array.DatasetArray"><span class="pre">DatasetArray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset_array.DatasetArray" title="edgaro.data.dataset_array.DatasetArray"><span class="pre">DatasetArray</span></a></span></span><a class="headerlink" href="#edgaro.model.model_array.ModelArray.predict_proba" title="Link to this definition"></a></dt>
+<dd><p>Predict the probability of class <cite>1</cite> for a Dataset/DatasetArray object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dataset</strong> (<em>Dataset, DatasetArray</em>) – A Dataset/DatasetArray object to make predictions on.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset">Dataset</a>, <a class="reference internal" href="edgaro.data.html#edgaro.data.dataset_array.DatasetArray" title="edgaro.data.dataset_array.DatasetArray">DatasetArray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model_array.ModelArray.get_models">
+<span class="sig-name descname"><span class="pre">get_models</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#edgaro.model.model.Model" title="edgaro.model.model.Model"><span class="pre">Model</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#edgaro.model.model_array.ModelArray" title="edgaro.model.model_array.ModelArray"><span class="pre">ModelArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#edgaro.model.model.Model" title="edgaro.model.model.Model"><span class="pre">Model</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#edgaro.model.model_array.ModelArray" title="edgaro.model.model_array.ModelArray"><span class="pre">ModelArray</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#edgaro.model.model_array.ModelArray.get_models" title="Link to this definition"></a></dt>
+<dd><p>All the Model/ModelArray objects used by this object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="#edgaro.model.model.Model" title="edgaro.model.model.Model">Model</a>, <a class="reference internal" href="#edgaro.model.model_array.ModelArray" title="edgaro.model.model_array.ModelArray">ModelArray</a>, list]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model_array.ModelArray.set_transform_to_probabilities">
+<span class="sig-name descname"><span class="pre">set_transform_to_probabilities</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.model.model_array.ModelArray.set_transform_to_probabilities" title="Link to this definition"></a></dt>
+<dd><p>Make <cite>transform</cite> function return probabilities.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model_array.ModelArray.set_transform_to_classes">
+<span class="sig-name descname"><span class="pre">set_transform_to_classes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#edgaro.model.model_array.ModelArray.set_transform_to_classes" title="Link to this definition"></a></dt>
+<dd><p>Make <cite>transform</cite> function return classes..</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="edgaro.model.model_array.ModelArray.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metrics_output_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Series</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Series</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics_output_probabilities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Series</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Series</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset.Dataset" title="edgaro.data.dataset.Dataset"><span class="pre">Dataset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="edgaro.data.html#edgaro.data.dataset_array.DatasetArray" title="edgaro.data.dataset_array.DatasetArray"><span class="pre">DatasetArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#edgaro.model.model_array.ModelArray.evaluate" title="Link to this definition"></a></dt>
+<dd><p>Evaluate model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>metrics_output_class</strong> (<em>list[Callable[[pd.Series, pd.Series], float]], optional, default=None</em>) – List of functions to calculate metrics on predicted classes. If None is passed, accuracy, balanced accuracy,
+precision, recall, specificity, f1, f1_weighted, geometric mean score are used.</p></li>
+<li><p><strong>metrics_output_probabilities</strong> (<em>list[Callable[[pd.Series, pd.Series], float]], optional, default=None</em>) – List of functions to calculate metrics on predicted probabilities. If None is passed, ROC AUC is used.</p></li>
+<li><p><strong>ds</strong> (<em>Dataset, DatasetArray, optional, default=None</em>) – A Dataset/DatasetArray object to calculate metric on. If None is passed,
+test Dataset/DatasetArray from fitting is used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edgaro.model.model_array.ModelArray.transformers">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">transformers</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#edgaro.model.model.Model" title="edgaro.model.model.Model"><span class="pre">Model</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#edgaro.model.model_array.ModelArray" title="edgaro.model.model_array.ModelArray"><span class="pre">ModelArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#edgaro.model.model_array.ModelArray.transformers" title="Link to this definition"></a></dt>
+<dd><p>All the Model objects used by this object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="#edgaro.model.model.Model" title="edgaro.model.model.Model">Model</a>, <a class="reference internal" href="#edgaro.model.model_array.ModelArray" title="edgaro.model.model_array.ModelArray">ModelArray</a>, list]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="edgaro.model.model_array.ModelArray.base_transformer">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">base_transformer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#edgaro.model.model.Model" title="edgaro.model.model.Model"><span class="pre">Model</span></a></em><a class="headerlink" href="#edgaro.model.model_array.ModelArray.base_transformer" title="Link to this definition"></a></dt>
+<dd><p>Base transformers for creation of this object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#edgaro.model.model.Model" title="edgaro.model.model.Model">Model</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="edgaro.balancing.html" class="btn btn-neutral float-left" title="edgaro.balancing package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="edgaro.explain.html" class="btn btn-neutral float-right" title="edgaro.explain package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Adrian Stańdo.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
