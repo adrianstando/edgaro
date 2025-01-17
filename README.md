@@ -2,6 +2,8 @@
 
 [![main-check](https://github.com/adrianstando/EDGAR/actions/workflows/main-check.yaml/badge.svg)](https://github.com/adrianstando/EDGAR/actions/workflows/main-check.yaml)
 
+[![deploy](https://github.com/adrianstando/EDGAR/actions/workflows/deploy.yaml/badge.svg)](https://github.com/adrianstando/EDGAR/actions/workflows/deploy.yaml)
+
 ## Overview
 
 The usage of many balancing methods like Random Undersampling, Random Oversampling, SMOTE, NearMiss is a very popular 
@@ -55,5 +57,21 @@ The documentation is available at [adrianstando.github.io/edgaro](https://adrian
 
 ## Project purpose
 
-This package was created for the purpose of my Engineering Thesis *"The impact of data balancing on model behaviour with 
-Explainable Artificial Intelligence tools in imbalanced classification problems"*.
+This package was created for the purpose of my Engineering Thesis *"The impact of data balancing on model behaviour with Explainable Artificial Intelligence tools in imbalanced classification problems"*.
+
+This package  was used in my paper *"The Effect of Balancing Methods on Model Behavior in Imbalanced Classification Problems"*, presented at the Fifth International Workshop on Learning with Imbalanced Domains: Theory and Applications (LIDTA 2024).
+
+### Citation
+```
+@InProceedings{pmlr-v241-stando24a,
+  title =       {The Effect of Balancing Methods on Model Behavior in Imbalanced Classification Problems},
+  author =      {Stando, Adrian and Cavus, Mustafa and Biecek, Przemyslaw},
+  booktitle =   {Proceedings of the Fifth International Workshop on Learning with Imbalanced Domains: Theory and Applications},
+  pages =       {16--30},
+  year =        {2024},
+  volume =      {241},
+  series =      {Proceedings of Machine Learning Research},
+  publisher =   {PMLR},
+  pdf =         {https://proceedings.mlr.press/v241/stando24a/stando24a.pdf}
+}
+```
